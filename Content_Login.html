@@ -1,4 +1,4 @@
- <body onload="Check_Is_Page_Expiry()">
+<body onload="Check_Is_Page_Expiry()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="axios.min.js"></script>
 <style>
@@ -655,7 +655,7 @@ function Get_TTPAI_Details(){
 			
 			alert('error.response.data');
 			} else if (error.request) {
-			alert('error.response.data.');
+			
 			} else {
         // Something else happened in setting up the request
 			console.error('Request setup error:', error.message);
@@ -818,7 +818,7 @@ function getFileType(filePath) {
   if (['html', 'htm'].includes(ext)) return 'html';
   if (ext === 'pdf') return 'pdf';
   if (['ppt', 'pptx'].includes(ext)) return 'ppt';
-    if (['mp4', 'mov', 'wmv', 'avi', 'mkv', 'flv', 'webm'].includes(ext)) return 'video';
+    if (['mp4', 'mov', 'wmv', 'avi', 'mkv', 'flv', 'webm', 'm3u8'].includes(ext)) return 'video';
 
   return 'unknown';
 }
