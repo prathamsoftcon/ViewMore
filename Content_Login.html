@@ -286,6 +286,7 @@ body.loading {
 </div>
  </body>
  <script>
+var is_otp_required = false;
 var userid=""
 var agencyid=""
 
@@ -299,8 +300,6 @@ const sliderModal = document.getElementById('Captchamodal');
 const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
 var react_base_path="";
 //const APIPath= "http://p9:5858/api"
-
-
  const mobileInputSection = document.getElementById('mobile-input-section');
  const otpSection = document.getElementById('otp-section');
  const otpSentMessage = document.getElementById('otp-sent-message');
@@ -520,6 +519,11 @@ function Get_trainings(agencyid) {
             option.textContent = item.trainingcode + '-' + displayname; // trim removes unwanted spaces
             dropdown.appendChild(option);
         });
+
+     if (is_otp_required === false) {
+         Open_Training_Div();
+         return;
+     }
 
      //*********Check this training with user or not 
       const params = new URLSearchParams(window.location.search);
