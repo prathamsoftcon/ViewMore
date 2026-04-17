@@ -1,4 +1,4 @@
- <body onload="Check_Is_Page_Expiry()">
+<body onload="Check_Is_Page_Expiry()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="axios.min.js"></script>
 <style>
@@ -294,7 +294,7 @@ var agencyid=""
      var branchid = null
      var sessionid = ""
 var ttpai_id="";
-const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
+//const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
 const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
@@ -309,7 +309,7 @@ var react_base_path="";
      document.getElementById("loaderWrapper").style.display = "block";
       const mobileNumber = useridInput.value;
       if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
-	 	const apiUrl = APIPath+'/UserInfo?username=91-'+mobileNumber;
+	 	const apiUrl = APIPath+'/UserInfo_wk?username=91-'+mobileNumber;
 		axios.get(apiUrl, {
 			headers: {
 			'APIKey': apiKey,
@@ -350,7 +350,7 @@ var react_base_path="";
       document.getElementById("loaderWrapper").style.display = "block";
     const mobileNumber = useridInput.value;
     if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
- 	const apiUrl = APIPath+'/GenerateOTP?username=91-'+mobileNumber;
+ 	const apiUrl = APIPath+'/GenerateOTP_wk?username=91-'+mobileNumber;
 	axios.get(apiUrl, {
 		headers: {
 		'APIKey': apiKey,
@@ -468,7 +468,7 @@ function verifyOtp() {
 
 
 function Get_trainings(agencyid) {
-    const apiUrl = APIPath + '/Participants_training?participantid='+agencyid+'';
+    const apiUrl = APIPath + '/Participants_training_wk?participantid='+agencyid+'';
 
     fetch(apiUrl, {
         method: 'GET',
@@ -623,7 +623,7 @@ function Get_TTPAI_Details(){
             
           var participantid=agencyid;
           
-          const apiUrl = APIPath+'/TRG_PARTICIPANT_DETAILS?trainingid='+trainingid+'&participantid='+participantid;
+          const apiUrl = APIPath+'/TRG_PARTICIPANT_DETAILS_wk?trainingid='+trainingid+'&participantid='+participantid;
             axios.get(apiUrl, {
 				headers: {
 				'APIKey': apiKey,
@@ -746,7 +746,7 @@ function Open_page_For_Type(type){
 function Get_Content_Detail(contentid){
 //Get content Detail and open single accordig to type
 document.getElementById("loaderWrapper").style.display = "block";
-  const apiUrl = APIPath+'/GET_CONTENT_DETAILS?ttsam_id='+contentid+'&participantid='+agencyid;
+  const apiUrl = APIPath+'/GET_CONTENT_DETAILS_wk?ttsam_id='+contentid+'&participantid='+agencyid;
             axios.get(apiUrl, {
 				headers: {
 				'APIKey': apiKey,
@@ -828,7 +828,7 @@ function Open_Activity(path){
     const contentid = params.get("ttsam_id");
     var DPATH=window.location.hostname
     var baseurl="https://"+DPATH+"/LitteraCore/api"
-    const apiUrl = APIPath+'/GenerateActivityToken?trainingid='+trainingid+'&ttsm_id='+contentid+'&apipath='+baseurl+'&userid='+agencyid+'&ttpai_id='+ttpai_id;
+    const apiUrl = APIPath+'/GenerateActivityToken_wk?trainingid='+trainingid+'&ttsm_id='+contentid+'&apipath='+baseurl+'&userid='+agencyid+'&ttpai_id='+ttpai_id;
           axios.get(apiUrl, {
 				headers: {
 				'APIKey': apiKey,
@@ -889,7 +889,7 @@ function Get_React_path(path){
 function check_and_update_first_login(id){
     var DPATH=window.location.hostname
     var baseurl="https://"+DPATH+"/LitteraCore/api"
-    const apiUrl = APIPath+'/Check_First_Login?participantid='+id;
+    const apiUrl = APIPath+'/Check_First_Login_wk?participantid='+id;
       axios.get(apiUrl, {
 			headers: {
 			'APIKey': apiKey,
@@ -919,7 +919,7 @@ function check_and_update_first_login(id){
     function save_user_log_data(){
       var DPATH=window.location.hostname
         var baseurl="https://"+DPATH+"/LitteraCore/api"
-        const apiUrl = APIPath+'/SAVE_USER_LOG?userid='+userid;
+        const apiUrl = APIPath+'/SAVE_USER_LOG_wk?userid='+userid;
      axios.post(apiUrl,{}, {
 		headers: {
 		'APIKey': apiKey,
@@ -949,7 +949,7 @@ function check_and_update_first_login(id){
       function save_user_track(){
        var DPATH=window.location.hostname
        var baseurl="https://"+DPATH+"/LitteraCore/api"
-       const apiUrl = APIPath+'/Save_Audit_Trail';
+       const apiUrl = APIPath+'/Save_Audit_Trail_wk';
 
         const eventData = {
         tyat_userid: userid,       // User ID
@@ -1094,7 +1094,7 @@ function Check_Is_Page_Expiry(){
        //Get_React_path()
      //}
 //commented by nishit
-       Get_React_path()
+Get_React_path()
  }
 
  }
@@ -1124,7 +1124,7 @@ function getCurrentDateTime() {
  function save_learning_time(contentid){
  var DPATH=window.location.hostname
  var baseurl="https://"+DPATH+"/LitteraCore/api"
- const apiUrl = APIPath+'/Learning_Time';
+ const apiUrl = APIPath+'/Learning_Time_wk';
   const eventData = {
   tplt_Id: guid(),       // User ID
   tplt_ttsam_id: contentid,  // Page name where the event occurred
@@ -1165,7 +1165,7 @@ function getCurrentDateTime() {
         }
           var participantid=agencyid;
           
-          const apiUrl = APIPath+'/check_content_learning_exist?ttsam_id='+contentid+'&participantid='+participantid;
+          const apiUrl = APIPath+'/check_content_learning_exist_wk?ttsam_id='+contentid+'&participantid='+participantid;
             axios.get(apiUrl, {
 				headers: {
 				'APIKey': apiKey,
@@ -1224,7 +1224,7 @@ function getCurrentDateTime() {
                 }
             ]
         }
-        const apiUrl = APIPath + '/Update_Session_Status?Participantid=' + agencyid + '&trainingid=' + trainingid + '&Sessionid=' + sessionid + '&timeonsession=0&status=0';
+        const apiUrl = APIPath + '/Update_Session_Status_wk?Participantid=' + agencyid + '&trainingid=' + trainingid + '&Sessionid=' + sessionid + '&timeonsession=0&status=0';
         axios.post(apiUrl, cd, {
             headers: {
                 'APIKey': apiKey,
