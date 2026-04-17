@@ -295,6 +295,7 @@ var agencyid=""
      var sessionid = ""
 var ttpai_id="";
 //const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
+const apiKey = "";
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
 const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
@@ -860,7 +861,7 @@ function Open_Activity(path){
 function Get_React_path(path){
     var DPATH=window.location.hostname
     var baseurl="https://"+DPATH+"/LitteraCore/api"
-    const apiUrl = APIPath+'/GET_REACT_APP_CONFIGURATION';
+    const apiUrl = APIPath+'/GET_REACT_APP_CONFIGURATION_wk';
           axios.get(apiUrl, {
 				headers: {
 				'APIKey': apiKey,
