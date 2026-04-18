@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vocational Courses</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"> 
-	<!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  -->
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<script src="axios.min.js"></script>
+<!--<script src="/axios.min.js"></script>-->
 <style>
 /* Loader overlay background */
 .loader-overlay {
@@ -590,7 +590,7 @@ background: white !important;
 		<div id="dvalert" class="modal-overlay" style="display:block !important">
 	
         <div class="modal-content" style="max-width:90%;top:10%">
-           	<!-- <span class="modal-close-btn" style="display:block !important" onclick="closealert()">&times;</span> -->
+           	<span class="modal-close-btn" style="display:block !important" onclick="closealert()">&times;</span>
             <div class="verification-container">
                 <h2>Alert</h2>
 
@@ -601,7 +601,7 @@ background: white !important;
  
   <div>आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। 
   <br/>
-              कोर्स कंटेंट Link - <a href="https://learningplatform.mpbou.in/ViewMore/content_login.html">https://learningplatform.mpbou.in/view_more_content1.html</a></div>
+              कोर्स कंटेंट Link - <a href="https://learningplatform.mpbou.in/view_more_content1.html">https://learningplatform.mpbou.in/view_more_content1.html</a></div>
 </div>
                     </div>
                    
@@ -663,66 +663,11 @@ background: white !important;
 		var agencyid=""
 		var ttpai_id=""
 		const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
-        const OTP_CACHE_KEY = 'certificate_otp_cache';
-        const OTP_CACHE_VALID_DAYS = 15;
         const verificationModal = document.getElementById('verificationModal');
 		const sliderModal = document.getElementById('Captchamodal');
 		const alertModal = document.getElementById('dvalert');
         const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
 		//const APIPath= "http://p9:5858/api"
-
-        function saveOtpCache(mobileNumber, apiResponse) {
-            try {
-                const payload = {
-                    mobileNumber: mobileNumber,
-                    userid: apiResponse.userid || '',
-                    agencyid: apiResponse.agencyid || '',
-                    response: apiResponse,
-                    savedAt: new Date().toISOString()
-                };
-                localStorage.setItem(OTP_CACHE_KEY, JSON.stringify(payload));
-            } catch (error) {
-                console.error('Unable to save OTP cache:', error);
-            }
-        }
-
-        function getOtpCacheForMobile(mobileNumber) {
-            try {
-                const raw = localStorage.getItem(OTP_CACHE_KEY);
-                if (!raw) {
-                    return null;
-                }
-
-                const cache = JSON.parse(raw);
-                if (!cache || cache.mobileNumber !== mobileNumber || !cache.savedAt) {
-                    return null;
-                }
-
-                const savedDate = new Date(cache.savedAt);
-                if (Number.isNaN(savedDate.getTime())) {
-                    localStorage.removeItem(OTP_CACHE_KEY);
-                    return null;
-                }
-
-                const ageInMs = Date.now() - savedDate.getTime();
-                const maxAgeInMs = OTP_CACHE_VALID_DAYS * 24 * 60 * 60 * 1000;
-                if (ageInMs > maxAgeInMs) {
-                    localStorage.removeItem(OTP_CACHE_KEY);
-                    return null;
-                }
-
-                if (!cache.userid || !cache.agencyid) {
-                    localStorage.removeItem(OTP_CACHE_KEY);
-                    return null;
-                }
-
-                return cache;
-            } catch (error) {
-                console.error('Unable to read OTP cache:', error);
-                localStorage.removeItem(OTP_CACHE_KEY);
-                return null;
-            }
-        }
 		
         function openModal() {
             verificationModal.classList.add('show');
@@ -757,15 +702,6 @@ background: white !important;
         function requestOtp() {
             const mobileNumber = useridInput.value;
             if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
-            const cachedData = getOtpCacheForMobile(mobileNumber);
-            if (cachedData) {
-                userid = cachedData.userid;
-                agencyid = cachedData.agencyid;
-                console.log('Using cached OTP response for mobile number:', mobileNumber);
-                Get_trainings(agencyid);
-                return;
-            }
-
 		 	const apiUrl = APIPath+'/GenerateOTP?username=91-'+mobileNumber;
 
 
@@ -842,11 +778,7 @@ var ttpai_id=urlparams3.get('userid');
 			// Axios automatically parses JSON
 			console.log('OTP Generation Response:', response.data);
 			if (response.status==200) {
-             saveOtpCache(useridInput.value, {
-                userid: userid,
-                agencyid: agencyid,
-                verifyResponse: response.data
-             });
+			
 			 Get_trainings(agencyid)
 			document.getElementById('btnverifyOTP').disabled=false;
 			 
@@ -1009,18 +941,19 @@ resetSlider()
 }
 
 function CHECK_MOBILE_ON_LOAD(){
-// const queryString = window.location.search;
-// const urlParams = new URLSearchParams(queryString);
-// agencyid = urlParams.get('userid');
-// if (agencyid == null) {
-//   if (localStorage.getItem('certificate_userid')) {
-//     agencyid = localStorage.getItem('certificate_userid');
-//   } else {
-//     openModal();
-//     //console.log('Mobile number not found in localStorage.');
-//     //Open dialog box to enter mobile no & set in local storage
-//   }
-// }
+<!-- const queryString = window.location.search; -->
+<!-- const urlParams = new URLSearchParams(queryString); -->
+<!-- agencyid=urlParams.get('userid'); -->
+<!-- if(agencyid==null) -->
+<!-- { -->
+<!-- if (localStorage.getItem('certificate_userid')) { -->
+  <!-- agencyid=localStorage.getItem('certificate_userid'); -->
+<!-- } else { -->
+<!-- openModal() -->
+  <!-- //console.log('Mobile number not found in localStorage.'); -->
+  <!-- //Open dialog box to enter mobile no & set in local storage -->
+<!-- } -->
+<!-- } -->
 
 DirectVerify_And_Print();
 }
