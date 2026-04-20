@@ -599,7 +599,7 @@ background: white !important;
                       
                         <div class="captcha-container" style="width:80% !important">
  
-  <div>आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। 
+    <div id="alertMessage">आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। 
   <br/>
               कोर्स कंटेंट Link - <a href="https://learningplatform.mpbou.in/ViewMore/content_login.html">https://learningplatform.mpbou.in/view_more_content1.html</a></div>
 </div>
@@ -627,7 +627,7 @@ background: white !important;
                         <input type="tel" id="userid" name="userid" maxlength="10" placeholder="ex-987654XXXX" pattern="[0-9]{10}" required>
                     </div>
                     <div class="button-group">
-                        <button type="button" class="btn btn-primary" onclick="requestOtp()">Request OTP</button>
+                        <button type="button" class="btn btn-primary" onclick="requestOtp()">Verify</button>
                     </div>
                     <p id="otp-sent-message" class="otp-sent-message">OTP has been sent to your mobile number!</p>
                 </div>
@@ -1103,6 +1103,7 @@ function Get_Certificate_Data(ttpai_id) {
         if (error.response) {
             console.error('API Error Response:', error.response.data);
             console.error('API Error Status:', error.response.status);
+            setAlertMessage(typeof error.response.data === 'string' ? error.response.data : 'Certificate not available right now. Please complete required course activity first.');
             closeModal();
             open_alert();
         } else if (error.request) {
@@ -1199,8 +1200,17 @@ function Get_Training_Participant_Details(){
 			// Axios automatically parses JSON
 			console.log('Response:', response.data);
 			if (response.status==200) {
-			
-			Get_Certificate_Data(response.data[0].ttpai_id)
+            const participantRecord = Array.isArray(response.data)
+                ? response.data.find(item => item && item.ttpai_id)
+                : null;
+
+            if (!participantRecord || !participantRecord.ttpai_id) {
+                setAlertMessage('Certificate participant record not found. Please complete reading first and try again later.');
+                open_alert();
+                return;
+            }
+
+            Get_Certificate_Data(participantRecord.ttpai_id)
 			 } else {
 				alert('Failed to generate Certificate: ' + (response.data ? response.data.message : 'Unknown error'));
 			}
@@ -1254,7 +1264,21 @@ function open_alert(){
 alertModal.classList.add('show');
 }
 function close_alert(){
-alertModal.classList.add('show');
+alertModal.classList.remove('show');
+}
+
+function setAlertMessage(message) {
+const alertMessageElement = document.getElementById('alertMessage');
+if (!alertMessageElement) {
+return;
+}
+
+if (message && typeof message === 'string') {
+alertMessageElement.innerHTML = message.replace(/\n/g, '<br/>');
+return;
+}
+
+alertMessageElement.innerHTML = 'आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। <br/>कोर्स कंटेंट Link - <a href="https://learningplatform.mpbou.in/ViewMore/content_login.html">https://learningplatform.mpbou.in/view_more_content1.html</a>';
 }
 
 function Get_trainings(agencyid) {
