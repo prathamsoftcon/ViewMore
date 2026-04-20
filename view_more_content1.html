@@ -677,11 +677,56 @@
         // --- Modal Control JavaScript ---
 		var userid=""
 		var agencyid=""
+        const OTP_CACHE_KEY = 'certificate_otp_cache';
+        const OTP_CACHE_MAX_AGE_DAYS = 15;
 		const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
         const verificationModal = document.getElementById('verificationModal');
 		const sliderModal = document.getElementById('Captchamodal');
         const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
 		//const APIPath= "http://p9:5858/api"
+
+        function getOtpCache() {
+            try {
+                const raw = localStorage.getItem(OTP_CACHE_KEY);
+                if (!raw) {
+                    return null;
+                }
+                return JSON.parse(raw);
+            } catch (error) {
+                console.warn('Invalid OTP cache format. Clearing cache.', error);
+                localStorage.removeItem(OTP_CACHE_KEY);
+                return null;
+            }
+        }
+
+        function isOtpCacheValid(cache, mobileNumber) {
+            if (!cache || !cache.mobileNumber || !cache.userid || !cache.agencyid || !cache.savedAt) {
+                return false;
+            }
+
+            if (String(cache.mobileNumber) !== String(mobileNumber)) {
+                return false;
+            }
+
+            const savedAt = new Date(cache.savedAt).getTime();
+            if (Number.isNaN(savedAt)) {
+                return false;
+            }
+
+            const maxAgeMs = OTP_CACHE_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+            return Date.now() - savedAt <= maxAgeMs;
+        }
+
+        function persistOtpCache(mobileNumber, cacheUserid, cacheAgencyid, payload) {
+            const cache = {
+                mobileNumber: String(mobileNumber),
+                userid: cacheUserid,
+                agencyid: cacheAgencyid,
+                payload: payload || null,
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem(OTP_CACHE_KEY, JSON.stringify(cache));
+        }
 		
         function openModal() {
             verificationModal.classList.add('show');
@@ -716,6 +761,19 @@
         function requestOtp() {
             const mobileNumber = useridInput.value;
             if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
+            const cached = getOtpCache();
+            if (isOtpCacheValid(cached, mobileNumber)) {
+                userid = cached.userid;
+                agencyid = cached.agencyid;
+                localStorage.setItem('participant_userid', agencyid);
+                closeModal();
+                return;
+            }
+
+            if (cached) {
+                localStorage.removeItem(OTP_CACHE_KEY);
+            }
+
 		 	const apiUrl = APIPath+'/GenerateOTP?username=91-'+mobileNumber;
 
 
@@ -787,6 +845,7 @@
 			console.log('OTP Generation Response:', response.data);
 			if (response.status==200) {
 			  localStorage.setItem('participant_userid',agencyid)
+              persistOtpCache(useridInput.value, userid, agencyid, response.data)
 			  update_first_login()
 				} else {
 				alert('Failed to generate OTP: ' + (response.data ? response.data.message : 'Unknown error'));
@@ -946,15 +1005,24 @@ function CHECK_MOBILE_ON_LOAD(){
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 agencyid=urlParams.get('userid');
-if(agencyid==null)
-{
+if(agencyid){
+return;
+}
+
+const cached = getOtpCache();
+if (cached && isOtpCacheValid(cached, cached.mobileNumber)) {
+    userid = cached.userid;
+    agencyid = cached.agencyid;
+    localStorage.setItem('participant_userid', agencyid);
+    return;
+}
+
 if (localStorage.getItem('participant_userid')) {
-  agencyid=localStorage.getItem('participant_userid');
+    agencyid=localStorage.getItem('participant_userid');
 } else {
 openModal()
-  //console.log('Mobile number not found in localStorage.');
-  //Open dialog box to enter mobile no & set in local storage
-}
+    //console.log('Mobile number not found in localStorage.');
+    //Open dialog box to enter mobile no & set in local storage
 }
 
 }
