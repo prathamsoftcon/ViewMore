@@ -671,32 +671,35 @@
                         throw new Error('Invalid JSON format. Expected array.');
                     }
 
-                    const grouped = new Map();
+                    const groups = rows
+                        .map(row => {
+                            const srNo = Number(row.sr_no || row.srNo || 0);
+                            const title = String(row.title || '').trim();
 
-                    rows.forEach(row => {
-                        const srNo = Number(row.sr_no || row.srNo || 0);
-                        const title = String(row.title || '').trim();
-                        if (!title) {
-                            return;
-                        }
+                            if (Array.isArray(row.children)) {
+                                return {
+                                    srNo: srNo,
+                                    title: title,
+                                    items: row.children.map(child => ({
+                                        type: String((child && child.type) || 'View').trim(),
+                                        ttsam_id: child ? child.ttsam_id : '',
+                                        redirection_path: child ? child.redirection_path : ''
+                                    }))
+                                };
+                            }
 
-                        const groupKey = srNo + '|' + title;
-                        if (!grouped.has(groupKey)) {
-                            grouped.set(groupKey, {
+                            return {
                                 srNo: srNo,
                                 title: title,
-                                items: []
-                            });
-                        }
-
-                        grouped.get(groupKey).items.push({
-                            type: String(row.type || 'View').trim(),
-                            ttsam_id: row.ttsam_id,
-                            redirection_path: row.redirection_path
-                        });
-                    });
-
-                    const groups = Array.from(grouped.values()).sort((a, b) => a.srNo - b.srNo);
+                                items: [{
+                                    type: String(row.type || 'View').trim(),
+                                    ttsam_id: row.ttsam_id,
+                                    redirection_path: row.redirection_path
+                                }]
+                            };
+                        })
+                        .filter(group => group.title && group.items.length > 0)
+                        .sort((a, b) => a.srNo - b.srNo);
 
                     productList.innerHTML = '';
 
