@@ -541,6 +541,7 @@
         // --- Modal Control JavaScript ---
 		var userid=""
 		var agencyid=""
+        const APP_VERSION = "2026.04.21.1";
         const CONTENT_JSON_PATH = './content_items.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
@@ -657,7 +658,8 @@
                 return;
             }
 
-            fetch(CONTENT_JSON_PATH, { cache: 'no-store' })
+            const versionedContentPath = CONTENT_JSON_PATH + '?v=' + encodeURIComponent(APP_VERSION);
+            fetch(versionedContentPath, { cache: 'no-store' })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Unable to load content JSON. Status: ' + response.status);
@@ -970,7 +972,7 @@ lnk=HF_Redirect_Link;
 
 var base=Get_Base_Url();
 
-var lnkf=base+"/"+lnk+'/'+agencyid
+var lnkf=base+"/"+lnk+'/'+agencyid+"?v="+encodeURIComponent(APP_VERSION)
 window.open(lnkf)
 resetSlider()
 }

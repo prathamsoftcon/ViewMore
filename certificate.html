@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app-version" content="2026.04.21.1">
     <title>Vocational Courses</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"> 
 	<!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  -->
@@ -529,7 +530,7 @@ background: white !important;
            <div>यह प्रमाणित किया जाता है कि <span id="lblname" style="font-weight:bold"></span> </span>  (नामांकन क्रमांक: <span id="lblenrollment"></span>)  <span style="font-weight:bold"> प्रथम वर्ष</span> के वोकेशनल कोर्स  "<span style="font-weight:bold" id="lblcourse"></span> " में पंजीकृत हैं। आपके अब तक के अध्ययन प्रदर्शन के आधार पर आपको  <span style="font-weight:bold">  ग्रेड "<span id="lblgrade"></span>" </span> प्रदान किया जाता है।</div>
            <div class="grade-improvement-note" style="margin-top:10px; padding:8px 10px; border-left:4px solid #f39c12; background:#fff8e1; border-radius:4px;">
                ग्रेड सुधार के लिए कृपया कोर्स कंटेंट दोबारा पढ़ें और सभी प्रेक्टिकल गतिविधियां पूर्ण करें।
-               <a href="/viewmore/view_more_content1.html" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>
+               <a href="/viewmore/view_more_content1.html?v=2026.04.21.1" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>
            </div>
 		   <div style="padding: 10px 0px 10px 0px;">हम आपके उज्जवल भविष्य की कामना करते हैं।</div>
 		   <div><span style="font-weight:bold"> यह प्रमाणपत्र पोर्टल द्वारा स्वतः जनरेट किया गया है, अतः किसी हस्ताक्षर की आवश्यकता नहीं है।  </div><div> प्रमाणपत्र की सत्यता की पुष्टि हेतु कृपया संलग्न QR कोड स्कैन करें। </span></div>
@@ -608,7 +609,7 @@ background: white !important;
  
         <div id="alertMessage">आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। ग्रेड सुधार के लिए भी इन्हें पूरा करना आवश्यक है। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। 
   <br/>
-                        कोर्स कंटेंट Link - <a href="/viewmore/view_more_content1.html" target="_blank" rel="noopener noreferrer">/viewmore/view_more_content1.html</a></div>
+                    कोर्स कंटेंट Link - <a href="/viewmore/view_more_content1.html?v=2026.04.21.1" target="_blank" rel="noopener noreferrer">/viewmore/view_more_content1.html?v=2026.04.21.1</a></div>
 </div>
                     </div>
                    
@@ -669,6 +670,7 @@ background: white !important;
 		var userid=""
 		var agencyid=""
 		var ttpai_id=""
+        const APP_VERSION = '2026.04.21.1';
 		const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_VALID_DAYS = 15;
@@ -1289,7 +1291,7 @@ return;
 }
 
 const courseContentPath = '/viewmore/view_more_content1.html';
-const courseContentUrl = window.location.origin + courseContentPath;
+const courseContentUrl = window.location.origin + courseContentPath + '?v=' + encodeURIComponent(APP_VERSION);
 const courseLinkHtml = ' <br/>कोर्स कंटेंट Link - <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">' + courseContentUrl + '</a>';
 
 if (message && typeof message === 'string') {

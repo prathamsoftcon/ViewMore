@@ -296,6 +296,7 @@ var agencyid=""
 var ttpai_id="";
 //const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
 const apiKey = "";
+const APP_VERSION = "2026.04.21.1";
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
 const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
@@ -733,14 +734,15 @@ function Get_TTPAI_Details(){
 
 }
 function Open_page_For_Type(type){
+    const versionQuery = "v=" + encodeURIComponent(APP_VERSION);
     if(type=="1"){
-     window.location.href="view_more_content_jan_25.html?userid="+agencyid
+     window.location.href="view_more_content_jan_25.html?userid="+agencyid+"&"+versionQuery
     }
     else if(type=="2"){
-    window.location.href="certificate.html?ttpai_id="+ttpai_id
+    window.location.href="certificate.html?ttpai_id="+ttpai_id+"&"+versionQuery
     }
     else if(type=="3"){
-    window.location.href="view_more_content1.html?userid="+agencyid
+    window.location.href="view_more_content1.html?userid="+agencyid+"&"+versionQuery
     }
 
 }
