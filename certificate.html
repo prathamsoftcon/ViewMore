@@ -1220,7 +1220,7 @@ function Get_Training_Participant_Details(){
                 open_alert();
                 return;
             }
-
+			
             Get_Certificate_Data(participantRecord.ttpai_id)
 			 } else {
 				alert('Failed to generate Certificate: ' + (response.data ? response.data.message : 'Unknown error'));

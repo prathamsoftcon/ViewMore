@@ -1,7 +1,9 @@
 [
   {"sr_no": 1, "title": "व्यक्तित्व के बारे में!", "type": "Video", "ttsam_id": "0897A0F1-1F2C-44FC-9E21-BC074E547B8E", "redirection_path": "videolearning"},
   {"sr_no": 1, "title": "व्यक्तित्व के बारे में!", "type": "Activity", "ttsam_id": "6896BBE9-3B51-4D65-868A-7DE3593A69F2", "redirection_path": "videolearning"},
-
+{"sr_no": 1, "title": "व्यक्तित्व के बारे में_HLS!", "type": "Video", "ttsam_id": "5a7c8eb5-18b9-b6b3-3d64-47f0ceeea8e9", "redirection_path": "videolearning"},
+{"sr_no": 1, "title": "व्यक्तित्व के बारे में!", "type": "PPT", "ttsam_id": "fba734c9-603c-4a99-b1e5-5d373feb9848", "redirection_path": "litteraroomppt"},
+{"sr_no": 1, "title": "व्यक्तित्व के बारे में!", "type": "PPT", "ttsam_id": "d7e0b9b9-97cf-8d58-bba2-8e2e5148a695", "redirection_path": "videolearning"},
   {"sr_no": 2, "title": "व्यक्तित्व परीक्षण और विकास:  मायर्स-ब्रिग्स, 16PF और अन्य Tools का परिचय", "type": "View", "ttsam_id": "B57FE3B1-8D94-4C6E-9CC9-EA65F6791626", "redirection_path": "videolearning"},
   {"sr_no": 2, "title": "व्यक्तित्व परीक्षण और विकास:  मायर्स-ब्रिग्स, 16PF और अन्य Tools का परिचय", "type": "Activity", "ttsam_id": "CAB91C28-0438-4513-A33B-0C02B97E3A81", "redirection_path": "videolearning"},
 
