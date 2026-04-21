@@ -10,7 +10,7 @@
                          },
                          {
                              "type":  "Activity",
-                             "ttsam_id":  "6896BBE9-3B51-4D65-868A-7DE3593A69F2",
+                             "ttsam_id":  "6896bbe9-3b51-4d65-868a-7de3593a69f2",
                              "redirection_path":  "videolearning"
                          },
                          {
@@ -24,10 +24,16 @@
                              "redirection_path":  "litteraroomppt"
                          },
                          {
-                             "type":  "PPT",
+                             "type":  "Video",
                              "ttsam_id":  "d7e0b9b9-97cf-8d58-bba2-8e2e5148a695",
                              "redirection_path":  "videolearning"
+                         },
+			{
+                             "type":  "pdf",
+                             "ttsam_id":  "153ea98c-0d29-41d9-996f-328ec518d43f",
+                             "redirection_path":  "litteraroompdf"
                          }
+
                      ]
     },
     {
