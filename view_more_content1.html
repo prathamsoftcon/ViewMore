@@ -450,7 +450,7 @@
         }
     </style>
 </head>
-<body onload="CHECK_MOBILE_ON_LOAD()">
+<body onload="initPage()">
     <header class="main-header">
 	<div class = "logos first-logo">
 	 <div><img class="bhoj_logo" title="MPBOU" src="https://learningplatform.mpbou.in/Content/GlobalSetting/dev/default_logo_2.png"/></div> 
@@ -464,143 +464,7 @@
     <main>
         <section aria-labelledby="product-list-heading">
             <h4 id="product-list-heading" style="text-align: center; color: #2c3e50; margin-bottom: 2rem; font-family: 'Playfair Display', serif;">भोज मुक्त विश्वविद्यालय प्रथम वर्ष वोकेशनल कोर्स (  व्यक्तित्व विकास ) के सभी कंटेंट यहाँ उपलब्ध हैं</h4>
-            <ul class="product-list">
-                <li class="product-item">
-                   <span class="price">व्यक्तित्व के बारे में! </span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/0897A0F1-1F2C-44FC-9E21-BC074E547B8E')" class="button">video</i></a>
-				    <a href="#" onclick="Open_Video_Link('videolearning/6896BBE9-3B51-4D65-868A-7DE3593A69F2')" class="button">Activity</i></a>
-                </li>
-                 <li class="product-item">
-                   <span class="price">व्यक्तित्व परीक्षण और विकास:  मायर्स-ब्रिग्स, 16PF और अन्य Tools का परिचय</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/B57FE3B1-8D94-4C6E-9CC9-EA65F6791626')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/CAB91C28-0438-4513-A33B-0C02B97E3A81')" class="button">Activity</i></a>
-                </li>
-                <li class="product-item">
-                   <span class="price">सफलता - एक यात्रा! </span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/5AD66568-839C-4AEB-A5E0-85BAD9D47081')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/6DA87476-4E7A-48C4-BAA5-07768A64BE0E')" class="button">Activity</i></a>
-                </li>
-                <li class="product-item">
-                   <span class="price">असफलता(सफलता का पहला कदम)</span>
-                    <a href="#buy-coffee" onclick="Open_Video_Link('videolearning/C41FA20D-AD4C-4CF8-8390-36CD8CA82778')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/E1DDA994-5D43-4643-A7F0-91ADCA3FEBA1')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">आस्था क्या है?</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/7A948863-13BE-4EE0-85D2-5A2EE0D2ECCA')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/CA27910E-6EB3-42BA-AF58-A72684E0BD29')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">जाने और पहचाने खुद को !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/E244880D-88E6-4C2D-96AB-DF478FA155F5')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/63D9A79B-A330-4F1E-8FE7-7CA9B902E4CA')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">लक्ष्य निर्धारण – SMART GOAL Setting</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/9493DF14-AE22-4F75-A192-251FA7944A62')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/14641C01-0912-4EA4-A9A0-A8712294F0CC')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">समय का महत्व: जीवन में प्राथमिकता और प्रबंधन</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/F161A9AC-BE2B-4144-9349-85E9BCC4FF27')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/70FCE9B1-B8B0-4936-A9B0-58E49969F61E')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">समय बर्बादी: कारण और प्रभाव</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/08FFB7E9-A05C-4B9E-93D4-1CE93FBE3D1F')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/5F4F6B05-9117-447E-A3A3-39726B51981D')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">समय प्रबंधन: सफलता के लिए एक कुशल रणनीति </span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/DE84CA6F-5A3C-4F31-9C90-06CC2B77B2FA')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/99356259-4FE0-442E-A76C-334B0E3B78EB')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">जानिये, सबकुछ तनाव के बारे में !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/40A75B50-5207-4AE2-BCFE-DFFCD7EBF460')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/36B4BFD8-2DA4-4DC6-B445-F27DC16ED1CA')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">तनाव - पहचान और समाधान !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/F6F31E86-91AA-44E2-9EBE-8BC4036BE039')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/F360EB17-384D-4C11-B864-CAACABCA27A1')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">तनाव के कारण और प्रभाव</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/1D7E6363-8F56-4DBE-89DA-AB12FDAEC465')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/34950CA5-6E32-4DCC-AC17-1A3FEFD32278')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">Resume Building - इंटरव्यू की तयारी (पार्ट-1)</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/B97F28C4-5D3F-4B56-AF0D-06898DB6CD02')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/F1DC5E82-658C-4838-9FA5-69F567A37B07')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">कैसे करें, साक्षात्कार की तैयारी !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/E3485D79-4C9A-4BE6-8B47-2D7FE16F7F67')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/A47CE4D1-B30F-4C8D-8642-70E916D21483')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">समूह चर्चा - Group Discussion (पार्ट-1)</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/C43CAC3B-623F-42F7-A392-E84AB2E66B30')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/90963319-7A1A-4D22-AC10-1AB4E982C8A5')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">Mock Interview - सफलता की ओर पहला कदम (पार्ट-1)</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/B7A9E74A-C6F0-46B9-8C64-9318610D7498')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/D38852FE-1A82-4089-A0FE-EA2561770C9A')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">संवाद कौशल विकास - सफलता की कुंजी (पार्ट-1)</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/1B72733E-A780-42B8-BB21-E5A65B521970')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/A84551A4-FF32-4FD7-A817-144177565ACE')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price"> जाने ICT - बनें Future Ready!</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/6E3AC48A-EA91-4D2B-A618-0149C9028F62')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/7BC2DD37-927D-4E4C-976D-9009EB3120CC')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">सफलता के लिए सोशल मीडिया का सही प्रयोग !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/34468E2F-91DE-47FB-833D-1BF67119D0B7')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/30121663-E79B-420B-94C3-E31A300CA8D8')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">शिष्टाचार से बनाये सही प्रभाव !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/B7F1B2DA-ECDA-40D0-9613-115D519769FE')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/9CDBE32A-9A2A-46E7-B26F-1E2BFAF96086')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">सफलता बढाए अपने इलेक्ट्रॉनिक Gadgets!</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/FAF35368-4664-486E-9626-96EACD94A5C9')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/D0803393-16AF-4547-B775-E6322DA3A213')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">सफलता मतलब; सोशल मीडिया शिष्टाचार !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/10894973-71CA-4E54-97D1-DD5767709A71')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/91A323F2-27BB-4E9B-AC81-97219F1C6640')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">संचार में सांस्कृतिक संवेदनशीलता</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/424A277E-EE47-4C71-A5B2-52919BB56298')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/0FE8D069-0F6A-404F-BDEE-4943C464191C')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">ऑनलाइन चर्चाओं में नेटिकेट</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/CF613AF1-729D-43DE-BD83-42FD532C183D')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/81315A58-D803-4A07-A809-9DCBBA195D06')" class="button">Activity</i></a>
-                </li>
-				<li class="product-item">
-                   <span class="price">अंतर सांस्कृतिक संचार - व्यावसायिक सफलता !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/FDA491D8-CE6F-4512-89F3-9F385123B449')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/BCCF5E8F-BD48-4288-B757-A340FE2C076C')" class="button">Activity</i></a>
-                </li>
-				  <li class="product-item">
-                   <span class="price">पहली प्राथमिकता - साइबर सुरक्षा !</span>
-                    <a href="#" onclick="Open_Video_Link('videolearning/6561D064-C7D2-4D1D-BC7A-B934513C500C')" class="button">View</a>
-					  <a href="#" onclick="Open_Video_Link('videolearning/0A1B048A-3717-494E-94B1-A488699AB738')" class="button">Activity</i></a>
-                </li>
-            </ul>
+            <ul class="product-list"></ul>
         </section>
     </main>
 	
@@ -677,6 +541,7 @@
         // --- Modal Control JavaScript ---
 		var userid=""
 		var agencyid=""
+        const CONTENT_JSON_PATH = './content_items.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
 		const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
@@ -757,6 +622,115 @@
         const otpSentMessage = document.getElementById('otp-sent-message');
         const useridInput = document.getElementById('userid');
         const otpInputs = document.querySelectorAll('.otp-inputs input');
+
+        function initPage() {
+            renderContentFromJson();
+            CHECK_MOBILE_ON_LOAD();
+        }
+
+        function buildContentLink(item) {
+            const ttsamId = String(item.ttsam_id || '').trim();
+            const redirectPath = String(item.redirection_path || 'videolearning').trim();
+
+            if (!ttsamId) {
+                return '';
+            }
+
+            if (redirectPath.indexOf('{ttsam_id}') !== -1) {
+                return redirectPath.replace('{ttsam_id}', ttsamId);
+            }
+
+            if (redirectPath.endsWith('/')) {
+                return redirectPath + ttsamId;
+            }
+
+            if (redirectPath.toLowerCase().endsWith(ttsamId.toLowerCase())) {
+                return redirectPath;
+            }
+
+            return redirectPath + '/' + ttsamId;
+        }
+
+        function renderContentFromJson() {
+            const productList = document.querySelector('.product-list');
+            if (!productList) {
+                return;
+            }
+
+            fetch(CONTENT_JSON_PATH, { cache: 'no-store' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to load content JSON. Status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(rows => {
+                    if (!Array.isArray(rows)) {
+                        throw new Error('Invalid JSON format. Expected array.');
+                    }
+
+                    const grouped = new Map();
+
+                    rows.forEach(row => {
+                        const srNo = Number(row.sr_no || row.srNo || 0);
+                        const title = String(row.title || '').trim();
+                        if (!title) {
+                            return;
+                        }
+
+                        const groupKey = srNo + '|' + title;
+                        if (!grouped.has(groupKey)) {
+                            grouped.set(groupKey, {
+                                srNo: srNo,
+                                title: title,
+                                items: []
+                            });
+                        }
+
+                        grouped.get(groupKey).items.push({
+                            type: String(row.type || 'View').trim(),
+                            ttsam_id: row.ttsam_id,
+                            redirection_path: row.redirection_path
+                        });
+                    });
+
+                    const groups = Array.from(grouped.values()).sort((a, b) => a.srNo - b.srNo);
+
+                    productList.innerHTML = '';
+
+                    groups.forEach(group => {
+                        const li = document.createElement('li');
+                        li.className = 'product-item';
+
+                        const title = document.createElement('span');
+                        title.className = 'price';
+                        title.textContent = group.title;
+                        li.appendChild(title);
+
+                        group.items.forEach(item => {
+                            const lnk = buildContentLink(item);
+                            if (!lnk) {
+                                return;
+                            }
+
+                            const button = document.createElement('a');
+                            button.href = '#';
+                            button.className = 'button';
+                            button.textContent = item.type || 'View';
+                            button.addEventListener('click', function (event) {
+                                event.preventDefault();
+                                Open_Video_Link(lnk);
+                            });
+                            li.appendChild(button);
+                        });
+
+                        productList.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to bind content from JSON:', error);
+                });
+        }
 
         function requestOtp() {
             const mobileNumber = useridInput.value;

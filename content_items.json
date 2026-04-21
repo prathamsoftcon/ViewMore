@@ -1,0 +1,82 @@
+[
+  {"sr_no": 1, "title": "व्यक्तित्व के बारे में!", "type": "Video", "ttsam_id": "0897A0F1-1F2C-44FC-9E21-BC074E547B8E", "redirection_path": "videolearning"},
+  {"sr_no": 1, "title": "व्यक्तित्व के बारे में!", "type": "Activity", "ttsam_id": "6896BBE9-3B51-4D65-868A-7DE3593A69F2", "redirection_path": "videolearning"},
+
+  {"sr_no": 2, "title": "व्यक्तित्व परीक्षण और विकास:  मायर्स-ब्रिग्स, 16PF और अन्य Tools का परिचय", "type": "View", "ttsam_id": "B57FE3B1-8D94-4C6E-9CC9-EA65F6791626", "redirection_path": "videolearning"},
+  {"sr_no": 2, "title": "व्यक्तित्व परीक्षण और विकास:  मायर्स-ब्रिग्स, 16PF और अन्य Tools का परिचय", "type": "Activity", "ttsam_id": "CAB91C28-0438-4513-A33B-0C02B97E3A81", "redirection_path": "videolearning"},
+
+  {"sr_no": 3, "title": "सफलता - एक यात्रा!", "type": "View", "ttsam_id": "5AD66568-839C-4AEB-A5E0-85BAD9D47081", "redirection_path": "videolearning"},
+  {"sr_no": 3, "title": "सफलता - एक यात्रा!", "type": "Activity", "ttsam_id": "6DA87476-4E7A-48C4-BAA5-07768A64BE0E", "redirection_path": "videolearning"},
+
+  {"sr_no": 4, "title": "असफलता(सफलता का पहला कदम)", "type": "View", "ttsam_id": "C41FA20D-AD4C-4CF8-8390-36CD8CA82778", "redirection_path": "videolearning"},
+  {"sr_no": 4, "title": "असफलता(सफलता का पहला कदम)", "type": "Activity", "ttsam_id": "E1DDA994-5D43-4643-A7F0-91ADCA3FEBA1", "redirection_path": "videolearning"},
+
+  {"sr_no": 5, "title": "आस्था क्या है?", "type": "View", "ttsam_id": "7A948863-13BE-4EE0-85D2-5A2EE0D2ECCA", "redirection_path": "videolearning"},
+  {"sr_no": 5, "title": "आस्था क्या है?", "type": "Activity", "ttsam_id": "CA27910E-6EB3-42BA-AF58-A72684E0BD29", "redirection_path": "videolearning"},
+
+  {"sr_no": 6, "title": "जाने और पहचाने खुद को !", "type": "View", "ttsam_id": "E244880D-88E6-4C2D-96AB-DF478FA155F5", "redirection_path": "videolearning"},
+  {"sr_no": 6, "title": "जाने और पहचाने खुद को !", "type": "Activity", "ttsam_id": "63D9A79B-A330-4F1E-8FE7-7CA9B902E4CA", "redirection_path": "videolearning"},
+
+  {"sr_no": 7, "title": "लक्ष्य निर्धारण – SMART GOAL Setting", "type": "View", "ttsam_id": "9493DF14-AE22-4F75-A192-251FA7944A62", "redirection_path": "videolearning"},
+  {"sr_no": 7, "title": "लक्ष्य निर्धारण – SMART GOAL Setting", "type": "Activity", "ttsam_id": "14641C01-0912-4EA4-A9A0-A8712294F0CC", "redirection_path": "videolearning"},
+
+  {"sr_no": 8, "title": "समय का महत्व: जीवन में प्राथमिकता और प्रबंधन", "type": "View", "ttsam_id": "F161A9AC-BE2B-4144-9349-85E9BCC4FF27", "redirection_path": "videolearning"},
+  {"sr_no": 8, "title": "समय का महत्व: जीवन में प्राथमिकता और प्रबंधन", "type": "Activity", "ttsam_id": "70FCE9B1-B8B0-4936-A9B0-58E49969F61E", "redirection_path": "videolearning"},
+
+  {"sr_no": 9, "title": "समय बर्बादी: कारण और प्रभाव", "type": "View", "ttsam_id": "08FFB7E9-A05C-4B9E-93D4-1CE93FBE3D1F", "redirection_path": "videolearning"},
+  {"sr_no": 9, "title": "समय बर्बादी: कारण और प्रभाव", "type": "Activity", "ttsam_id": "5F4F6B05-9117-447E-A3A3-39726B51981D", "redirection_path": "videolearning"},
+
+  {"sr_no": 10, "title": "समय प्रबंधन: सफलता के लिए एक कुशल रणनीति", "type": "View", "ttsam_id": "DE84CA6F-5A3C-4F31-9C90-06CC2B77B2FA", "redirection_path": "videolearning"},
+  {"sr_no": 10, "title": "समय प्रबंधन: सफलता के लिए एक कुशल रणनीति", "type": "Activity", "ttsam_id": "99356259-4FE0-442E-A76C-334B0E3B78EB", "redirection_path": "videolearning"},
+
+  {"sr_no": 11, "title": "जानिये, सबकुछ तनाव के बारे में !", "type": "View", "ttsam_id": "40A75B50-5207-4AE2-BCFE-DFFCD7EBF460", "redirection_path": "videolearning"},
+  {"sr_no": 11, "title": "जानिये, सबकुछ तनाव के बारे में !", "type": "Activity", "ttsam_id": "36B4BFD8-2DA4-4DC6-B445-F27DC16ED1CA", "redirection_path": "videolearning"},
+
+  {"sr_no": 12, "title": "तनाव - पहचान और समाधान !", "type": "View", "ttsam_id": "F6F31E86-91AA-44E2-9EBE-8BC4036BE039", "redirection_path": "videolearning"},
+  {"sr_no": 12, "title": "तनाव - पहचान और समाधान !", "type": "Activity", "ttsam_id": "F360EB17-384D-4C11-B864-CAACABCA27A1", "redirection_path": "videolearning"},
+
+  {"sr_no": 13, "title": "तनाव के कारण और प्रभाव", "type": "View", "ttsam_id": "1D7E6363-8F56-4DBE-89DA-AB12FDAEC465", "redirection_path": "videolearning"},
+  {"sr_no": 13, "title": "तनाव के कारण और प्रभाव", "type": "Activity", "ttsam_id": "34950CA5-6E32-4DCC-AC17-1A3FEFD32278", "redirection_path": "videolearning"},
+
+  {"sr_no": 14, "title": "Resume Building - इंटरव्यू की तयारी (पार्ट-1)", "type": "View", "ttsam_id": "B97F28C4-5D3F-4B56-AF0D-06898DB6CD02", "redirection_path": "videolearning"},
+  {"sr_no": 14, "title": "Resume Building - इंटरव्यू की तयारी (पार्ट-1)", "type": "Activity", "ttsam_id": "F1DC5E82-658C-4838-9FA5-69F567A37B07", "redirection_path": "videolearning"},
+
+  {"sr_no": 15, "title": "कैसे करें, साक्षात्कार की तैयारी !", "type": "View", "ttsam_id": "E3485D79-4C9A-4BE6-8B47-2D7FE16F7F67", "redirection_path": "videolearning"},
+  {"sr_no": 15, "title": "कैसे करें, साक्षात्कार की तैयारी !", "type": "Activity", "ttsam_id": "A47CE4D1-B30F-4C8D-8642-70E916D21483", "redirection_path": "videolearning"},
+
+  {"sr_no": 16, "title": "समूह चर्चा - Group Discussion (पार्ट-1)", "type": "View", "ttsam_id": "C43CAC3B-623F-42F7-A392-E84AB2E66B30", "redirection_path": "videolearning"},
+  {"sr_no": 16, "title": "समूह चर्चा - Group Discussion (पार्ट-1)", "type": "Activity", "ttsam_id": "90963319-7A1A-4D22-AC10-1AB4E982C8A5", "redirection_path": "videolearning"},
+
+  {"sr_no": 17, "title": "Mock Interview - सफलता की ओर पहला कदम (पार्ट-1)", "type": "View", "ttsam_id": "B7A9E74A-C6F0-46B9-8C64-9318610D7498", "redirection_path": "videolearning"},
+  {"sr_no": 17, "title": "Mock Interview - सफलता की ओर पहला कदम (पार्ट-1)", "type": "Activity", "ttsam_id": "D38852FE-1A82-4089-A0FE-EA2561770C9A", "redirection_path": "videolearning"},
+
+  {"sr_no": 18, "title": "संवाद कौशल विकास - सफलता की कुंजी (पार्ट-1)", "type": "View", "ttsam_id": "1B72733E-A780-42B8-BB21-E5A65B521970", "redirection_path": "videolearning"},
+  {"sr_no": 18, "title": "संवाद कौशल विकास - सफलता की कुंजी (पार्ट-1)", "type": "Activity", "ttsam_id": "A84551A4-FF32-4FD7-A817-144177565ACE", "redirection_path": "videolearning"},
+
+  {"sr_no": 19, "title": "जाने ICT - बनें Future Ready!", "type": "View", "ttsam_id": "6E3AC48A-EA91-4D2B-A618-0149C9028F62", "redirection_path": "videolearning"},
+  {"sr_no": 19, "title": "जाने ICT - बनें Future Ready!", "type": "Activity", "ttsam_id": "7BC2DD37-927D-4E4C-976D-9009EB3120CC", "redirection_path": "videolearning"},
+
+  {"sr_no": 20, "title": "सफलता के लिए सोशल मीडिया का सही प्रयोग !", "type": "View", "ttsam_id": "34468E2F-91DE-47FB-833D-1BF67119D0B7", "redirection_path": "videolearning"},
+  {"sr_no": 20, "title": "सफलता के लिए सोशल मीडिया का सही प्रयोग !", "type": "Activity", "ttsam_id": "30121663-E79B-420B-94C3-E31A300CA8D8", "redirection_path": "videolearning"},
+
+  {"sr_no": 21, "title": "शिष्टाचार से बनाये सही प्रभाव !", "type": "View", "ttsam_id": "B7F1B2DA-ECDA-40D0-9613-115D519769FE", "redirection_path": "videolearning"},
+  {"sr_no": 21, "title": "शिष्टाचार से बनाये सही प्रभाव !", "type": "Activity", "ttsam_id": "9CDBE32A-9A2A-46E7-B26F-1E2BFAF96086", "redirection_path": "videolearning"},
+
+  {"sr_no": 22, "title": "सफलता बढाए अपने इलेक्ट्रॉनिक Gadgets!", "type": "View", "ttsam_id": "FAF35368-4664-486E-9626-96EACD94A5C9", "redirection_path": "videolearning"},
+  {"sr_no": 22, "title": "सफलता बढाए अपने इलेक्ट्रॉनिक Gadgets!", "type": "Activity", "ttsam_id": "D0803393-16AF-4547-B775-E6322DA3A213", "redirection_path": "videolearning"},
+
+  {"sr_no": 23, "title": "सफलता मतलब; सोशल मीडिया शिष्टाचार !", "type": "View", "ttsam_id": "10894973-71CA-4E54-97D1-DD5767709A71", "redirection_path": "videolearning"},
+  {"sr_no": 23, "title": "सफलता मतलब; सोशल मीडिया शिष्टाचार !", "type": "Activity", "ttsam_id": "91A323F2-27BB-4E9B-AC81-97219F1C6640", "redirection_path": "videolearning"},
+
+  {"sr_no": 24, "title": "संचार में सांस्कृतिक संवेदनशीलता", "type": "View", "ttsam_id": "424A277E-EE47-4C71-A5B2-52919BB56298", "redirection_path": "videolearning"},
+  {"sr_no": 24, "title": "संचार में सांस्कृतिक संवेदनशीलता", "type": "Activity", "ttsam_id": "0FE8D069-0F6A-404F-BDEE-4943C464191C", "redirection_path": "videolearning"},
+
+  {"sr_no": 25, "title": "ऑनलाइन चर्चाओं में नेटिकेट", "type": "View", "ttsam_id": "CF613AF1-729D-43DE-BD83-42FD532C183D", "redirection_path": "videolearning"},
+  {"sr_no": 25, "title": "ऑनलाइन चर्चाओं में नेटिकेट", "type": "Activity", "ttsam_id": "81315A58-D803-4A07-A809-9DCBBA195D06", "redirection_path": "videolearning"},
+
+  {"sr_no": 26, "title": "अंतर सांस्कृतिक संचार - व्यावसायिक सफलता !", "type": "View", "ttsam_id": "FDA491D8-CE6F-4512-89F3-9F385123B449", "redirection_path": "videolearning"},
+  {"sr_no": 26, "title": "अंतर सांस्कृतिक संचार - व्यावसायिक सफलता !", "type": "Activity", "ttsam_id": "BCCF5E8F-BD48-4288-B757-A340FE2C076C", "redirection_path": "videolearning"},
+
+  {"sr_no": 27, "title": "पहली प्राथमिकता - साइबर सुरक्षा !", "type": "View", "ttsam_id": "6561D064-C7D2-4D1D-BC7A-B934513C500C", "redirection_path": "videolearning"},
+  {"sr_no": 27, "title": "पहली प्राथमिकता - साइबर सुरक्षा !", "type": "Activity", "ttsam_id": "0A1B048A-3717-494E-94B1-A488699AB738", "redirection_path": "videolearning"}
+]

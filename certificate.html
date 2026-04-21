@@ -62,6 +62,9 @@ background: white !important;
  #btnprint{
  display:none;
  }
+ .grade-improvement-note{
+ display:none;
+ }
 }
 	.captcha-container {
       width: 300px;
@@ -524,6 +527,10 @@ background: white !important;
         <section aria-labelledby="product-list-heading" style="margin-top:-20px">
             <!-- <h5 id="product-list-heading" style="text-align: center; color: #2c3e50; margin-bottom: 2rem; font-family: 'Playfair Display', serif;">सेडमेप द्वारा प्रदत्त वोकेशनल कोर्स (व्यक्तित्व विकास)</h5> -->
            <div>यह प्रमाणित किया जाता है कि <span id="lblname" style="font-weight:bold"></span> </span>  (नामांकन क्रमांक: <span id="lblenrollment"></span>)  <span style="font-weight:bold"> प्रथम वर्ष</span> के वोकेशनल कोर्स  "<span style="font-weight:bold" id="lblcourse"></span> " में पंजीकृत हैं। आपके अब तक के अध्ययन प्रदर्शन के आधार पर आपको  <span style="font-weight:bold">  ग्रेड "<span id="lblgrade"></span>" </span> प्रदान किया जाता है।</div>
+           <div class="grade-improvement-note" style="margin-top:10px; padding:8px 10px; border-left:4px solid #f39c12; background:#fff8e1; border-radius:4px;">
+               ग्रेड सुधार के लिए कृपया कोर्स कंटेंट दोबारा पढ़ें और सभी प्रेक्टिकल गतिविधियां पूर्ण करें।
+               <a href="/viewmore/view_more_content1.html" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>
+           </div>
 		   <div style="padding: 10px 0px 10px 0px;">हम आपके उज्जवल भविष्य की कामना करते हैं।</div>
 		   <div><span style="font-weight:bold"> यह प्रमाणपत्र पोर्टल द्वारा स्वतः जनरेट किया गया है, अतः किसी हस्ताक्षर की आवश्यकता नहीं है।  </div><div> प्रमाणपत्र की सत्यता की पुष्टि हेतु कृपया संलग्न QR कोड स्कैन करें। </span></div>
 		   <div><i>(Certificate Digitally Generated on <span id="lbldate"></span>)</i></div>
@@ -599,9 +606,9 @@ background: white !important;
                       
                         <div class="captcha-container" style="width:80% !important">
  
-    <div id="alertMessage">आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। 
+        <div id="alertMessage">आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। ग्रेड सुधार के लिए भी इन्हें पूरा करना आवश्यक है। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। 
   <br/>
-              कोर्स कंटेंट Link - <a href="https://learningplatform.mpbou.in/ViewMore/content_login.html">https://learningplatform.mpbou.in/view_more_content1.html</a></div>
+                        कोर्स कंटेंट Link - <a href="/viewmore/view_more_content1.html" target="_blank" rel="noopener noreferrer">/viewmore/view_more_content1.html</a></div>
 </div>
                     </div>
                    
@@ -1108,7 +1115,9 @@ function Get_Certificate_Data(ttpai_id) {
             open_alert();
         } else if (error.request) {
             console.error('No response received:', error.request);
-            alert('You are not authorized to download certificate , Please complete reading first.');
+            setAlertMessage();
+            closeModal();
+            open_alert();
         } else {
             console.error('Request setup error:', error.message);
             alert('An unexpected error occurred.');
@@ -1170,7 +1179,9 @@ function Get_Training_Data(trainingid){
 			} else if (error.request) {
 			// The request was made but no response was received
 				console.error('No response received:', error.request);
-				alert('You are not authorized to download certificate , Please completed reading first.');
+                setAlertMessage();
+                closeModal();
+                open_alert();
 			} else {
         // Something else happened in setting up the request
 			console.error('Request setup error:', error.message);
@@ -1222,11 +1233,15 @@ function Get_Training_Participant_Details(){
         // that falls out of the range of 2xx
 			console.error('API Error Response:', error.response.data);
 			console.error('API Error Status:', error.response.status);
-			alert('You are not authorized to download certificate , Please completed reading first');
+            setAlertMessage(typeof error.response.data === 'string' ? error.response.data : 'Certificate not available right now. Please complete required course activity first.');
+            closeModal();
+            open_alert();
 			} else if (error.request) {
 			// The request was made but no response was received
 				console.error('No response received:', error.request);
-				alert('You are not authorized to download certificate , Please completed reading first.');
+                setAlertMessage();
+                closeModal();
+                open_alert();
 			} else {
         // Something else happened in setting up the request
 			console.error('Request setup error:', error.message);
@@ -1273,12 +1288,21 @@ if (!alertMessageElement) {
 return;
 }
 
+const courseContentPath = '/viewmore/view_more_content1.html';
+const courseContentUrl = window.location.origin + courseContentPath;
+const courseLinkHtml = ' <br/>कोर्स कंटेंट Link - <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">' + courseContentUrl + '</a>';
+
 if (message && typeof message === 'string') {
-alertMessageElement.innerHTML = message.replace(/\n/g, '<br/>');
+const normalizedMessage = message.replace(/\n/g, '<br/>');
+if (normalizedMessage.toLowerCase().indexOf('/viewmore/view_more_content1.html') !== -1) {
+alertMessageElement.innerHTML = normalizedMessage;
+} else {
+alertMessageElement.innerHTML = normalizedMessage + courseLinkHtml;
+}
 return;
 }
 
-alertMessageElement.innerHTML = 'आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। <br/>कोर्स कंटेंट Link - <a href="https://learningplatform.mpbou.in/ViewMore/content_login.html">https://learningplatform.mpbou.in/view_more_content1.html</a>';
+alertMessageElement.innerHTML = 'आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। ग्रेड सुधार के लिए भी इन्हें पूरा करना आवश्यक है। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे।' + courseLinkHtml;
 }
 
 function Get_trainings(agencyid) {
