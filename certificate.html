@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="2026.04.21.1">
+    <meta name="app-version" content="2026.04.22.1">
     <title>Vocational Courses</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"> 
 	<!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  -->
@@ -1098,6 +1098,7 @@ function Get_Certificate_Data(ttpai_id) {
             document.getElementById('lblname').innerHTML = response.data.name;
             document.getElementById('lblenrollment').innerHTML = response.data.enrollmentno;
             document.getElementById('lblgrade').innerHTML = response.data.grade;
+            toggleGradeImprovementNote(response.data.grade);
             document.getElementById('lbldate').innerHTML = response.data.printdate;
             userid = response.data.userid;
             Get_Training_Data(response.data.trainingid);
@@ -1277,6 +1278,16 @@ openModal();
 
 }
 
+function toggleGradeImprovementNote(gradeValue) {
+const noteElement = document.querySelector('.grade-improvement-note');
+if (!noteElement) {
+return;
+}
+
+const normalizedGrade = (gradeValue || '').toString().trim().toUpperCase();
+noteElement.style.display = normalizedGrade === 'A' ? 'none' : 'block';
+}
+
 function open_alert(){
 alertModal.classList.add('show');
 }
@@ -1292,15 +1303,17 @@ return;
 
 const courseContentPath = '/viewmore/view_more_content1.html';
 const courseContentUrl = window.location.origin + courseContentPath + '?v=' + encodeURIComponent(APP_VERSION);
-const courseLinkHtml = ' <br/>कोर्स कंटेंट Link - <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">' + courseContentUrl + '</a>';
+const courseLinkLabelHtml = 'कोर्स कंटेंट Link - <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">' + courseContentUrl + '</a>';
+const courseLinkHtml = '<br/>' + courseLinkLabelHtml;
 
 if (message && typeof message === 'string') {
 const normalizedMessage = message.replace(/\n/g, '<br/>');
-if (normalizedMessage.toLowerCase().indexOf('/viewmore/view_more_content1.html') !== -1) {
-alertMessageElement.innerHTML = normalizedMessage;
-} else {
-alertMessageElement.innerHTML = normalizedMessage + courseLinkHtml;
-}
+const cleanedMessage = normalizedMessage
+.replace(/(?:<br\s*\/?>\s*)?कोर्स\s*कंटेंट\s*Link\s*-\s*https?:\/\/[^\s<]+/gi, '')
+.replace(/^(?:<br\s*\/?>\s*)+|(?:<br\s*\/?>\s*)+$/gi, '')
+.trim();
+
+alertMessageElement.innerHTML = cleanedMessage ? (cleanedMessage + courseLinkHtml) : courseLinkLabelHtml;
 return;
 }
 
