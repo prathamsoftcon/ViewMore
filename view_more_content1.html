@@ -107,8 +107,6 @@
         }
 
         .product-item {
-		    height:80px;
-			overflow:auto;
             background-color: #fff;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
@@ -116,6 +114,15 @@
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            min-height: 80px;
+        }
+
+        .product-item .content-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .product-item:hover {
@@ -154,6 +161,7 @@
             text-decoration: none;
             font-weight: 700;
             transition: background-color 0.3s ease;
+            white-space: nowrap;
         }
 
         .product-item .button:hover {
@@ -182,6 +190,18 @@
 
             .product-item {
                 padding: 1rem;
+            }
+
+            .product-item .content-actions {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .product-item .button {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
             }
 
             main {
@@ -541,7 +561,7 @@
         // --- Modal Control JavaScript ---
 		var userid=""
 		var agencyid=""
-        const APP_VERSION = "2026.04.21.1";
+        const APP_VERSION = "2026.04.22.1";
         const CONTENT_JSON_PATH = './content_items.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
@@ -712,6 +732,9 @@
                         title.textContent = group.title;
                         li.appendChild(title);
 
+                        const actions = document.createElement('div');
+                        actions.className = 'content-actions';
+
                         group.items.forEach(item => {
                             const lnk = buildContentLink(item);
                             if (!lnk) {
@@ -726,8 +749,10 @@
                                 event.preventDefault();
                                 Open_Video_Link(lnk);
                             });
-                            li.appendChild(button);
+                            actions.appendChild(button);
                         });
+
+                        li.appendChild(actions);
 
                         productList.appendChild(li);
                     });
