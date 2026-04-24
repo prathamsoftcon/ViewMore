@@ -296,7 +296,7 @@ var agencyid=""
 var ttpai_id="";
 //const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
 const apiKey = "";
-const APP_VERSION = "2026.04.21.2";
+const APP_VERSION = "2026.04.24.1";
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
 const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
@@ -811,9 +811,14 @@ function getFileType(filePath) {
 
   // Decode encoded characters like %20, %5C, etc.
   const decoded = decodeURIComponent(filePath);
+   // Remove query params (?v=1) and hash (#section)
+  const cleanPath = decoded.split('?')[0].split('#')[0];
 
-  // Extract filename or extension safely
-  const fileName = decoded.split('/').pop().split('\\').pop();
+  // Extract filename safely (handles / and \)
+  const fileName = cleanPath.split('/').pop().split('\\').pop();
+
+//   // Extract filename or extension safely
+//   const fileName = decoded.split('/').pop().split('\\').pop();
 
   // Get extension
   const ext = fileName.split('.').pop().toLowerCase();
