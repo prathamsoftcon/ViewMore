@@ -56,6 +56,7 @@ When cache is missing or expired:
 
 - Get_Training_Participant_Details() fetches participant training detail.
 - Extracted ttpai_id is passed to Get_Certificate_Data().
+It uses API Certificate_Details
 - Get_Certificate_Data() fetches certificate details and fills:
 - Name
 - Enrollment number
