@@ -779,7 +779,8 @@ background: white !important;
 		var userid=""
 		var agencyid=""
 		var ttpai_id=""
-        const APP_VERSION = '2026.04.28.1';
+        var currentTrainingId = ''
+        const APP_VERSION = '2026.04.29.1';
 		const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_VALID_DAYS = 15;
@@ -1179,7 +1180,7 @@ return "https://qaapp.littera.in"
 }
 else if(DPATH.toString().toUpperCase()=="LEARNINGPLATFORM.MPBOU.IN")
 {
-return "https://app.learningplatform.mpbou.in"
+return "https://learn.mpbou.in"
 }
 else{
 return "https://react.littera.in"
@@ -1239,6 +1240,7 @@ function Get_Certificate_Data(ttpai_id) {
             toggleGradeImprovementNote(response.data.grade);
             document.getElementById('lbldate').innerHTML = response.data.printdate;
             userid = response.data.userid;
+            currentTrainingId = response.data.trainingid || currentTrainingId;
             Get_Training_Data(response.data.trainingid);
 
             closeModal();
@@ -1440,7 +1442,15 @@ return;
 }
 
 const courseContentPath = '/viewmore/view_more_content1.html';
-const courseContentUrl = window.location.origin + courseContentPath + '?v=' + encodeURIComponent(APP_VERSION);
+const selectedTrainingId = (document.getElementById('ddltraining') && document.getElementById('ddltraining').value) || '';
+const trainingIdFromUrl = new URLSearchParams(window.location.search).get('trainingid') || '';
+const trainingIdForLink = selectedTrainingId || trainingIdFromUrl || currentTrainingId || '';
+const params = new URLSearchParams();
+params.set('v', APP_VERSION);
+if (trainingIdForLink) {
+params.set('trainingid', trainingIdForLink);
+}
+const courseContentUrl = window.location.origin + courseContentPath + '?' + params.toString();
 const courseLinkLabelHtml = 'कोर्स कंटेंट Link - <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">' + courseContentUrl + '</a>';
 const courseLinkHtml = '<br/>' + courseLinkLabelHtml;
 
