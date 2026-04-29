@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle"></title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .logos {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+
+        .lit-logo { border-radius: 28%; width: 75px; }
+        .bhoj_logo { width: 100px; }
+
+        main {
+            flex-grow: 1;
+            padding: 2rem 1rem;
+            max-width: 720px;
+            margin: 180px auto 2rem;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e67e22;
+            margin-bottom: 0.8rem;
+        }
+
+        .input {
+            width: 240px;
+            max-width: 100%;
+            height: 38px;
+            padding: 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 12px;
+            background-color: #3498db;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            border: none;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 16px; }
+            .bhoj_logo { width: 70px; }
+            .lit-logo { width: 50px; }
+            main { margin-top: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logos">
+            <div><img id="primaryLogo" class="bhoj_logo" title="" src=""></div>
+            <div><img id="secondaryLogo" class="lit-logo" title="" src=""></div>
+        </div>
+        <h1 id="universityName"></h1>
+    </header>
+
+    <main>
+        <section aria-labelledby="product-list-heading">
+            <h4 id="product-list-heading" style="text-align: center; color: #2c3e50; margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;"></h4>
+            <div class="card">
+                <label id="enrollmentLabel" class="label" for="txtno"></label>
+                <input class="input" type="text" id="txtno">
+                <br>
+                <button id="verifyButton" type="button" onclick="Verify_Certificate()" class="button"></button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p id="footerText"></p>
+    </footer>
+
+    <script>
+        const CONFIG_JSON = './html_config.json';
+        let appConfig = null;
+
+        function applyConfigToUi() {
+            document.title = appConfig.pageTitle;
+
+            const primaryLogo = document.getElementById('primaryLogo');
+            const secondaryLogo = document.getElementById('secondaryLogo');
+            const universityName = document.getElementById('universityName');
+            const courseHeading = document.getElementById('product-list-heading');
+            const enrollmentLabel = document.getElementById('enrollmentLabel');
+            const verifyButton = document.getElementById('verifyButton');
+            const footerText = document.getElementById('footerText');
+
+            if (primaryLogo && appConfig.header && appConfig.header.primaryLogoSrc) {
+                primaryLogo.src = appConfig.header.primaryLogoSrc;
+            }
+            if (secondaryLogo && appConfig.header && appConfig.header.secondaryLogoSrc) {
+                secondaryLogo.src = appConfig.header.secondaryLogoSrc;
+            }
+            if (appConfig.header && appConfig.header.logoTitle) {
+                if (primaryLogo) {
+                    primaryLogo.title = appConfig.header.logoTitle;
+                    primaryLogo.alt = appConfig.header.logoTitle;
+                }
+                if (secondaryLogo) {
+                    secondaryLogo.title = appConfig.header.logoTitle;
+                    secondaryLogo.alt = appConfig.header.logoTitle;
+                }
+            }
+            if (universityName && appConfig.header && appConfig.header.universityName) {
+                universityName.textContent = appConfig.header.universityName;
+            }
+            if (courseHeading && appConfig.header && appConfig.header.courseHeading) {
+                courseHeading.textContent = appConfig.header.courseHeading;
+            }
+            if (enrollmentLabel && appConfig.labels && appConfig.labels.enrollment) {
+                enrollmentLabel.textContent = appConfig.labels.enrollment;
+            }
+            if (verifyButton && appConfig.labels && appConfig.labels.verifyButton) {
+                verifyButton.textContent = appConfig.labels.verifyButton;
+            }
+            if (footerText && appConfig.labels && appConfig.labels.footer) {
+                footerText.textContent = appConfig.labels.footer;
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch(CONFIG_JSON, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error('Config JSON not found');
+                }
+                const jsonConfig = await response.json();
+
+                const hasRequiredFields =
+                    jsonConfig &&
+                    jsonConfig.pageTitle &&
+                    jsonConfig.header &&
+                    jsonConfig.labels &&
+                    jsonConfig.api &&
+                    jsonConfig.messages &&
+                    jsonConfig.header.primaryLogoSrc &&
+                    jsonConfig.header.secondaryLogoSrc &&
+                    jsonConfig.header.logoTitle &&
+                    jsonConfig.header.universityName &&
+                    jsonConfig.header.courseHeading &&
+                    jsonConfig.labels.enrollment &&
+                    jsonConfig.labels.verifyButton &&
+                    jsonConfig.labels.footer &&
+                    jsonConfig.api.apiKey &&
+                    jsonConfig.api.apiPath &&
+                    jsonConfig.api.trainingId &&
+                    jsonConfig.messages.emptyEnrollment &&
+                    jsonConfig.messages.validCertificatePrefix &&
+                    jsonConfig.messages.invalidCertificate &&
+                    jsonConfig.messages.verifyFailed &&
+                    jsonConfig.messages.noResponse &&
+                    jsonConfig.messages.unexpectedError &&
+                    jsonConfig.messages.apiErrorPrefix;
+
+                if (!hasRequiredFields) {
+                    throw new Error('Config JSON is missing required fields');
+                }
+
+                appConfig = jsonConfig;
+                applyConfigToUi();
+            } catch (error) {
+                const verifyButton = document.getElementById('verifyButton');
+                if (verifyButton) {
+                    verifyButton.disabled = true;
+                }
+                alert('Configuration load failed. Please check verify_certificate_config.json');
+            }
+        }
+
+        function Verify_Certificate() {
+            if (!appConfig) {
+                alert('Configuration is not loaded.');
+                return;
+            }
+
+            var trainingid = appConfig.api.trainingId;
+            var usercode = document.getElementById('txtno').value.trim();
+            const apiKey = appConfig.api.apiKey;
+            const APIPath = appConfig.api.apiPath;
+
+            if (!usercode) {
+                alert(appConfig.messages.emptyEnrollment);
+                return;
+            }
+
+            const apiUrl = APIPath + '/Verify_Certificate?usercode=' + encodeURIComponent(usercode) + '&trainingid=' + encodeURIComponent(trainingid);
+
+            axios.get(apiUrl, {
+                headers: {
+                    'APIKey': apiKey,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    if (response.data !== '') {
+                        alert(appConfig.messages.validCertificatePrefix + response.data);
+                    } else {
+                        alert(appConfig.messages.invalidCertificate);
+                    }
+                } else {
+                    alert(appConfig.messages.verifyFailed);
+                }
+            })
+            .catch(error => {
+                if (error.response) {
+                    alert(appConfig.messages.apiErrorPrefix + error.response.status + ' - ' + ((error.response.data && error.response.data.message) || 'Unknown error'));
+                } else if (error.request) {
+                    alert(appConfig.messages.noResponse);
+                } else {
+                    alert(appConfig.messages.unexpectedError);
+                }
+            });
+        }
+
+        loadConfig();
+    </script>
+</body>
+</html>
