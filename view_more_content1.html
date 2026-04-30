@@ -561,7 +561,8 @@
         // --- Modal Control JavaScript ---
 		var userid=""
 		var agencyid=""
-        const APP_VERSION = "2026.04.22.1";
+        var currentTrainingId = ''
+        const APP_VERSION = "2026.04.29.1";
         const CONTENT_JSON_PATH = './content_items.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
@@ -1000,7 +1001,12 @@ lnk=HF_Redirect_Link;
 
 var base=Get_Base_Url();
 
-var lnkf=base+"/"+lnk+'/'+agencyid+"?v="+encodeURIComponent(APP_VERSION)
+const queryParams = new URLSearchParams();
+queryParams.set('v', APP_VERSION);
+if (currentTrainingId) {
+queryParams.set('trainingid', currentTrainingId);
+}
+var lnkf=base+"/"+lnk+'/'+agencyid+"?"+queryParams.toString()
 window.open(lnkf)
 resetSlider()
 }
@@ -1008,6 +1014,7 @@ resetSlider()
 function CHECK_MOBILE_ON_LOAD(){
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
+currentTrainingId = urlParams.get('trainingid') || '';
 agencyid=urlParams.get('userid');
 if(agencyid){
 return;

@@ -119,7 +119,7 @@
 <body>
     <header>
         <div class="logos">
-            <div><img id="primaryLogo" class="bhoj_logo" title="" src=""></div>
+           <!-- <div><img id="primaryLogo" class="bhoj_logo" title="" src=""></div> -->
             <div><img id="secondaryLogo" class="lit-logo" title="" src=""></div>
         </div>
         <h1 id="universityName"></h1>
@@ -129,8 +129,15 @@
         <section aria-labelledby="product-list-heading">
             <h4 id="product-list-heading" style="text-align: center; color: #2c3e50; margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;"></h4>
             <div class="card">
-                <label id="enrollmentLabel" class="label" for="txtno"></label>
-                <input class="input" type="text" id="txtno">
+                <label id="mobileLabel" class="label" for="mobileNo"></label>
+                <input class="input" type="tel" id="mobileNo" maxlength="10" inputmode="numeric">
+                <br>
+                <button id="verifyMobileButton" type="button" onclick="Verify_Mobile()" class="button"></button>
+                <br><br>
+                <label id="trainingLabel" class="label" for="ddltraining"></label>
+                <select id="ddltraining" class="input">
+                    <option value="">Select Training</option>
+                </select>
                 <br>
                 <button id="verifyButton" type="button" onclick="Verify_Certificate()" class="button"></button>
             </div>
@@ -144,6 +151,47 @@
     <script>
         const CONFIG_JSON = './html_config.json';
         let appConfig = null;
+        let agencyid = '';
+        let verifiedMobileNo = '';
+        let verifiedUserCode = '';
+
+        function getAgencyIdFromUserInfo(userInfoResponse) {
+            if (!userInfoResponse || !userInfoResponse.result) {
+                return '';
+            }
+
+            const result = userInfoResponse.result;
+            return (
+                (result.agencydetail && result.agencydetail.agencyid) ||
+                (result.userdetails && result.userdetails.agencyid) ||
+                ''
+            );
+        }
+
+        function getUserCodeFromUserInfo(userInfoResponse) {
+            if (!userInfoResponse || !userInfoResponse.result) {
+                return '';
+            }
+
+            const result = userInfoResponse.result;
+            return (
+                (result.agencydetail && result.agencydetail.userCode) ||
+                ''
+            );
+        }
+
+        function getTrainingsArray(trainingResponse) {
+            if (Array.isArray(trainingResponse)) {
+                return trainingResponse;
+            }
+            if (trainingResponse && Array.isArray(trainingResponse.result)) {
+                return trainingResponse.result;
+            }
+            if (trainingResponse && Array.isArray(trainingResponse.data)) {
+                return trainingResponse.data;
+            }
+            return [];
+        }
 
         function applyConfigToUi() {
             document.title = appConfig.pageTitle;
@@ -152,7 +200,9 @@
             const secondaryLogo = document.getElementById('secondaryLogo');
             const universityName = document.getElementById('universityName');
             const courseHeading = document.getElementById('product-list-heading');
-            const enrollmentLabel = document.getElementById('enrollmentLabel');
+            const mobileLabel = document.getElementById('mobileLabel');
+            const verifyMobileButton = document.getElementById('verifyMobileButton');
+            const trainingLabel = document.getElementById('trainingLabel');
             const verifyButton = document.getElementById('verifyButton');
             const footerText = document.getElementById('footerText');
 
@@ -178,14 +228,31 @@
             if (courseHeading && appConfig.header && appConfig.header.courseHeading) {
                 courseHeading.textContent = appConfig.header.courseHeading;
             }
-            if (enrollmentLabel && appConfig.labels && appConfig.labels.enrollment) {
-                enrollmentLabel.textContent = appConfig.labels.enrollment;
+            if (mobileLabel && appConfig.labels && appConfig.labels.mobile) {
+                mobileLabel.textContent = appConfig.labels.mobile;
+            }
+            if (verifyMobileButton && appConfig.labels && appConfig.labels.verifyMobileButton) {
+                verifyMobileButton.textContent = appConfig.labels.verifyMobileButton;
+            }
+            if (trainingLabel && appConfig.labels && appConfig.labels.training) {
+                trainingLabel.textContent = appConfig.labels.training;
+            }
+            const trainingDropdown = document.getElementById('ddltraining');
+            if (trainingDropdown && appConfig.messages && appConfig.messages.selectTraining) {
+                trainingDropdown.innerHTML = '<option value="">' + appConfig.messages.selectTraining + '</option>';
             }
             if (verifyButton && appConfig.labels && appConfig.labels.verifyButton) {
                 verifyButton.textContent = appConfig.labels.verifyButton;
             }
             if (footerText && appConfig.labels && appConfig.labels.footer) {
                 footerText.textContent = appConfig.labels.footer;
+            }
+
+            if (verifyButton) {
+                verifyButton.disabled = true;
+            }
+            if (trainingDropdown) {
+                trainingDropdown.disabled = true;
             }
         }
 
@@ -209,13 +276,20 @@
                     jsonConfig.header.logoTitle &&
                     jsonConfig.header.universityName &&
                     jsonConfig.header.courseHeading &&
-                    jsonConfig.labels.enrollment &&
+                    jsonConfig.labels.mobile &&
+                    jsonConfig.labels.verifyMobileButton &&
+                    jsonConfig.labels.training &&
                     jsonConfig.labels.verifyButton &&
                     jsonConfig.labels.footer &&
                     jsonConfig.api.apiKey &&
                     jsonConfig.api.apiPath &&
-                    jsonConfig.api.trainingId &&
-                    jsonConfig.messages.emptyEnrollment &&
+                    jsonConfig.api.userInfoEndpoint &&
+                    jsonConfig.api.participantsTrainingEndpoint &&
+                    jsonConfig.api.verifyCertificateEndpoint &&
+                    jsonConfig.messages.invalidMobile &&
+                    jsonConfig.messages.mobileNotRegistered &&
+                    jsonConfig.messages.selectTraining &&
+                    jsonConfig.messages.noTrainingRegistered &&
                     jsonConfig.messages.validCertificatePrefix &&
                     jsonConfig.messages.invalidCertificate &&
                     jsonConfig.messages.verifyFailed &&
@@ -234,8 +308,104 @@
                 if (verifyButton) {
                     verifyButton.disabled = true;
                 }
-                alert('Configuration load failed. Please check verify_certificate_config.json');
+                alert('Configuration load failed. Please check html_config.json');
             }
+        }
+
+        function Verify_Mobile() {
+            if (!appConfig) {
+                alert('Configuration is not loaded.');
+                return;
+            }
+
+            const mobileNo = document.getElementById('mobileNo').value.trim();
+            if (mobileNo.length !== 10 || !/^\d+$/.test(mobileNo)) {
+                alert(appConfig.messages.invalidMobile);
+                return;
+            }
+
+            verifiedMobileNo = '';
+            verifiedUserCode = '';
+            document.getElementById('verifyButton').disabled = true;
+            document.getElementById('ddltraining').innerHTML = '<option value="">' + appConfig.messages.selectTraining + '</option>';
+            document.getElementById('ddltraining').disabled = true;
+
+            const apiUrl = appConfig.api.apiPath + appConfig.api.userInfoEndpoint + '?username=91-' + encodeURIComponent(mobileNo);
+            axios.get(apiUrl, {
+                headers: {
+                    'APIKey': appConfig.api.apiKey,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                const resolvedAgencyId = getAgencyIdFromUserInfo(response.data);
+                const resolvedUserCode = getUserCodeFromUserInfo(response.data);
+                if (response.status === 200 && resolvedAgencyId && resolvedUserCode) {
+                    agencyid = resolvedAgencyId;
+                    verifiedMobileNo = mobileNo;
+                    verifiedUserCode = String(resolvedUserCode).trim();
+                    Get_trainings(agencyid);
+                } else {
+                    alert(appConfig.messages.mobileNotRegistered);
+                }
+            })
+            .catch(() => {
+                alert(appConfig.messages.mobileNotRegistered);
+            });
+        }
+
+        function Get_trainings(participantAgencyId) {
+            const apiUrl = appConfig.api.apiPath + appConfig.api.participantsTrainingEndpoint + '?participantid=' + encodeURIComponent(participantAgencyId);
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'APIKey': appConfig.api.apiKey
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status + ': Failed to fetch trainings');
+                }
+                return response.text();
+            })
+            .then(rawText => {
+                if (!rawText) {
+                    return [];
+                }
+                return JSON.parse(rawText);
+            })
+            .then(data => {
+                const trainings = getTrainingsArray(data);
+                const dropdown = document.getElementById('ddltraining');
+                dropdown.innerHTML = '<option value="">' + appConfig.messages.selectTraining + '</option>';
+
+                if (!Array.isArray(trainings) || trainings.length === 0) {
+                    document.getElementById('verifyButton').disabled = true;
+                    dropdown.disabled = true;
+                    alert(appConfig.messages.noTrainingRegistered);
+                    return;
+                }
+
+                trainings.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.trainingid;
+                    const displayControl = item.trg_Setting && Array.isArray(item.trg_Setting.displaycontrols)
+                        ? item.trg_Setting.displaycontrols.find(dc => Number(dc.id) === 2 && dc.displaytext)
+                        : null;
+                    const displayName = ((displayControl && displayControl.displaytext) || item.training_title || '').trim();
+                    option.textContent = item.trainingcode + '-' + displayName;
+                    dropdown.appendChild(option);
+                });
+
+                dropdown.disabled = false;
+                document.getElementById('verifyButton').disabled = false;
+            })
+            .catch(error => {
+                document.getElementById('verifyButton').disabled = true;
+                document.getElementById('ddltraining').disabled = true;
+                alert(appConfig.messages.apiErrorPrefix + ((error && error.message) || appConfig.messages.noTrainingRegistered));
+            });
         }
 
         function Verify_Certificate() {
@@ -244,17 +414,22 @@
                 return;
             }
 
-            var trainingid = appConfig.api.trainingId;
-            var usercode = document.getElementById('txtno').value.trim();
+            var trainingid = document.getElementById('ddltraining').value;
+            var usercode = verifiedUserCode;
             const apiKey = appConfig.api.apiKey;
             const APIPath = appConfig.api.apiPath;
 
             if (!usercode) {
-                alert(appConfig.messages.emptyEnrollment);
+                alert(appConfig.messages.invalidMobile);
                 return;
             }
 
-            const apiUrl = APIPath + '/Verify_Certificate?usercode=' + encodeURIComponent(usercode) + '&trainingid=' + encodeURIComponent(trainingid);
+            if (!trainingid) {
+                alert(appConfig.messages.selectTraining);
+                return;
+            }
+
+            const apiUrl = APIPath + appConfig.api.verifyCertificateEndpoint + '?usercode=' + encodeURIComponent(usercode) + '&trainingid=' + encodeURIComponent(trainingid);
 
             axios.get(apiUrl, {
                 headers: {
