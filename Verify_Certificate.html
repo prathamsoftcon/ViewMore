@@ -5,129 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle"></title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7f6;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            padding: 1.5rem 0;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            width: 100%;
-            z-index: 10;
-        }
-
-        header h1 {
-            margin: 0;
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            letter-spacing: 1px;
-        }
-
-        .logos {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            margin-bottom: 6px;
-        }
-
-        .lit-logo { border-radius: 28%; width: 75px; }
-        .bhoj_logo { width: 100px; }
-
-        main {
-            flex-grow: 1;
-            padding: 2rem 1rem;
-            max-width: 720px;
-            margin: 180px auto 2rem;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .label {
-            display: block;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #e67e22;
-            margin-bottom: 0.8rem;
-        }
-
-        .input {
-            width: 240px;
-            max-width: 100%;
-            height: 38px;
-            padding: 0 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        .button {
-            display: inline-block;
-            margin-top: 12px;
-            background-color: #3498db;
-            color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            border: none;
-            text-decoration: none;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .button:hover {
-            background-color: #2980b9;
-        }
-
-        footer {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            text-align: center;
-            padding: 1rem 0;
-            margin-top: auto;
-        }
-
-        @media (max-width: 480px) {
-            header h1 { font-size: 16px; }
-            .bhoj_logo { width: 70px; }
-            .lit-logo { width: 50px; }
-            main { margin-top: 150px; }
-        }
-    </style>
+    <link rel="stylesheet" href="./viewmore.css">
 </head>
 <body>
     <header>
-        <div class="logos">
-           <!-- <div><img id="primaryLogo" class="bhoj_logo" title="" src=""></div> -->
-            <div><img id="secondaryLogo" class="lit-logo" title="" src=""></div>
+        <div class="header-container">
+           <div><img id="primaryLogo" class="bhoj_logo" title="Nack" src=""></div>
+            <div><img id="secondaryLogo" class="lit-logo" title="College" src=""></div>
         </div>
         <h1 id="universityName"></h1>
     </header>
 
     <main>
         <section aria-labelledby="product-list-heading">
-            <h4 id="product-list-heading" style="text-align: center; color: #2c3e50; margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;"></h4>
+            <h4 id="product-list-heading"></h4>
             <div class="card">
                 <label id="mobileLabel" class="label" for="mobileNo"></label>
                 <input class="input" type="tel" id="mobileNo" maxlength="10" inputmode="numeric">
@@ -135,7 +26,7 @@
                 <button id="verifyMobileButton" type="button" onclick="Verify_Mobile()" class="button"></button>
                 <br><br>
                 <label id="trainingLabel" class="label" for="ddltraining"></label>
-                <select id="ddltraining" class="input">
+                <select id="ddltraining" class="input" disabled>
                     <option value="">Select Training</option>
                 </select>
                 <br>

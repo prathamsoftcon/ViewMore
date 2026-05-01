@@ -1,11 +1,11 @@
 {
   "pageTitle": "Certificate Verification",
   "header": {
-    "primaryLogoSrc": "https://admin.snpg.littera.in/LitteraCore/api/Content/GlobalSetting/dev/default_logo_2.png",
-    "secondaryLogoSrc": "https://admin.snpg.littera.in/LitteraCore/api/Content/GlobalSetting/Dev/default_logo.png?1.3",
-    "logoTitle": "MPBOU",
+    "primaryLogoSrc": "https://admin.snpg.littera.in/Content/GlobalSetting/dev/default_logo_2.png",
+    "secondaryLogoSrc": "https://admin.snpg.littera.in/Content/GlobalSetting/Dev/default_logo.png?1.3",
+    "logoTitle": "IMAGE",
     "universityName": "SAROJINI NAIDU GOVERNMENT GIRL'S POST GRADUATE COLLEGE, BHOPAL",
-    "courseHeading": "भोज मुक्त विश्वविद्यालय प्रथम वर्ष वोकेशनल कोर्स ( व्यक्तित्व विकास )"
+    "courseHeading": "वोकेशनल कोर्स प्रमाणपत्र सत्यापन पोर्टल"
   },
   "labels": {
     "mobile": "Enter Mobile Number",
