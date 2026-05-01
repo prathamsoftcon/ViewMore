@@ -20,6 +20,7 @@
   },
   "api": {
     "apiKey": "UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=",
+    "baseUrl": "https://qaapp.littera.in",
     "apiPath1": "https://admin.snpg.littera.in/LitteraCore/api",
     "apiPath": "https://localhost:5859/api",
 

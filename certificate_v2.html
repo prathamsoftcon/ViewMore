@@ -804,6 +804,7 @@ background: white !important;
 		const sliderModal = document.getElementById('Captchamodal');
 		const alertModal = document.getElementById('dvalert');
         let APIPath = '';
+        let redirectBaseUrl = '';
         const CONFIG_JSON = './html_config.json';
         let appConfig = null;
 		//const APIPath= "http://p9:5858/api"
@@ -861,12 +862,13 @@ background: white !important;
                 }
                 appConfig = await response.json();
 
-                if (!appConfig.api || !appConfig.api.apiKey || !appConfig.api.apiPath) {
-                    throw new Error('Config JSON is missing api.apiKey or api.apiPath');
+                if (!appConfig.api || !appConfig.api.apiKey || !appConfig.api.apiPath || !appConfig.api.baseUrl) {
+                    throw new Error('Config JSON is missing api.apiKey, api.apiPath or api.baseUrl');
                 }
 
                 apiKey = appConfig.api.apiKey;
                 APIPath = appConfig.api.apiPath;
+                redirectBaseUrl = String(appConfig.api.baseUrl).trim();
                 applyConfigToUi();
             } catch (error) {
                 console.error('Configuration load failed:', error);
@@ -1265,19 +1267,7 @@ DirectVerify_And_Print();
 }
 function Get_Base_Url()
 {
-var DPATH=window.location.hostname
-if(DPATH.toString().toUpperCase()=="QA.LITTERA.IN"){
-return "https://qaapp.littera.in"
-}
-else if(DPATH.toString().toUpperCase()=="LEARNINGPLATFORM.MPBOU.IN")
-{
-return "https://learn.mpbou.in"
-}
-else{
-return "https://react.littera.in"
-//return "http://p9:5858/"
-}
-
+return redirectBaseUrl
 }
 
 </script>

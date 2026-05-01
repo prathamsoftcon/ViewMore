@@ -301,7 +301,7 @@ let apiKey = "";
 const APP_VERSION = "2026.04.24.1";
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
-let APIPath = "https://"+window.location.hostname+"/LitteraCore/api";
+let APIPath = "";
 const CONFIG_JSON = './html_config.json';
 let appConfig = null;
 let appMessages = {
@@ -402,12 +402,14 @@ async function loadConfig() {
         appConfig = await response.json();
         appMessages = Object.assign({}, appMessages, appConfig.messages || {});
 
+        if (!appConfig.api || !appConfig.api.apiPath) {
+            throw new Error('Config JSON is missing api.apiPath');
+        }
+
         if (appConfig.api && appConfig.api.apiKey) {
             apiKey = appConfig.api.apiKey;
         }
-        if (appConfig.api && appConfig.api.apiPath) {
-            APIPath = appConfig.api.apiPath;
-        }
+        APIPath = appConfig.api.apiPath;
 
         applyConfigToUi();
     } catch (error) {
@@ -972,8 +974,7 @@ function getFileType(filePath) {
 function Open_Activity(path){
     const params = new URLSearchParams(window.location.search);
     const contentid = params.get("ttsam_id");
-    var DPATH=window.location.hostname
-    var baseurl="https://"+DPATH+"/LitteraCore/api"
+    var baseurl = APIPath;
     const apiUrl = APIPath+'/GenerateActivityToken_wk?trainingid='+trainingid+'&ttsm_id='+contentid+'&apipath='+baseurl+'&userid='+agencyid+'&ttpai_id='+ttpai_id;
           axios.get(apiUrl, {
 				headers: {
@@ -1004,8 +1005,7 @@ function Open_Activity(path){
 }
 
 function Get_React_path(path){
-    var DPATH=window.location.hostname
-    var baseurl="https://"+DPATH+"/LitteraCore/api"
+    var baseurl = APIPath;
     const apiUrl = APIPath+'/GET_REACT_APP_CONFIGURATION_wk';
           axios.get(apiUrl, {
 				headers: {
@@ -1033,8 +1033,7 @@ function Get_React_path(path){
 			});
 }
 function check_and_update_first_login(id){
-    var DPATH=window.location.hostname
-    var baseurl="https://"+DPATH+"/LitteraCore/api"
+    var baseurl = APIPath;
     const apiUrl = APIPath+'/Check_First_Login_wk?participantid='+id;
       axios.get(apiUrl, {
 			headers: {
@@ -1063,8 +1062,7 @@ function check_and_update_first_login(id){
 }
 
     function save_user_log_data(){
-      var DPATH=window.location.hostname
-        var baseurl="https://"+DPATH+"/LitteraCore/api"
+            var baseurl = APIPath;
         const apiUrl = APIPath+'/SAVE_USER_LOG_wk?userid='+userid;
      axios.post(apiUrl,{}, {
 		headers: {
@@ -1093,8 +1091,7 @@ function check_and_update_first_login(id){
         }
 
       function save_user_track(){
-       var DPATH=window.location.hostname
-       var baseurl="https://"+DPATH+"/LitteraCore/api"
+        var baseurl = APIPath;
        const apiUrl = APIPath+'/Save_Audit_Trail_wk';
 
         const eventData = {
@@ -1268,8 +1265,7 @@ function getCurrentDateTime() {
 }
 
  function save_learning_time(contentid){
- var DPATH=window.location.hostname
- var baseurl="https://"+DPATH+"/LitteraCore/api"
+ var baseurl = APIPath
  const apiUrl = APIPath+'/Learning_Time_wk';
   const eventData = {
   tplt_Id: guid(),       // User ID
@@ -1359,8 +1355,7 @@ function getCurrentDateTime() {
 
 
     function save_activity_completion(trainingid,sessionid, ttsam_id,branchid) {
-        var DPATH = window.location.hostname
-        var baseurl = "https://" + DPATH + "/LitteraCore/api"
+        var baseurl = APIPath;
         var cd = {
             "session_Content_Status": [
                 {
