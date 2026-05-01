@@ -8,482 +8,23 @@
  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">  
 	   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+ <link rel="stylesheet" href="./viewmore.css">
   <!-- <script src="/axios.min.js"></script>  -->
-    <style>
-	.captcha-container {
-      width: 300px;
-      margin: auto;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 20px;
-      border-radius: 6px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-
-    .slider-track {
-      position: relative;
-      height: 40px;
-      background-color: #e0e0e0;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
-
-    .slider-thumb {
-      position: absolute;
-      height: 100%;
-      width: 40px;
-      background-color: #4CAF50;
-      border-radius: 5px;
-      left: 0;
-      transition: background-color 0.3s;
-      text-align: center;
-      color: white;
-      line-height: 40px;
-      font-weight: bold;
-      user-select: none;
-    }
-
-    .captcha-status {
-      text-align: center;
-      font-size: 16px;
-    }
-
-    .success {
-      color: green;
-    }
-
-    .fail {
-      color: red;
-    }
-	
-        /* General Body Styles */
-        body {
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7f6;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        header {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            padding: 1.5rem 0;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        header h1 {
-            margin: 0;
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            letter-spacing: 1px;
-        }
-
-        /* Main Content Area */
-        main {
-            flex-grow: 1;
-            padding: 2rem 1rem;
-            max-width: 1200px;
-            margin: 2rem auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        /* List Styling */
-        .product-list {
-            list-style: none; /* Remove default bullet points */
-            padding: 0;
-            display: grid;
-            grid-template-columns: 1fr; /* Keep one card per row */
-            gap: 2rem; /* Space between grid items */
-        }
-
-        .product-item {
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            min-height: 80px;
-        }
-
-        .product-item .content-actions {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .product-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .product-item h2 {
-            font-family: 'Playfair Display', serif;
-            color: #34495e;
-            font-size: 1.8rem;
-            margin-top: 0;
-            margin-bottom: 0.8rem;
-        }
-
-        .product-item p {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 1.5rem;
-        }
-
-        .product-item .price {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #e67e22; /* A vibrant orange */
-            margin-bottom: 1rem;
-            display: block; /* Ensures price is on its own line */
-        }
-
-        .product-item .button {
-            display: inline-block;
-            background-color: #3498db; /* A nice blue */
-            color: #fff;
-            padding: 0.4rem 0.9rem;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: background-color 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .product-item .button:hover {
-            background-color: #2980b9;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            text-align: center;
-            padding: 1.5rem 0;
-            margin-top: auto;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2rem;
-            }
-
-            .product-list {
-                grid-template-columns: 1fr; /* Stack items on small screens */
-            }
-
-            .product-item {
-                padding: 1rem;
-            }
-
-            .product-item .content-actions {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-
-            .product-item .button {
-                width: 100%;
-                box-sizing: border-box;
-                text-align: center;
-            }
-
-            main {
-                margin: 1rem auto;
-                padding: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            header h1 {
-                font-size: 16px;;
-            }
-			.bhoj_logo{
-			width: 70px;
-			}
-			.lit-logo{
-			width: 50px;
-			}
-				main{
-		margin-top: 150px;
-		}
-        }
-		
-		.main-header{
-		position: fixed;
-		width: 100%;
-	    justify-content: center;
-		}
-		.lit-logo{
-		border-radius: 28%;
-	}
-	.logos{
-	display: flex;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
-	    gap: 14px;
-	}
-	@media (min-width: 481px){
-	.lit-logo{
-	  width: 75px;
-	  }
-	  .bhoj_logo{
-		width: 100px;
-		}
-		main{
-		margin-top: 220px;
-		}
-}	
-    .open-modal-btn {
-            padding: 12px 25px;
-            background-color: #28a745; /* Green button */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .open-modal-btn:hover {
-            background-color: #218838;
-        }
-
-        /* --- Modal Specific Styles --- */
-
-        /* The Modal Overlay (background) */
-        .modal-overlay {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top (should be higher than anything else on the page) */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
-            display: flex; /* Use flexbox to center content */
-            justify-content: center;
-            align-items: center;
-            /* Animation for fade-in */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Modal Content Box */
-        .modal-content {
-            background-color: #ffffff;
-            margin: auto; /* Centered vertically and horizontally (if flexbox isn't used for centering) */
-            padding: 25px 30px; /* Reduced padding slightly for a tighter modal */
-            border-radius: 10px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Stronger shadow */
-            width: 90%; /* Responsive width */
-            max-width: 400px; /* Max width to keep it manageable */
-            position: relative; /* Needed for close button positioning */
-            transform: translateY(-20px); /* Initial state for animation */
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.show .modal-content {
-            transform: translateY(0); /* Final state for animation */
-        }
-
-        /* Close Button */
-        .modal-close-btn {
-		    display:none;
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .modal-close-btn:hover,
-        .modal-close-btn:focus {
-            color: #333;
-            text-decoration: none;
-        }
-
-        /* --- Mobile Verification Form Styles (Copied from previous example, SCOPED) --- */
-        /*
-           To prevent affecting other styles on the page, we're being specific.
-           All these styles are now prefixed with '.modal-content' or a similar class
-           to ensure they ONLY apply inside the modal.
-        */
-
-        .modal-content .verification-container {
-            /* This div is now directly inside modal-content, so some styles can be simplified or removed if they overlap with modal-content */
-            text-align: center;
-            padding: 0; /* No extra padding needed here, as modal-content has it */
-            box-shadow: none; /* No extra shadow needed here */
-            background-color: transparent; /* No extra background needed here */
-        }
-
-        .modal-content h2 {
-            color: #2c3e50;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
-            margin-top: 10px; /* Adjust if header is too close to close button */
-        }
-
-        .modal-content .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .modal-content .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 0.95rem;
-        }
-
-        .modal-content .input-group input[type="tel"],
-        .modal-content .input-group input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 12px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        .modal-content .input-group input[type="tel"]:focus,
-        .modal-content .input-group input[type="text"]:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-
-        .modal-content .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .modal-content .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            font-weight: bold;
-        }
-
-        .modal-content .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .modal-content .btn-primary:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-        }
-
-        .modal-content .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .modal-content .btn-secondary:hover {
-            background-color: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .modal-content .otp-sent-message {
-            margin-top: 15px;
-            color: #28a745;
-            font-size: 0.9rem;
-            display: none;
-        }
-
-        .modal-content .otp-inputs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .modal-content .otp-inputs input {
-            width: 45px;
-            height: 45px;
-            text-align: center;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        .modal-content .otp-inputs input:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-
-        /* Initially hide the OTP section */
-        .modal-content #otp-section {
-            display: none;
-        }
-
-        /* Media queries for responsiveness inside modal */
-        @media (max-width: 600px) {
-            .modal-content {
-                width: 95%; /* Take more width on small screens */
-                padding: 20px;
-            }
-            .modal-content h2 {
-                font-size: 1.5rem;
-            }
-            .modal-content .button-group {
-                flex-direction: column;
-            }
-        }
-    </style>
 </head>
 <body onload="initPage()">
     <header class="main-header">
 	<div class = "logos first-logo">
-	 <div><img class="bhoj_logo" title="MPBOU" src="https://learningplatform.mpbou.in/Content/GlobalSetting/dev/default_logo_2.png"/></div> 
-    <div><img class="lit-logo" title="MPBOU" src="https://learningplatform.mpbou.in/Content/GlobalSetting/Dev/default_logo.png?1.3"/></div> 
+	 <div><img id="primaryLogo" class="bhoj_logo" title="" src=""/></div> 
+    <div><img id="secondaryLogo" class="lit-logo" title="" src=""/></div> 
 
 	</div>
-	 <h1>Madhya Pradesh Bhoj (open) University</h1>
+	 <h1 id="universityName"></h1>
 		
     </header>
 
     <main>
         <section aria-labelledby="product-list-heading">
-            <h4 id="product-list-heading" style="text-align: center; color: #2c3e50; margin-bottom: 2rem; font-family: 'Playfair Display', serif;">भोज मुक्त विश्वविद्यालय प्रथम वर्ष वोकेशनल कोर्स (  व्यक्तित्व विकास ) के सभी कंटेंट यहाँ उपलब्ध हैं</h4>
+            <h4 id="product-list-heading"></h4>
             <ul class="product-list"></ul>
         </section>
     </main>
@@ -493,7 +34,7 @@
 	
 	<div id="Captchamodal" class="modal-overlay">
         <div class="modal-content">
-            <span class="modal-close-btn" style="display:block !important" onclick="closeCaptchaModal()">&times;</span>
+            <span class="modal-close-btn modal-close-visible" onclick="closeCaptchaModal()">&times;</span>
 
             <div class="verification-container">
                 <h2>Verify you are a human</h2>
@@ -546,7 +87,7 @@
                             <input type="text" id="otp-5" maxlength="1" pattern="[0-9]" inputmode="numeric">
                             <input type="text" id="otp-6" maxlength="1" pattern="[0-9]" inputmode="numeric">
                         </div>
-                        <p style="font-size: 0.9em; color: #777; text-align: center;">Didn't receive OTP? <a href="#" onclick="resendOtp()" style="color: #007bff; text-decoration: none;">Resend OTP</a></p>
+                        <p class="otp-resend-text">Didn't receive OTP? <a href="#" onclick="resendOtp()" class="otp-resend-link">Resend OTP</a></p>
                     </div>
                     <div class="button-group">
                         <button type="button" class="btn btn-primary" onclick="verifyOtp()">Verify OTP</button>
@@ -562,9 +103,8 @@
 		var userid=""
 		var agencyid=""
         var currentTrainingId = ''
-        const APP_VERSION = "2026.04.29.1";
+        const APP_VERSION = "2026.05.01.1";
         const CONFIG_JSON = './html_config.json';
-        const CONTENT_JSON_PATH = './content_items1.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
 		let apiKey = '';
@@ -592,9 +132,76 @@
                         apiKey = appConfig.api.apiKey;
                     }
                 }
+
+                applyConfigToUi();
             } catch (error) {
                 console.error('Configuration load failed. Using default API path.', error);
             }
+        }
+
+        function applyConfigToUi() {
+            if (!appConfig) {
+                return;
+            }
+
+            document.title = appConfig.pageTitle || document.title;
+
+            const primaryLogo = document.getElementById('primaryLogo');
+            const secondaryLogo = document.getElementById('secondaryLogo');
+            const universityName = document.getElementById('universityName');
+            const courseHeading = document.getElementById('product-list-heading');
+            const footerText = document.getElementById('footerText');
+            const trainingHeading = getTrainingHeadingFromUrl();
+
+            if (primaryLogo && appConfig.header && appConfig.header.primaryLogoSrc) {
+                primaryLogo.src = appConfig.header.primaryLogoSrc;
+            }
+            if (secondaryLogo && appConfig.header && appConfig.header.secondaryLogoSrc) {
+                secondaryLogo.src = appConfig.header.secondaryLogoSrc;
+            }
+
+            if (appConfig.header && appConfig.header.logoTitle) {
+                if (primaryLogo) {
+                    primaryLogo.title = appConfig.header.logoTitle;
+                    primaryLogo.alt = appConfig.header.logoTitle;
+                }
+                if (secondaryLogo) {
+                    secondaryLogo.title = appConfig.header.logoTitle;
+                    secondaryLogo.alt = appConfig.header.logoTitle;
+                }
+            }
+
+            if (universityName && appConfig.header && appConfig.header.universityName) {
+                universityName.textContent = appConfig.header.universityName;
+            }
+            if (courseHeading) {
+                if (trainingHeading) {
+                    courseHeading.textContent = trainingHeading;
+                } else if (appConfig.header && appConfig.header.courseHeading1) {
+                    courseHeading.textContent = appConfig.header.courseHeading1;
+                }
+            }
+            if (footerText && appConfig.labels && appConfig.labels.footer) {
+                footerText.textContent = appConfig.labels.footer;
+            }
+        }
+
+        function getTrainingHeadingFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const trainingName = String(params.get('trainingname') || '').trim();
+            const trainingCode = String(params.get('trainingcode') || '').trim();
+
+            if (trainingName && trainingCode) {
+                return  trainingName + ' - ' + trainingCode ;
+            }
+            if (trainingName) {
+                return trainingName;
+            }
+            if (trainingCode) {
+                return trainingCode;
+            }
+
+            return '';
         }
 
         function getOtpCache() {
@@ -676,9 +283,20 @@
             renderContentForSelectedTraining();
         }
 
-        function readDynamicContentCache() {
+        function getDynamicContentCacheKey(trainingId) {
+            const normalizedTrainingId = String(trainingId || '').trim();
+            return normalizedTrainingId
+                ? ('content_items_dynamic_' + normalizedTrainingId)
+                : 'content_items_dynamic_default';
+        }
+
+        function readDynamicContentCache(trainingId) {
             try {
-                const raw = localStorage.getItem('content_items_dynamic');
+                const cacheKey = getDynamicContentCacheKey(trainingId);
+                let raw = localStorage.getItem(cacheKey);
+                if (!raw) {
+                    raw = localStorage.getItem('content_items_dynamic');
+                }
                 if (!raw) {
                     return null;
                 }
@@ -688,6 +306,11 @@
                     return null;
                 }
 
+                const targetCacheKey = getDynamicContentCacheKey(trainingId);
+                if (!localStorage.getItem(targetCacheKey)) {
+                    localStorage.setItem(targetCacheKey, JSON.stringify(parsed));
+                }
+
                 return parsed;
             } catch (error) {
                 console.warn('Invalid content_items_dynamic cache.', error);
@@ -695,8 +318,8 @@
             }
         }
 
-        function renderContentFromDynamicCache() {
-            const cachedRows = readDynamicContentCache();
+        function renderContentFromDynamicCache(trainingId) {
+            const cachedRows = readDynamicContentCache(trainingId);
             if (!cachedRows) {
                 return false;
             }
@@ -711,21 +334,28 @@
         }
 
         function renderContentForSelectedTraining() {
-            const hasRenderedFromCache = renderContentFromDynamicCache();
+            const activeTrainingId = String(currentTrainingId || '').trim();
+            const hasRenderedFromCache = renderContentFromDynamicCache(activeTrainingId);
 
             if (currentTrainingId) {
                 renderContentFromApis(currentTrainingId)
                     .catch(error => {
-                        console.error('Failed to bind dynamic content. Falling back to JSON:', error);
+                        console.error('Failed to bind dynamic content for selected training:', error);
                         if (!hasRenderedFromCache) {
-                            renderContentFromJson();
+                            const productList = document.querySelector('.product-list');
+                            if (productList) {
+                                productList.innerHTML = '';
+                            }
                         }
                     });
                 return;
             }
 
             if (!hasRenderedFromCache) {
-                renderContentFromJson();
+                const productList = document.querySelector('.product-list');
+                if (productList) {
+                    productList.innerHTML = '';
+                }
             }
         }
 
@@ -754,7 +384,26 @@
         }
 
         function isOpenStatus(value) {
-            return String(value == null ? '' : value).trim() === '0';
+            if (value == null || value === '') {
+                return true;
+            }
+            const normalized = String(value == null ? '' : value).trim().toLowerCase();
+            return normalized === '0' || normalized === '1' || normalized === 'open' || normalized === 'active';
+        }
+
+        function getFieldValue(row, keys) {
+            if (!row || !Array.isArray(keys)) {
+                return '';
+            }
+
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                if (Object.prototype.hasOwnProperty.call(row, key) && row[key] != null && row[key] !== '') {
+                    return row[key];
+                }
+            }
+
+            return '';
         }
 
         function getFileTypeFromPath(filePath) {
@@ -783,8 +432,8 @@
         }
 
         function mapContentType(item) {
-            const title = String(item.ttsad_title || '').toLowerCase();
-            const fileType = getFileTypeFromPath(item.globalWysiwagText || '');
+            const filePath = getFieldValue(item, ['globalWysiwagText', 'global_wysiwag_text', 'ttsad_file_path', 'file_path', 'filepath']);
+            const fileType = getFileTypeFromPath(filePath || '');
 
             if (fileType === 'pdf') {
                 return { type: 'pdf', redirection_path: 'litteraroompdf' };
@@ -795,15 +444,20 @@
             if (fileType === 'video') {
                 return { type: 'Video', redirection_path: 'videolearning' };
             }
-            if (fileType === 'html' || title.indexOf('activity') !== -1) {
+            if (fileType === 'html') {
                 return { type: 'Activity', redirection_path: 'videolearning' };
             }
 
-            return { type: 'Video', redirection_path: 'videolearning' };
+            return { type: 'View', redirection_path: 'videolearning' };
         }
 
         function getSessionSerial(row, fallbackIndex) {
-            const displayTxt = String(row.display_txt || '');
+            const sessionNo = Number(row && row.ttttt_session_no);
+            if (!Number.isNaN(sessionNo) && sessionNo > 0) {
+                return sessionNo;
+            }
+
+            const displayTxt = String(row.ttttt_content_desc || '');
             const match = displayTxt.match(/#\s*Sr\s*-\s*(\d+)/i);
             if (match && match[1]) {
                 return Number(match[1]);
@@ -836,30 +490,36 @@
         }
 
         async function buildGroupedContentJson(trainingId) {
-            const sessionRowsRaw = await fetchTrainingApiRows(['trgsessions'], trainingId);
+            const sessionRowsRaw = await fetchTrainingApiRows(['trgsessions', 'trgsession'], trainingId);
             const contentRowsRaw = await fetchTrainingApiRows(['trg_content'], trainingId);
 
+            console.log('Session rows raw count:', Array.isArray(sessionRowsRaw) ? sessionRowsRaw.length : 0);
+            console.log('Content rows raw count:', Array.isArray(contentRowsRaw) ? contentRowsRaw.length : 0);
+
             const sessionRows = sessionRowsRaw
-                .filter(row => row && isOpenStatus(row.ttttt_status))
+                .filter(row => row && isOpenStatus(getFieldValue(row, ['ttttt_status', 'status', 'is_active'])))
                 .map((row, index) => ({
                     sr_no: getSessionSerial(row, index),
-                    title: String(row.display_txt || row.ttttt_content_desc || '').trim(),
-                    session_id: String(row.ttttt_session_id || '').trim()
+                    title: String(getFieldValue(row, ['ttttt_content_desc', 'module', 'ttttt_content_desc', 'title', 'ttttt_title']) || '').trim(),
+                    session_id: String(getFieldValue(row, ['ttttt_session_id', 'ttttt_id', 'session_id', 'id']) || '').trim()
                 }))
                 .filter(row => row.title && row.session_id);
 
             const contentRows = contentRowsRaw
-                .filter(row => row && isOpenStatus(row.ttsad_status))
+                .filter(row => row && isOpenStatus(getFieldValue(row, ['ttsad_status', 'status', 'is_active'])))
                 .map(row => {
                     const mapped = mapContentType(row);
                     return {
-                        ttsam_id: String(row.ttsam_id || '').trim(),
-                        ttsam_ttttt_session_id: String(row.ttsam_ttttt_session_id || '').trim(),
+                        ttsam_id: String(getFieldValue(row, ['ttsam_id', 'id', 'ttsad_ttsam_id']) || '').trim(),
+                        ttsam_ttttt_session_id: String(getFieldValue(row, ['ttsam_ttttt_session_id', 'ttttt_session_id', 'session_id', 'ttsad_ttttt_session_id']) || '').trim(),
                         type: mapped.type,
                         redirection_path: mapped.redirection_path
                     };
                 })
                 .filter(row => row.ttsam_id && row.ttsam_ttttt_session_id);
+
+            console.log('Session rows after filter:', sessionRows.length);
+            console.log('Content rows after filter:', contentRows.length);
 
             const contentBySession = {};
             contentRows.forEach(row => {
@@ -883,10 +543,13 @@
                 .sort((a, b) => a.sr_no - b.sr_no);
 
             try {
-                localStorage.setItem('content_items_dynamic', JSON.stringify(grouped));
+                const cacheKey = getDynamicContentCacheKey(trainingId);
+                localStorage.setItem(cacheKey, JSON.stringify(grouped));
             } catch (error) {
                 console.warn('Unable to store generated content JSON in localStorage.', error);
             }
+
+            console.log('Generated content_items_dynamic:', JSON.stringify(grouped, null, 2));
 
             return grouped;
         }
@@ -995,28 +658,6 @@
             }
 
             return redirectPath + '/' + ttsamId;
-        }
-
-        function renderContentFromJson() {
-            const versionedContentPath = CONTENT_JSON_PATH + '?v=' + encodeURIComponent(APP_VERSION);
-            fetch(versionedContentPath, { cache: 'no-store' })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Unable to load content JSON. Status: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(rows => {
-                    if (!Array.isArray(rows)) {
-                        throw new Error('Invalid JSON format. Expected array.');
-                    }
-
-                    const groups = mapRowsToRenderGroups(rows);
-                    renderGroups(groups);
-                })
-                .catch(error => {
-                    console.error('Failed to bind content from JSON:', error);
-                });
         }
 
         function requestOtp() {
@@ -1238,7 +879,7 @@ const auditTrailData = {
 }
     </script>
     <footer>
-        <p>&copy; 2025 All Rights Reserved by Madhya Pradesh Bhoj (open) University.</p>
+        <p id="footerText"></p>
     </footer>
 </body>
 </html>

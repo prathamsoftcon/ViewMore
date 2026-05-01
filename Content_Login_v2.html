@@ -291,6 +291,8 @@ var userid=""
 var agencyid=""
 
      var trainingid = ""
+    var trainingCode = ""
+    var trainingName = ""
      var branchid = null
      var sessionid = ""
 var ttpai_id="";
@@ -321,6 +323,44 @@ var react_base_path="";
 
 function getMessage(key, fallback) {
     return (appMessages && appMessages[key]) || fallback;
+}
+
+function updateSelectedTrainingMeta(selectedTrainingId) {
+    const ddl = document.getElementById('ddltraining');
+    if (!ddl) {
+        return;
+    }
+
+    if (selectedTrainingId) {
+        ddl.value = selectedTrainingId;
+    }
+
+    const selectedOption = ddl.options[ddl.selectedIndex];
+    if (!selectedOption || !selectedOption.value) {
+        trainingCode = "";
+        trainingName = "";
+        return;
+    }
+
+    trainingid = selectedOption.value;
+    trainingCode = String(selectedOption.getAttribute('data-training-code') || '').trim();
+    trainingName = String(selectedOption.getAttribute('data-training-name') || '').trim();
+
+    if (!trainingCode || !trainingName) {
+        const optionText = String(selectedOption.textContent || '').trim();
+        const separatorIndex = optionText.indexOf('-');
+
+        if (separatorIndex > -1) {
+            if (!trainingCode) {
+                trainingCode = optionText.slice(0, separatorIndex).trim();
+            }
+            if (!trainingName) {
+                trainingName = optionText.slice(separatorIndex + 1).trim();
+            }
+        } else if (!trainingName) {
+            trainingName = optionText;
+        }
+    }
 }
 
 function applyConfigToUi() {
@@ -590,6 +630,8 @@ function Get_trainings(agencyid) {
             if (displayname == "") {
                 displayname = item.training_title;
             }
+            option.setAttribute('data-training-code', String(item.trainingcode || '').trim());
+            option.setAttribute('data-training-name', String(displayname || '').trim());
             option.textContent = item.trainingcode + '-' + displayname; // trim removes unwanted spaces
             dropdown.appendChild(option);
         });
@@ -652,7 +694,7 @@ if(trgid !=null){
    let ddl = document.getElementById("ddltraining");
    let exists = [...ddl.options].some(option => option.value.toUpperCase() === valueToFind.toUpperCase()); 
    if (exists) { 
-    trainingid=trgid;
+    updateSelectedTrainingMeta(trgid);
     Get_TTPAI_Details()
    } else { 
     alert('You are not register in this training please contact to admin.')
@@ -684,7 +726,7 @@ function After_Trg_Selection(){
 
 function Get_Training_Participant_Details(){
     if(document.getElementById('ddltraining').selectedIndex>0){
-        trainingid=document.getElementById('ddltraining').value;
+        updateSelectedTrainingMeta();
         Get_TTPAI_Details()
     }
     else{
@@ -813,19 +855,32 @@ function Get_TTPAI_Details(){
 
 }
 function Open_page_For_Type(type){
+    const viewMoreParams = new URLSearchParams();
+    viewMoreParams.set('userid', agencyid);
+    if (trainingid) {
+        viewMoreParams.set('trainingid', trainingid);
+    }
+    if (trainingCode) {
+        viewMoreParams.set('trainingcode', trainingCode);
+    }
+    if (trainingName) {
+        viewMoreParams.set('trainingname', trainingName);
+    }
+    viewMoreParams.set('v', APP_VERSION);
+
+    const viewMoreUrl = "view_more_content1_v2.html?" + viewMoreParams.toString();
     const versionQuery = "v=" + encodeURIComponent(APP_VERSION);
-    const trainingQuery = trainingid ? ("&trainingid=" + encodeURIComponent(trainingid)) : "";
     if(type=="1"){
-    window.location.href="view_more_content1_v2.html?userid="+agencyid+trainingQuery+"&"+versionQuery
+    window.location.href=viewMoreUrl
     }
     else if(type=="2"){
     window.location.href="certificate.html?ttpai_id="+ttpai_id+"&"+versionQuery
     }
     else if(type=="3"){
-    window.location.href="view_more_content1_v2.html?userid="+agencyid+trainingQuery+"&"+versionQuery
+    window.location.href=viewMoreUrl
     }
     else {
-    window.location.href="view_more_content1_v2.html?userid="+agencyid+trainingQuery+"&"+versionQuery
+    window.location.href=viewMoreUrl
     }
 
 }

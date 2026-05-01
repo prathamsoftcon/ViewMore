@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="2026.04.22.1">
+    <meta name="app-version" content="2026.05.01.1">
     <title id="pageTitle"></title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"> 
 	<!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  -->
@@ -650,7 +650,7 @@ background: white !important;
            <div>यह प्रमाणित किया जाता है कि <span id="lblname" style="font-weight:bold"></span> </span>  (नामांकन क्रमांक: <span id="lblenrollment"></span>)  <span style="font-weight:bold">  वोकेशनल कोर्स  "<span style="font-weight:bold" id="lblcourse"></span> " में पंजीकृत हैं। आपके अब तक के अध्ययन प्रदर्शन के आधार पर आपको  <span style="font-weight:bold">  ग्रेड "<span id="lblgrade"></span>" </span> प्रदान किया जाता है।</div>
            <div class="grade-improvement-note" style="margin-top:10px; padding:8px 10px; border-left:4px solid #f39c12; background:#fff8e1; border-radius:4px;">
                ग्रेड सुधार के लिए कृपया कोर्स कंटेंट दोबारा पढ़ें और सभी प्रेक्टिकल गतिविधियां पूर्ण करें।
-               <a href="/viewmore/view_more_content1.html?v=2026.04.21.1" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>
+               <a id="gradeCourseContentLink" href="#" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>
            </div>
 		   <div style="padding: 10px 0px 10px 0px;">हम आपके उज्जवल भविष्य की कामना करते हैं।</div>
            <div id="qaRequiredSection" style="display:none;">
@@ -732,7 +732,7 @@ background: white !important;
  
         <div id="alertMessage">आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। ग्रेड सुधार के लिए भी इन्हें पूरा करना आवश्यक है। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। 
   <br/>
-                    कोर्स कंटेंट Link - <a href="/viewmore/view_more_content1.html?v=2026.04.21.1" target="_blank" rel="noopener noreferrer">/viewmore/view_more_content1.html?v=2026.04.21.1</a></div>
+                  कोर्स कंटेंट के लिए <a id="alertDefaultCourseLink" href="#" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a></div>
 </div>
                     </div>
                    
@@ -794,7 +794,9 @@ background: white !important;
 		var agencyid=""
 		var ttpai_id=""
         var currentTrainingId = ''
-        const APP_VERSION = '2026.04.29.1';
+        var currentTrainingCode = ''
+        var currentTrainingName = ''
+        const APP_VERSION = '2026.05.01.1';
 		let apiKey = '';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_VALID_DAYS = 15;
@@ -1245,6 +1247,7 @@ await loadConfig();
 } catch (error) {
 return;
 }
+updateCourseContentLinks();
 // const queryString = window.location.search;
 // const urlParams = new URLSearchParams(queryString);
 // agencyid = urlParams.get('userid');
@@ -1329,6 +1332,7 @@ function Get_Certificate_Data(ttpai_id) {
             document.getElementById('lbldate').innerHTML = response.data.printdate;
             userid = response.data.userid;
             currentTrainingId = response.data.trainingid || currentTrainingId;
+            updateCourseContentLinks();
             Get_Training_Data(response.data.trainingid);
 
             closeModal();
@@ -1391,7 +1395,10 @@ function Get_Training_Data(trainingid){
                 }
              const trainingCode = String(response.data.trainingcode || response.data.t_Code || response.data.training_code || '').trim();
              const courseName = String(displayname || response.data.t_Name || '').trim();
+             currentTrainingCode = trainingCode;
+             currentTrainingName = courseName;
              document.getElementById('lblcourse').innerHTML = trainingCode ? (trainingCode + ' - ' + courseName) : courseName;
+             updateCourseContentLinks();
 			
 			  //closeModal()
 			
@@ -1432,7 +1439,13 @@ function Get_Training_Participant_Details(){
 		  }
           
           var participantid=agencyid;
-          var trainingid=document.getElementById('ddltraining').value;
+          var trainingDropdown = document.getElementById('ddltraining');
+          var trainingid=trainingDropdown.value;
+          var selectedOption = trainingDropdown.options[trainingDropdown.selectedIndex];
+          currentTrainingId = String(trainingid || '').trim();
+          currentTrainingCode = String((selectedOption && selectedOption.getAttribute('data-training-code')) || '').trim();
+          currentTrainingName = String((selectedOption && selectedOption.getAttribute('data-training-name')) || '').trim();
+          updateCourseContentLinks();
           const apiUrl = APIPath+'/TRG_PARTICIPANT_DETAILS?trainingid='+trainingid+'&participantid='+participantid;
             axios.get(apiUrl, {
 				headers: {
@@ -1531,23 +1544,14 @@ if (!alertMessageElement) {
 return;
 }
 
-const courseContentPath = '/viewmore/view_more_content1.html';
-const selectedTrainingId = (document.getElementById('ddltraining') && document.getElementById('ddltraining').value) || '';
-const trainingIdFromUrl = new URLSearchParams(window.location.search).get('trainingid') || '';
-const trainingIdForLink = selectedTrainingId || trainingIdFromUrl || currentTrainingId || '';
-const params = new URLSearchParams();
-params.set('v', APP_VERSION);
-if (trainingIdForLink) {
-params.set('trainingid', trainingIdForLink);
-}
-const courseContentUrl = window.location.origin + courseContentPath + '?' + params.toString();
-const courseLinkLabelHtml = 'कोर्स कंटेंट Link - <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">' + courseContentUrl + '</a>';
+const courseContentUrl = buildCourseContentUrl('/view_more_content1_v2.html');
+const courseLinkLabelHtml = 'कोर्स कंटेंट के लिए <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>';
 const courseLinkHtml = '<br/>' + courseLinkLabelHtml;
 
 if (message && typeof message === 'string') {
 const normalizedMessage = message.replace(/\n/g, '<br/>');
 const cleanedMessage = normalizedMessage
-.replace(/(?:<br\s*\/?>\s*)?कोर्स\s*कंटेंट\s*Link\s*-\s*https?:\/\/[^\s<]+/gi, '')
+.replace(/(?:<br\s*\/?>\s*)?कोर्स\s*कंटेंट[^<]*<a[^>]*>.*?<\/a>/gi, '')
 .replace(/^(?:<br\s*\/?>\s*)+|(?:<br\s*\/?>\s*)+$/gi, '')
 .trim();
 
@@ -1602,6 +1606,8 @@ function Get_trainings(agencyid) {
             if (displayname == "") {
                 displayname = response.data.t_Name;
             }
+            option.setAttribute('data-training-code', String(item.trainingcode || '').trim());
+            option.setAttribute('data-training-name', String(displayname || '').trim());
             option.textContent = item.trainingcode + '-' + displayname; // trim removes unwanted spaces
             dropdown.appendChild(option);
         });
@@ -1619,6 +1625,38 @@ function Get_trainings(agencyid) {
 }
 function closealert(){
 alertModal.classList.remove('show');
+}
+
+function buildCourseContentUrl(path) {
+const urlParams = new URLSearchParams(window.location.search);
+const effectiveTrainingId = String(currentTrainingId || urlParams.get('trainingid') || '').trim();
+const effectiveTrainingCode = String(currentTrainingCode || urlParams.get('trainingcode') || '').trim();
+const effectiveTrainingName = String(currentTrainingName || urlParams.get('trainingname') || '').trim();
+const params = new URLSearchParams();
+params.set('v', APP_VERSION);
+if (effectiveTrainingId) {
+params.set('trainingid', effectiveTrainingId);
+}
+if (effectiveTrainingCode) {
+params.set('trainingcode', effectiveTrainingCode);
+}
+if (effectiveTrainingName) {
+params.set('trainingname', effectiveTrainingName);
+}
+return window.location.origin + path + '?' + params.toString();
+}
+
+function updateCourseContentLinks() {
+const courseContentUrl = buildCourseContentUrl('/view_more_content1_v2.html');
+const gradeLink = document.getElementById('gradeCourseContentLink');
+if (gradeLink) {
+gradeLink.href = courseContentUrl;
+}
+const alertDefaultLink = document.getElementById('alertDefaultCourseLink');
+if (alertDefaultLink) {
+alertDefaultLink.href = courseContentUrl;
+alertDefaultLink.textContent = 'यहां क्लिक करें';
+}
 }
 
 </script>
