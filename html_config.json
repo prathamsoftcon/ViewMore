@@ -1,4 +1,5 @@
 {
+  "is_qr_required": false,
   "pageTitle": "Certificate Verification",
   "header": {
     "primaryLogoSrc": "https://admin.snpg.littera.in/Content/GlobalSetting/dev/default_logo_2.png",
