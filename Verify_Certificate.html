@@ -291,6 +291,7 @@
 
                 dropdown.disabled = false;
                 document.getElementById('verifyButton').disabled = false;
+                alert((appConfig.messages.selectTrainingToVerifyCertificate || (appConfig.messages.selectTraining + ' to verify certificate')) + '.');
             })
             .catch(error => {
                 document.getElementById('verifyButton').disabled = true;
