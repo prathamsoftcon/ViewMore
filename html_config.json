@@ -9,6 +9,8 @@
   },
   "labels": {
     "mobile": "Enter Mobile Number",
+    "trainingCode": "Enter Training Code",
+    "enrollmentNo": "Enter Enrollment No",
     "verifyMobileButton": "Verify Mobile",
     "training": "Select Training",
     "verifyButton": "Verify",
@@ -17,12 +19,15 @@
   "api": {
     "apiKey": "UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=",
     "apiPath": "https://admin.snpg.littera.in/LitteraCore/api",
+    "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
     "userInfoEndpoint": "/UserInfo_wk",
     "participantsTrainingEndpoint": "/Participants_training_wk",
     "verifyCertificateEndpoint": "/Verify_Certificate"
   },
   "messages": {
     "invalidMobile": "Please enter valid 10-digit mobile number.",
+    "invalidTrainingCode": "Please enter valid training code.",
+    "invalidEnrollmentNo": "Please enter enrollment number.",
     "mobileNotRegistered": "Your number is not registered. Please contact administrator.",
     "selectTraining": "Please select training.",
     "noTrainingRegistered": "No training is registered for this user.",
