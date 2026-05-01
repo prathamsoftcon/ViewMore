@@ -1,0 +1,1331 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocational Courses</title>
+ <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">  
+	   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+  <!-- <script src="/axios.min.js"></script>  -->
+    <style>
+	.captcha-container {
+      width: 300px;
+      margin: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .slider-track {
+      position: relative;
+      height: 40px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .slider-thumb {
+      position: absolute;
+      height: 100%;
+      width: 40px;
+      background-color: #4CAF50;
+      border-radius: 5px;
+      left: 0;
+      transition: background-color 0.3s;
+      text-align: center;
+      color: white;
+      line-height: 40px;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .captcha-status {
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .fail {
+      color: red;
+    }
+	
+        /* General Body Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        /* Main Content Area */
+        main {
+            flex-grow: 1;
+            padding: 2rem 1rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        /* List Styling */
+        .product-list {
+            list-style: none; /* Remove default bullet points */
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr; /* Keep one card per row */
+            gap: 2rem; /* Space between grid items */
+        }
+
+        .product-item {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            min-height: 80px;
+        }
+
+        .product-item .content-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-item h2 {
+            font-family: 'Playfair Display', serif;
+            color: #34495e;
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 0.8rem;
+        }
+
+        .product-item p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-item .price {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e67e22; /* A vibrant orange */
+            margin-bottom: 1rem;
+            display: block; /* Ensures price is on its own line */
+        }
+
+        .product-item .button {
+            display: inline-block;
+            background-color: #3498db; /* A nice blue */
+            color: #fff;
+            padding: 0.4rem 0.9rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: background-color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .product-item .button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: auto;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .product-list {
+                grid-template-columns: 1fr; /* Stack items on small screens */
+            }
+
+            .product-item {
+                padding: 1rem;
+            }
+
+            .product-item .content-actions {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .product-item .button {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            main {
+                margin: 1rem auto;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 16px;;
+            }
+			.bhoj_logo{
+			width: 70px;
+			}
+			.lit-logo{
+			width: 50px;
+			}
+				main{
+		margin-top: 150px;
+		}
+        }
+		
+		.main-header{
+		position: fixed;
+		width: 100%;
+	    justify-content: center;
+		}
+		.lit-logo{
+		border-radius: 28%;
+	}
+	.logos{
+	display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+	    gap: 14px;
+	}
+	@media (min-width: 481px){
+	.lit-logo{
+	  width: 75px;
+	  }
+	  .bhoj_logo{
+		width: 100px;
+		}
+		main{
+		margin-top: 220px;
+		}
+}	
+    .open-modal-btn {
+            padding: 12px 25px;
+            background-color: #28a745; /* Green button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .open-modal-btn:hover {
+            background-color: #218838;
+        }
+
+        /* --- Modal Specific Styles --- */
+
+        /* The Modal Overlay (background) */
+        .modal-overlay {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top (should be higher than anything else on the page) */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+            display: flex; /* Use flexbox to center content */
+            justify-content: center;
+            align-items: center;
+            /* Animation for fade-in */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Modal Content Box */
+        .modal-content {
+            background-color: #ffffff;
+            margin: auto; /* Centered vertically and horizontally (if flexbox isn't used for centering) */
+            padding: 25px 30px; /* Reduced padding slightly for a tighter modal */
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+            width: 90%; /* Responsive width */
+            max-width: 400px; /* Max width to keep it manageable */
+            position: relative; /* Needed for close button positioning */
+            transform: translateY(-20px); /* Initial state for animation */
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0); /* Final state for animation */
+        }
+
+        /* Close Button */
+        .modal-close-btn {
+		    display:none;
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close-btn:hover,
+        .modal-close-btn:focus {
+            color: #333;
+            text-decoration: none;
+        }
+
+        /* --- Mobile Verification Form Styles (Copied from previous example, SCOPED) --- */
+        /*
+           To prevent affecting other styles on the page, we're being specific.
+           All these styles are now prefixed with '.modal-content' or a similar class
+           to ensure they ONLY apply inside the modal.
+        */
+
+        .modal-content .verification-container {
+            /* This div is now directly inside modal-content, so some styles can be simplified or removed if they overlap with modal-content */
+            text-align: center;
+            padding: 0; /* No extra padding needed here, as modal-content has it */
+            box-shadow: none; /* No extra shadow needed here */
+            background-color: transparent; /* No extra background needed here */
+        }
+
+        .modal-content h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            margin-top: 10px; /* Adjust if header is too close to close button */
+        }
+
+        .modal-content .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .modal-content .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .modal-content .input-group input[type="tel"],
+        .modal-content .input-group input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 12px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .modal-content .input-group input[type="tel"]:focus,
+        .modal-content .input-group input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .modal-content .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .modal-content .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: bold;
+        }
+
+        .modal-content .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .modal-content .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .modal-content .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .modal-content .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .modal-content .otp-sent-message {
+            margin-top: 15px;
+            color: #28a745;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .modal-content .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal-content .otp-inputs input {
+            width: 45px;
+            height: 45px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .modal-content .otp-inputs input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        /* Initially hide the OTP section */
+        .modal-content #otp-section {
+            display: none;
+        }
+
+        /* Media queries for responsiveness inside modal */
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 95%; /* Take more width on small screens */
+                padding: 20px;
+            }
+            .modal-content h2 {
+                font-size: 1.5rem;
+            }
+            .modal-content .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body onload="initPage()">
+    <header class="main-header">
+	<div class = "logos first-logo">
+	 <div><img class="bhoj_logo" title="MPBOU" src="https://learningplatform.mpbou.in/Content/GlobalSetting/dev/default_logo_2.png"/></div> 
+    <div><img class="lit-logo" title="MPBOU" src="https://learningplatform.mpbou.in/Content/GlobalSetting/Dev/default_logo.png?1.3"/></div> 
+
+	</div>
+	 <h1>Madhya Pradesh Bhoj (open) University</h1>
+		
+    </header>
+
+    <main>
+        <section aria-labelledby="product-list-heading">
+            <h4 id="product-list-heading" style="text-align: center; color: #2c3e50; margin-bottom: 2rem; font-family: 'Playfair Display', serif;">भोज मुक्त विश्वविद्यालय प्रथम वर्ष वोकेशनल कोर्स (  व्यक्तित्व विकास ) के सभी कंटेंट यहाँ उपलब्ध हैं</h4>
+            <ul class="product-list"></ul>
+        </section>
+    </main>
+	
+	
+	
+	
+	<div id="Captchamodal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close-btn" style="display:block !important" onclick="closeCaptchaModal()">&times;</span>
+
+            <div class="verification-container">
+                <h2>Verify you are a human</h2>
+
+                <div id="mobile-input-section1" >
+                    <div class="input-group">
+                      
+                        <div class="captcha-container">
+  <div class="slider-track" id="sliderTrack">
+    <div class="slider-thumb" id="sliderThumb">▶</div>
+  </div>
+  <div class="captcha-status" id="captchaStatus">Slide to verify (स्लाइड करें )</div>
+</div>
+                    </div>
+                   
+                   
+                </div>
+
+               
+            </div>
+        </div>
+    </div>
+
+    <div id="verificationModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close-btn" onclick="closeModal()">&times;</span>
+
+            <div class="verification-container">
+                <h2>Verify Your Mobile Number</h2>
+
+                <div id="mobile-input-section">
+                    <div class="input-group">
+                        <label for="userid">Enter Mobile Number:</label>
+                        <input type="tel" id="userid" name="userid" maxlength="10" placeholder="ex-987654XXXX" pattern="[0-9]{10}" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-primary" onclick="requestOtp()">Request OTP</button>
+                    </div>
+                    <p id="otp-sent-message" class="otp-sent-message">OTP has been sent to your mobile number!</p>
+                </div>
+
+                <div id="otp-section">
+                    <div class="input-group">
+                        <label>Enter OTP:</label>
+                        <div class="otp-inputs">
+                            <input type="text" id="otp-1" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                            <input type="text" id="otp-2" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                            <input type="text" id="otp-3" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                            <input type="text" id="otp-4" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                            <input type="text" id="otp-5" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                            <input type="text" id="otp-6" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        </div>
+                        <p style="font-size: 0.9em; color: #777; text-align: center;">Didn't receive OTP? <a href="#" onclick="resendOtp()" style="color: #007bff; text-decoration: none;">Resend OTP</a></p>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-primary" onclick="verifyOtp()">Verify OTP</button>
+                        <button type="button" class="btn btn-secondary" onclick="edituserid()">Edit Mobile Number</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Modal Control JavaScript ---
+		var userid=""
+		var agencyid=""
+        var currentTrainingId = ''
+        const APP_VERSION = "2026.04.29.1";
+        const CONTENT_JSON_PATH = './content_items.json';
+        const OTP_CACHE_KEY = 'certificate_otp_cache';
+        const OTP_CACHE_MAX_AGE_DAYS = 15;
+		const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
+        const verificationModal = document.getElementById('verificationModal');
+		const sliderModal = document.getElementById('Captchamodal');
+        const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
+		//const APIPath= "http://p9:5858/api"
+
+        function getOtpCache() {
+            try {
+                const raw = localStorage.getItem(OTP_CACHE_KEY);
+                if (!raw) {
+                    return null;
+                }
+                return JSON.parse(raw);
+            } catch (error) {
+                console.warn('Invalid OTP cache format. Clearing cache.', error);
+                localStorage.removeItem(OTP_CACHE_KEY);
+                return null;
+            }
+        }
+
+        function isOtpCacheValid(cache, mobileNumber) {
+            if (!cache || !cache.mobileNumber || !cache.userid || !cache.agencyid || !cache.savedAt) {
+                return false;
+            }
+
+            if (String(cache.mobileNumber) !== String(mobileNumber)) {
+                return false;
+            }
+
+            const savedAt = new Date(cache.savedAt).getTime();
+            if (Number.isNaN(savedAt)) {
+                return false;
+            }
+
+            const maxAgeMs = OTP_CACHE_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+            return Date.now() - savedAt <= maxAgeMs;
+        }
+
+        function persistOtpCache(mobileNumber, cacheUserid, cacheAgencyid, payload) {
+            const cache = {
+                mobileNumber: String(mobileNumber),
+                userid: cacheUserid,
+                agencyid: cacheAgencyid,
+                payload: payload || null,
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem(OTP_CACHE_KEY, JSON.stringify(cache));
+        }
+		
+        function openModal() {
+            verificationModal.classList.add('show');
+            // Reset form to initial state when opened
+            document.getElementById('mobile-input-section').style.display = 'block';
+            document.getElementById('otp-section').style.display = 'none';
+            document.getElementById('otp-sent-message').style.display = 'none';
+            document.getElementById('userid').disabled = false;
+            document.getElementById('userid').value = ''; // Clear previous mobile number
+            document.getElementById('userid').focus();
+            document.querySelectorAll('.otp-inputs input').forEach(input => input.value = ''); // Clear OTP inputs
+        }
+
+        function closeModal() {
+            verificationModal.classList.remove('show');
+        }
+		function closeCaptchaModal() {
+            sliderModal.classList.remove('show');
+        }
+		
+
+        // Close modal when clicking outside of the modal content
+     
+
+        // --- Mobile Verification Form Logic (Copied and adapted) ---
+        const mobileInputSection = document.getElementById('mobile-input-section');
+        const otpSection = document.getElementById('otp-section');
+        const otpSentMessage = document.getElementById('otp-sent-message');
+        const useridInput = document.getElementById('userid');
+        const otpInputs = document.querySelectorAll('.otp-inputs input');
+
+        function initPage() {
+            CHECK_MOBILE_ON_LOAD();
+            renderContentForSelectedTraining();
+        }
+
+        function renderContentForSelectedTraining() {
+            if (currentTrainingId) {
+                renderContentFromApis(currentTrainingId)
+                    .catch(error => {
+                        console.error('Failed to bind dynamic content. Falling back to JSON:', error);
+                        renderContentFromJson();
+                    });
+                return;
+            }
+
+            renderContentFromJson();
+        }
+
+        function getApiArray(payload) {
+            if (Array.isArray(payload)) {
+                return payload;
+            }
+
+            if (payload && Array.isArray(payload.items)) {
+                return payload.items;
+            }
+
+            if (payload && Array.isArray(payload.data)) {
+                return payload.data;
+            }
+
+            if (payload && payload.result && Array.isArray(payload.result.items)) {
+                return payload.result.items;
+            }
+
+            if (payload && payload.result && Array.isArray(payload.result.data)) {
+                return payload.result.data;
+            }
+
+            return [];
+        }
+
+        function isOpenStatus(value) {
+            return String(value == null ? '' : value).trim() === '0';
+        }
+
+        function getFileTypeFromPath(filePath) {
+            if (!filePath) {
+                return 'unknown';
+            }
+
+            const cleanPath = String(filePath).split('?')[0].split('#')[0];
+            const fileName = cleanPath.split('/').pop().split('\\').pop();
+            const ext = (fileName.split('.').pop() || '').toLowerCase();
+
+            if (['mp4', 'mov', 'wmv', 'avi', 'mkv', 'flv', 'webm', 'm3u8'].includes(ext)) {
+                return 'video';
+            }
+            if (ext === 'pdf') {
+                return 'pdf';
+            }
+            if (['ppt', 'pptx'].includes(ext)) {
+                return 'ppt';
+            }
+            if (['html', 'htm'].includes(ext)) {
+                return 'html';
+            }
+
+            return 'unknown';
+        }
+
+        function mapContentType(item) {
+            const title = String(item.ttsad_title || '').toLowerCase();
+            const fileType = getFileTypeFromPath(item.globalWysiwagText || '');
+
+            if (fileType === 'pdf') {
+                return { type: 'pdf', redirection_path: 'litteraroompdf' };
+            }
+            if (fileType === 'ppt') {
+                return { type: 'PPT', redirection_path: 'litteraroomppt' };
+            }
+            if (fileType === 'video') {
+                return { type: 'Video', redirection_path: 'videolearning' };
+            }
+            if (fileType === 'html' || title.indexOf('activity') !== -1) {
+                return { type: 'Activity', redirection_path: 'videolearning' };
+            }
+
+            return { type: 'Video', redirection_path: 'videolearning' };
+        }
+
+        function getSessionSerial(row, fallbackIndex) {
+            const displayTxt = String(row.display_txt || '');
+            const match = displayTxt.match(/#\s*Sr\s*-\s*(\d+)/i);
+            if (match && match[1]) {
+                return Number(match[1]);
+            }
+            return fallbackIndex + 1;
+        }
+
+        async function fetchTrainingApiRows(endpointCandidates, trainingId) {
+            const encodedTrainingId = encodeURIComponent(trainingId);
+            let lastError = null;
+
+            for (let i = 0; i < endpointCandidates.length; i++) {
+                const endpoint = endpointCandidates[i];
+                const apiUrl = APIPath + '/' + endpoint + '?trainingid=' + encodedTrainingId;
+
+                try {
+                    const response = await axios.get(apiUrl, {
+                        headers: {
+                            'APIKey': apiKey,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    return getApiArray(response.data);
+                } catch (error) {
+                    lastError = error;
+                }
+            }
+
+            throw lastError || new Error('Failed to load training API data');
+        }
+
+        async function buildGroupedContentJson(trainingId) {
+            const sessionRowsRaw = await fetchTrainingApiRows(['trgsession', 'trgsession_wk'], trainingId);
+            const contentRowsRaw = await fetchTrainingApiRows(['trg_content', 'trg_content_wk'], trainingId);
+
+            const sessionRows = sessionRowsRaw
+                .filter(row => row && isOpenStatus(row.ttttt_status))
+                .map((row, index) => ({
+                    sr_no: getSessionSerial(row, index),
+                    title: String(row.display_txt || row.ttttt_content_desc || '').trim(),
+                    session_id: String(row.ttttt_session_id || '').trim()
+                }))
+                .filter(row => row.title && row.session_id);
+
+            const contentRows = contentRowsRaw
+                .filter(row => row && isOpenStatus(row.ttsad_status))
+                .map(row => {
+                    const mapped = mapContentType(row);
+                    return {
+                        ttsam_id: String(row.ttsam_id || '').trim(),
+                        ttsam_ttttt_session_id: String(row.ttsam_ttttt_session_id || '').trim(),
+                        type: mapped.type,
+                        redirection_path: mapped.redirection_path
+                    };
+                })
+                .filter(row => row.ttsam_id && row.ttsam_ttttt_session_id);
+
+            const contentBySession = {};
+            contentRows.forEach(row => {
+                if (!contentBySession[row.ttsam_ttttt_session_id]) {
+                    contentBySession[row.ttsam_ttttt_session_id] = [];
+                }
+                contentBySession[row.ttsam_ttttt_session_id].push({
+                    type: row.type,
+                    ttsam_id: row.ttsam_id,
+                    redirection_path: row.redirection_path
+                });
+            });
+
+            const grouped = sessionRows
+                .map(row => ({
+                    sr_no: row.sr_no,
+                    title: row.title,
+                    children: contentBySession[row.session_id] || []
+                }))
+                .filter(row => row.children.length > 0)
+                .sort((a, b) => a.sr_no - b.sr_no);
+
+            try {
+                localStorage.setItem('content_items_dynamic', JSON.stringify(grouped));
+            } catch (error) {
+                console.warn('Unable to store generated content JSON in localStorage.', error);
+            }
+
+            return grouped;
+        }
+
+        function renderGroups(groups) {
+            const productList = document.querySelector('.product-list');
+            if (!productList) {
+                return;
+            }
+
+            productList.innerHTML = '';
+
+            groups.forEach(group => {
+                const li = document.createElement('li');
+                li.className = 'product-item';
+
+                const title = document.createElement('span');
+                title.className = 'price';
+                title.textContent = group.title;
+                li.appendChild(title);
+
+                const actions = document.createElement('div');
+                actions.className = 'content-actions';
+
+                group.items.forEach(item => {
+                    const lnk = buildContentLink(item);
+                    if (!lnk) {
+                        return;
+                    }
+
+                    const button = document.createElement('a');
+                    button.href = '#';
+                    button.className = 'button';
+                    button.textContent = item.type || 'View';
+                    button.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        Open_Video_Link(lnk);
+                    });
+                    actions.appendChild(button);
+                });
+
+                li.appendChild(actions);
+                productList.appendChild(li);
+            });
+        }
+
+        function mapRowsToRenderGroups(rows) {
+            return rows
+                .map(row => {
+                    const srNo = Number(row.sr_no || row.srNo || 0);
+                    const title = String(row.title || '').trim();
+
+                    if (Array.isArray(row.children)) {
+                        return {
+                            srNo: srNo,
+                            title: title,
+                            items: row.children.map(child => ({
+                                type: String((child && child.type) || 'View').trim(),
+                                ttsam_id: child ? child.ttsam_id : '',
+                                redirection_path: child ? child.redirection_path : ''
+                            }))
+                        };
+                    }
+
+                    return {
+                        srNo: srNo,
+                        title: title,
+                        items: [{
+                            type: String(row.type || 'View').trim(),
+                            ttsam_id: row.ttsam_id,
+                            redirection_path: row.redirection_path
+                        }]
+                    };
+                })
+                .filter(group => group.title && group.items.length > 0)
+                .sort((a, b) => a.srNo - b.srNo);
+        }
+
+        async function renderContentFromApis(trainingId) {
+            const generatedRows = await buildGroupedContentJson(trainingId);
+            const groups = mapRowsToRenderGroups(generatedRows);
+            renderGroups(groups);
+        }
+
+        function buildContentLink(item) {
+            const ttsamId = String(item.ttsam_id || '').trim();
+            const redirectPath = String(item.redirection_path || 'videolearning').trim();
+
+            if (!ttsamId) {
+                return '';
+            }
+
+            if (redirectPath.indexOf('{ttsam_id}') !== -1) {
+                return redirectPath.replace('{ttsam_id}', ttsamId);
+            }
+
+            if (redirectPath.endsWith('/')) {
+                return redirectPath + ttsamId;
+            }
+
+            if (redirectPath.toLowerCase().endsWith(ttsamId.toLowerCase())) {
+                return redirectPath;
+            }
+
+            return redirectPath + '/' + ttsamId;
+        }
+
+        function renderContentFromJson() {
+            const versionedContentPath = CONTENT_JSON_PATH + '?v=' + encodeURIComponent(APP_VERSION);
+            fetch(versionedContentPath, { cache: 'no-store' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to load content JSON. Status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(rows => {
+                    if (!Array.isArray(rows)) {
+                        throw new Error('Invalid JSON format. Expected array.');
+                    }
+
+                    const groups = mapRowsToRenderGroups(rows);
+                    renderGroups(groups);
+                })
+                .catch(error => {
+                    console.error('Failed to bind content from JSON:', error);
+                });
+        }
+
+        function requestOtp() {
+            const mobileNumber = useridInput.value;
+            if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
+            const cached = getOtpCache();
+            if (isOtpCacheValid(cached, mobileNumber)) {
+                userid = cached.userid;
+                agencyid = cached.agencyid;
+                localStorage.setItem('participant_userid', agencyid);
+                closeModal();
+                return;
+            }
+
+            if (cached) {
+                localStorage.removeItem(OTP_CACHE_KEY);
+            }
+
+		 	const apiUrl = APIPath+'/GenerateOTP?username=91-'+mobileNumber;
+
+
+			axios.get(apiUrl, {
+				headers: {
+				'APIKey': apiKey,
+				'Content-Type': 'application/json' // Adjust if API expects something else
+				}
+			})
+			.then(response => {
+			// Axios automatically parses JSON
+			console.log('OTP Generation Response:', response.data);
+			if (response.status==200) {
+				console.log(`Sending OTP to: ${mobileNumber}`);
+                userid=response.data.userid;
+				agencyid=response.data.agencyid;
+                mobileInputSection.style.display = 'none';
+                otpSection.style.display = 'block';
+                otpSentMessage.style.display = 'block';
+                useridInput.disabled = true;
+
+                otpInputs.forEach(input => input.value = '');
+                otpInputs[0].focus();
+			} else {
+        alert('Your no is not registered,Please contact to your college. ');
+			}
+		})
+			.catch(error => {
+    // Handle errors
+				if (error.response) {
+				// The request was made and the server responded with a status code
+				// that falls out of the range of 2xx
+				console.error('API Error Response:', error.response.data);
+				console.error('API Error Status:', error.response.status);
+				alert(`API Error: ${error.response.status} - ${error.response.data.message || 'Unknown error'}`);
+				} else if (error.request) {
+        // The request was made but no response was received
+					console.error('No response received:', error.request);
+					alert('Your no is not registered,Please contact to your college ');
+				} else {
+					// Something else happened in setting up the request
+					console.error('Request setup error:', error.message);
+					alert('An unexpected error occurred.');
+				}
+				});
+			
+			
+              
+            } else {
+                alert('Please enter a valid 10-digit mobile number.');
+                useridInput.focus();
+            }
+        }
+
+        function verifyOtp() {
+            const enteredOtp = Array.from(otpInputs).map(input => input.value).join('');
+            const username = '91-'+useridInput.value;
+            if (enteredOtp.length === 6 && /^\d+$/.test(enteredOtp)) {
+               const apiUrl = APIPath+'/VerifyOTP?username='+username+'&otp='+enteredOtp;
+
+			axios.get(apiUrl, {
+				headers: {
+				'APIKey': apiKey,
+				'Content-Type': 'application/json' // Adjust if API expects something else
+			}
+			})
+		.then(response => {
+			// Axios automatically parses JSON
+			console.log('OTP Generation Response:', response.data);
+			if (response.status==200) {
+			  localStorage.setItem('participant_userid',agencyid)
+              persistOtpCache(useridInput.value, userid, agencyid, response.data)
+			  update_first_login()
+				} else {
+				alert('Failed to generate OTP: ' + (response.data ? response.data.message : 'Unknown error'));
+			}
+		})
+		.catch(error => {
+    // Handle errors
+			if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+			console.error('API Error Response:', error.response.data);
+			console.error('API Error Status:', error.response.status);
+			alert('Invalid OTP,Please enter valid OTP');
+			} else if (error.request) {
+			// The request was made but no response was received
+				console.error('No response received:', error.request);
+				alert('No response from server. Please try again.');
+			} else {
+        // Something else happened in setting up the request
+			console.error('Request setup error:', error.message);
+			alert('An unexpected error occurred.');
+				}
+			});
+            } else {
+                alert('Please enter a valid 6-digit OTP.');
+                otpInputs[0].focus();
+            }
+        }
+
+        function resendOtp() {
+            const mobileNumber = useridInput.value;
+            if (mobileNumber) {
+               requestOtp()
+            }
+        }
+
+        function edituserid() {
+            mobileInputSection.style.display = 'block';
+            otpSection.style.display = 'none';
+            otpSentMessage.style.display = 'none';
+            useridInput.disabled = false;
+            useridInput.focus();
+        }
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('keyup', (e) => {
+                if (e.key >= '0' && e.key <= '9' && input.value.length === 1) {
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                } else if (e.key === 'Backspace' && input.value.length === 0) {
+                    if (index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                }
+            });
+            input.addEventListener('input', (e) => {
+                input.value = input.value.replace(/[^0-9]/g, '');
+            });
+        });
+		
+		
+		function update_first_login(){
+		
+	
+const apiUrl = APIPath+'/Save_Audit_Trail';
+ // Replace with your actual API Key
+
+const auditTrailData = {
+    "tyat_userid": userid, // You'll likely want to replace "string" with a dynamic user ID
+    "tyat_page_name": "Change Password",
+    "tyat_event_name": "Onload Change Password",
+    "tyat_recordid": "" // This might be an empty string or null, depending on your API's expectation
+};
+
+		fetch(apiUrl, {
+			method: 'POST', // Specify the POST method
+		headers: {
+        'Content-Type': 'application/json', // Inform the server that the body is JSON
+        'APIKey': apiKey // Your API key in the header
+		},
+		body: JSON.stringify(auditTrailData) // Convert the JavaScript object to a JSON string
+	})
+  .then(response => {
+    // Check if the response was successful (status code 200-299)
+    if (!response.ok) {
+        // If not successful, parse the error response if possible
+        return response.json().then(err => { throw new Error(err.message || `HTTP error! Status: ${response.status}`); });
+    }
+    saveUserLog();
+	closeModal()
+    return response.json();
+	})
+	.then(data => {
+    // Handle the successful API response here
+    console.log('Audit Trail API Response:', data);
+    //alert('Audit trail saved successfully!');
+	})
+		.catch(error => {
+    // Handle any errors that occurred during the fetch operation
+			console.error('There was a problem saving the audit trail:', error);
+			alert(`Failed to save audit trail: ${error.message || 'Unknown error'}`);
+		});
+		}
+		
+		function saveUserLog() {
+    
+
+   
+
+    return fetch( APIPath+'/save_user_log?userid='+userid, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'APIKey': apiKey
+        },
+        body: null
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message || `User Log API HTTP error! Status: ${response.status}`);
+            }).catch(() => {
+                throw new Error(`User Log API HTTP error! Status: ${response.status} (No JSON error message)`);
+            });
+        }
+        return response.json().catch(() => ({ message: "User Log Saved Successfully (No Content)" }));
+    });
+}
+    </script>
+    <footer>
+        <p>&copy; 2025 All Rights Reserved by Madhya Pradesh Bhoj (open) University.</p>
+    </footer>
+</body>
+</html>
+<script>
+var HF_Redirect_Link='';
+function Open_Video_Link(lnk){
+sliderModal.classList.add('show');
+
+HF_Redirect_Link=lnk
+
+}
+
+function Open_Video_Link_redirect(){
+sliderModal.classList.remove('show');
+lnk=HF_Redirect_Link;
+
+var base=Get_Base_Url();
+
+const queryParams = new URLSearchParams();
+queryParams.set('v', APP_VERSION);
+if (currentTrainingId) {
+queryParams.set('trainingid', currentTrainingId);
+}
+var lnkf=base+"/"+lnk+'/'+agencyid+"?"+queryParams.toString()
+window.open(lnkf)
+resetSlider()
+}
+
+function CHECK_MOBILE_ON_LOAD(){
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+currentTrainingId = urlParams.get('trainingid') || '';
+agencyid=urlParams.get('userid');
+if(agencyid){
+return;
+}
+
+const cached = getOtpCache();
+if (cached && isOtpCacheValid(cached, cached.mobileNumber)) {
+    userid = cached.userid;
+    agencyid = cached.agencyid;
+    localStorage.setItem('participant_userid', agencyid);
+    return;
+}
+
+if (localStorage.getItem('participant_userid')) {
+    agencyid=localStorage.getItem('participant_userid');
+} else {
+openModal()
+    //console.log('Mobile number not found in localStorage.');
+    //Open dialog box to enter mobile no & set in local storage
+}
+
+}
+function Get_Base_Url()
+{
+var DPATH=window.location.hostname
+if(DPATH.toString().toUpperCase()=="QA.LITTERA.IN"){
+return "https://qaapp.littera.in"
+}
+else if(DPATH.toString().toUpperCase()=="LEARNINGPLATFORM.MPBOU.IN")
+{
+return "https://learn.mpbou.in"
+}
+else{
+return "https://react.littera.in"
+}
+
+}
+
+</script>
+<script>
+  const thumb = document.getElementById('sliderThumb');
+  const track = document.getElementById('sliderTrack');
+  const status = document.getElementById('captchaStatus');
+
+  let isDragging = false;
+  let startX = 0;
+
+  function startDrag(x) {
+  
+    isDragging = true;
+    startX = x - thumb.offsetLeft;
+  }
+
+  function moveThumb(x) {
+    if (!isDragging) return;
+    let newX = x - startX;
+    const maxX = track.clientWidth - thumb.clientWidth;
+    newX = Math.max(0, Math.min(newX, maxX));
+    thumb.style.left = newX + 'px';
+  }
+
+  function stopDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    const maxX = track.clientWidth - thumb.clientWidth;
+    if (parseInt(thumb.style.left) >= maxX - 5) {
+      status.textContent = 'Verified ✅';
+	
+      status.className = 'captcha-status success';
+      thumb.style.backgroundColor = '#2ecc71';
+      thumb.textContent = '✔';
+	  Open_Video_Link_redirect()
+    } else {
+      thumb.style.left = '0px';
+      status.textContent = 'Try again';
+      status.className = 'captcha-status fail';
+    }
+  }
+
+  // Mouse events
+  thumb.addEventListener('mousedown', e => startDrag(e.clientX));
+  document.addEventListener('mousemove', e => moveThumb(e.clientX));
+  document.addEventListener('mouseup', stopDrag);
+
+  // Touch events
+  thumb.addEventListener('touchstart', e => startDrag(e.touches[0].clientX));
+  sliderModal.addEventListener('touchmove', e => {
+    moveThumb(e.touches[0].clientX);
+    e.preventDefault(); // prevent scrolling
+  }, { passive: false });
+  sliderModal.addEventListener('touchend', stopDrag);
+  
+  
+  function resetSlider() {
+  thumb.style.left = '0px';
+  thumb.style.backgroundColor = '#4CAF50';
+  thumb.textContent = '▶';
+  status.textContent = 'Slide to verify (स्लाइड करें )';
+  status.className = 'captcha-status';
+
+  isDragging = false;
+}
+
+
+
+document.getElementById('otp-1').addEventListener('paste', function(e) {
+    e.preventDefault(); // Stop the default paste behavior
+    const paste = (e.clipboardData || window.clipboardData).getData('text').trim();
+    const chars = paste.split('');
+
+    for (let i = 0; i < 6; i++) {
+        const input = document.getElementById(`otp-${i + 1}`);
+        if (input) {
+            input.value = chars[i] || ''; // Fill character if available, else empty
+        }
+    }
+
+    // Optionally focus the next empty input
+    for (let i = 0; i < 6; i++) {
+        const input = document.getElementById(`otp-${i + 1}`);
+        if (input.value === '') {
+            input.focus();
+            break;
+        }
+    }
+});
+</script>
