@@ -563,14 +563,39 @@
 		var agencyid=""
         var currentTrainingId = ''
         const APP_VERSION = "2026.04.29.1";
-        const CONTENT_JSON_PATH = './content_items.json';
+        const CONFIG_JSON = './html_config.json';
+        const CONTENT_JSON_PATH = './content_items1.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
-		const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
+		let apiKey = '';
         const verificationModal = document.getElementById('verificationModal');
 		const sliderModal = document.getElementById('Captchamodal');
-        const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
+		let APIPath = "https://" + window.location.hostname + "/LitteraCore/api";
+		let appConfig = null;
 		//const APIPath= "http://p9:5858/api"
+
+        async function loadConfig() {
+            try {
+                const response = await fetch(CONFIG_JSON, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error('Config JSON not found');
+                }
+
+                appConfig = await response.json();
+
+                if (appConfig && appConfig.api) {
+                    if (appConfig.api.apiPath) {
+                        APIPath = appConfig.api.apiPath;
+                    }
+
+                    if (appConfig.api.apiKey) {
+                        apiKey = appConfig.api.apiKey;
+                    }
+                }
+            } catch (error) {
+                console.error('Configuration load failed. Using default API path.', error);
+            }
+        }
 
         function getOtpCache() {
             try {
@@ -645,22 +670,63 @@
         const useridInput = document.getElementById('userid');
         const otpInputs = document.querySelectorAll('.otp-inputs input');
 
-        function initPage() {
+        async function initPage() {
+            await loadConfig();
             CHECK_MOBILE_ON_LOAD();
             renderContentForSelectedTraining();
         }
 
+        function readDynamicContentCache() {
+            try {
+                const raw = localStorage.getItem('content_items_dynamic');
+                if (!raw) {
+                    return null;
+                }
+
+                const parsed = JSON.parse(raw);
+                if (!Array.isArray(parsed) || parsed.length === 0) {
+                    return null;
+                }
+
+                return parsed;
+            } catch (error) {
+                console.warn('Invalid content_items_dynamic cache.', error);
+                return null;
+            }
+        }
+
+        function renderContentFromDynamicCache() {
+            const cachedRows = readDynamicContentCache();
+            if (!cachedRows) {
+                return false;
+            }
+
+            const groups = mapRowsToRenderGroups(cachedRows);
+            if (!groups.length) {
+                return false;
+            }
+
+            renderGroups(groups);
+            return true;
+        }
+
         function renderContentForSelectedTraining() {
+            const hasRenderedFromCache = renderContentFromDynamicCache();
+
             if (currentTrainingId) {
                 renderContentFromApis(currentTrainingId)
                     .catch(error => {
                         console.error('Failed to bind dynamic content. Falling back to JSON:', error);
-                        renderContentFromJson();
+                        if (!hasRenderedFromCache) {
+                            renderContentFromJson();
+                        }
                     });
                 return;
             }
 
-            renderContentFromJson();
+            if (!hasRenderedFromCache) {
+                renderContentFromJson();
+            }
         }
 
         function getApiArray(payload) {
@@ -770,8 +836,8 @@
         }
 
         async function buildGroupedContentJson(trainingId) {
-            const sessionRowsRaw = await fetchTrainingApiRows(['trgsession', 'trgsession_wk'], trainingId);
-            const contentRowsRaw = await fetchTrainingApiRows(['trg_content', 'trg_content_wk'], trainingId);
+            const sessionRowsRaw = await fetchTrainingApiRows(['trgsessions'], trainingId);
+            const contentRowsRaw = await fetchTrainingApiRows(['trg_content'], trainingId);
 
             const sessionRows = sessionRowsRaw
                 .filter(row => row && isOpenStatus(row.ttttt_status))
@@ -902,6 +968,9 @@
         async function renderContentFromApis(trainingId) {
             const generatedRows = await buildGroupedContentJson(trainingId);
             const groups = mapRowsToRenderGroups(generatedRows);
+            if (!groups.length) {
+                throw new Error('No content available for selected training.');
+            }
             renderGroups(groups);
         }
 

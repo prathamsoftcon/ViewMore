@@ -814,17 +814,18 @@ function Get_TTPAI_Details(){
 }
 function Open_page_For_Type(type){
     const versionQuery = "v=" + encodeURIComponent(APP_VERSION);
+    const trainingQuery = trainingid ? ("&trainingid=" + encodeURIComponent(trainingid)) : "";
     if(type=="1"){
-    window.location.href="view_more_content1.html?userid="+agencyid+"&"+versionQuery
+    window.location.href="view_more_content1_v2.html?userid="+agencyid+trainingQuery+"&"+versionQuery
     }
     else if(type=="2"){
     window.location.href="certificate.html?ttpai_id="+ttpai_id+"&"+versionQuery
     }
     else if(type=="3"){
-    window.location.href="view_more_content1.html?userid="+agencyid+"&"+versionQuery
+    window.location.href="view_more_content1_v2.html?userid="+agencyid+trainingQuery+"&"+versionQuery
     }
     else {
-    window.location.href="view_more_content1.html?userid="+agencyid+"&"+versionQuery
+    window.location.href="view_more_content1_v2.html?userid="+agencyid+trainingQuery+"&"+versionQuery
     }
 
 }
