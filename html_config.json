@@ -18,7 +18,9 @@
   },
   "api": {
     "apiKey": "UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=",
-    "apiPath": "https://admin.snpg.littera.in/LitteraCore/api",
+    "apiPath1": "https://admin.snpg.littera.in/LitteraCore/api",
+    "apiPath": "https://localhost:5859/api",
+
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
     "userInfoEndpoint": "/UserInfo_wk",
     "participantsTrainingEndpoint": "/Participants_training_wk",

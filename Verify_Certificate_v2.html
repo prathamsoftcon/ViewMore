@@ -42,27 +42,62 @@
         let appConfig = null;
 
         function getTrainingIdFromTrainingDetails(trainingDetailsResponse) {
-            if (!trainingDetailsResponse) {
+            const keys = ['trainingid', 'training_id', 't_id', 'tId', 'trainingId'];
+
+            function pickId(obj) {
+                if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+                    return '';
+                }
+
+                for (const key of keys) {
+                    if (obj[key] !== undefined && obj[key] !== null && String(obj[key]).trim() !== '') {
+                        return String(obj[key]).trim();
+                    }
+                }
+
+                if (obj.id !== undefined && obj.id !== null && String(obj.id).trim() !== '' && (obj.trainingcode || obj.training_code || obj.t_Code)) {
+                    return String(obj.id).trim();
+                }
+
                 return '';
             }
 
-            if (trainingDetailsResponse.trainingid) {
-                return String(trainingDetailsResponse.trainingid).trim();
+            function scan(node) {
+                if (!node) {
+                    return '';
+                }
+
+                if (Array.isArray(node)) {
+                    for (const item of node) {
+                        const idFromItem = scan(item);
+                        if (idFromItem) {
+                            return idFromItem;
+                        }
+                    }
+                    return '';
+                }
+
+                if (typeof node === 'object') {
+                    const directId = pickId(node);
+                    if (directId) {
+                        return directId;
+                    }
+
+                    const prioritizedChildren = ['data', 'result', 'training', 'value'];
+                    for (const childKey of prioritizedChildren) {
+                        if (node[childKey] !== undefined) {
+                            const idFromChild = scan(node[childKey]);
+                            if (idFromChild) {
+                                return idFromChild;
+                            }
+                        }
+                    }
+                }
+
+                return '';
             }
 
-            if (trainingDetailsResponse.result && trainingDetailsResponse.result.trainingid) {
-                return String(trainingDetailsResponse.result.trainingid).trim();
-            }
-
-            if (Array.isArray(trainingDetailsResponse) && trainingDetailsResponse.length > 0 && trainingDetailsResponse[0].trainingid) {
-                return String(trainingDetailsResponse[0].trainingid).trim();
-            }
-
-            if (Array.isArray(trainingDetailsResponse.result) && trainingDetailsResponse.result.length > 0 && trainingDetailsResponse.result[0].trainingid) {
-                return String(trainingDetailsResponse.result[0].trainingid).trim();
-            }
-
-            return '';
+            return scan(trainingDetailsResponse);
         }
 
         function applyConfigToUi() {
