@@ -1163,6 +1163,9 @@ function startResendOtpTimer() {
     const resendLink = document.getElementById("resend-link");
     const timerText = document.getElementById("timer");
 
+    resendLink.hidden = true;
+    timerText.hidden = false;
+
     // Disable link
     // resendLink.style.pointerEvents = "none";
     // resendLink.style.opacity = "0.5";

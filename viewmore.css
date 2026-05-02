@@ -40,7 +40,7 @@ border-radius: 8px;
 
 header h1 {
     margin: 0;
-    font-family: 'Playfair Display', serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 20px;
     font-weight: 700;
     text-align: center;
@@ -51,7 +51,7 @@ header h1 {
     color: #2c3e50;
     margin-bottom: 1.5rem;
      margin-top: 1.5rem;
-    font-family: 'Playfair Display', serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 .product-list {
@@ -198,8 +198,19 @@ footer {
     position: fixed;
     width: 100%;
     justify-content: center;
-}
 
+    /* Font styling */
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    /* Spacing */
+    margin: 0;
+    padding: 12px 20px;
+
+    /* Layout fix (important) */
+    display: flex;
+    align-items: center;
+}
 .logos {
     display: flex;
     align-content: center;
@@ -514,7 +525,7 @@ footer {
     font-size: 18px;
     color: #333;
     font-weight: 500;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 @keyframes spin {
