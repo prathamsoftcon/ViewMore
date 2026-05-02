@@ -652,14 +652,20 @@
         function buildContentLink(item) {
             const sourcePath = String(item.content_path || item.globalWysiwagText || item.global_wysiwag_text || item.ttsad_file_path || item.file_path || item.filepath || '').trim();
             const ttsamId = String(item.ttsam_id || '').trim();
-            const redirectPath = String(item.redirection_path || 'videolearning').trim();
-
-            if (sourcePath) {
-                return DIRECT_LINK_PREFIX + sourcePath;
-            }
+            const redirectPath = String(item.redirection_path || '').trim();
 
             if (!ttsamId) {
+                if (sourcePath) {
+                    return DIRECT_LINK_PREFIX + sourcePath;
+                }
                 return '';
+            }
+
+            if (!redirectPath) {
+                if (sourcePath) {
+                    return DIRECT_LINK_PREFIX + sourcePath;
+                }
+                return 'videolearning/' + ttsamId;
             }
 
             if (redirectPath.indexOf('{ttsam_id}') !== -1) {

@@ -50,6 +50,7 @@ header h1 {
     text-align: center;
     color: #2c3e50;
     margin-bottom: 1.5rem;
+     margin-top: 1.5rem;
     font-family: 'Playfair Display', serif;
 }
 
@@ -282,6 +283,7 @@ footer {
 .modal-overlay.show {
     opacity: 1;
     visibility: visible;
+    display: flex;
 }
 
 .modal-content {
@@ -325,11 +327,11 @@ footer {
 
 .modal-content .verification-container {
     text-align: center;
-    padding: 0;
+    padding: 2;
     box-shadow: none;
     background-color: transparent;
 }
-
+    
 .modal-content h2 {
     color: #2c3e50;
     margin-bottom: 25px;
@@ -450,6 +452,10 @@ footer {
     text-decoration: none;
 }
 
+.otp-resend-disabled {
+    color: #999;
+}
+
 @media (max-width: 600px) {
     .modal-content {
         width: 95%;
@@ -476,5 +482,369 @@ footer {
         width: 100%;
         box-sizing: border-box;
         text-align: center;
+    }
+}
+
+/* certificate_v2 page styles */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+.loader-text {
+    margin-top: 15px;
+    font-size: 18px;
+    color: #333;
+    font-weight: 500;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loader {
+    display: none;
+    background: white !important;
+    z-index: 99999999999999;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+}
+
+.fw-bold {
+    font-weight: bold;
+}
+
+.grade-improvement-note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-left: 4px solid #f39c12;
+    background: #fff8e1;
+    border-radius: 4px;
+}
+
+.certificate-wish {
+    padding: 10px 0;
+}
+
+#qaRequiredSection {
+    display: none;
+}
+
+.certificate-qr-wrap {
+    float: right;
+}
+
+.certificate-qr-image {
+    margin-left: 12px;
+}
+
+.certificate-qr-caption {
+    margin: 0;
+}
+
+.certificate-print-wrap {
+    text-align: center;
+}
+
+.training-select {
+    min-width: 200px;
+    height: 34px;
+    max-width: 100%;
+}
+
+.alert-overlay-default {
+    display: block !important;
+}
+
+.alert-modal-content {
+    max-width: 90%;
+    top: 10%;
+}
+
+.alert-captcha-container {
+    width: 80% !important;
+}
+
+header {
+    padding: 1.5rem 0;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    letter-spacing: 1px;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+}
+
+.certificate-content {
+    margin-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.certificate-intro {
+    margin-bottom: 12px;
+    line-height: 1.7;
+}
+
+.product-item {
+    height: 80px;
+}
+
+
+footer {
+    text-align: left;
+    padding: 1.5rem 0;
+}
+
+#footerText {
+    margin: 0;
+    padding-left: 16px;
+    text-align: left;
+}
+
+#verificationModal .modal-content {
+    box-sizing: border-box;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#verificationModal .modal-content .verification-container {
+    text-align: center;
+    padding: 0;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+#verificationModal .modal-content h2 {
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    margin-top: 10px;
+}
+
+#verificationModal .modal-content .input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+#verificationModal .modal-content .input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+#verificationModal .modal-content .input-group input[type="tel"],
+#verificationModal .modal-content .input-group input[type="text"] {
+    width: 100%;
+    padding: 12px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+#verificationModal .modal-content .input-group input[type="tel"]:focus,
+#verificationModal .modal-content .input-group input[type="text"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+#verificationModal .modal-content .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+#verificationModal .modal-content .btn {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#verificationModal .modal-content .otp-inputs {
+    flex-wrap: nowrap;
+}
+
+#dvalert .captcha-container {
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#alertMessage {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+#alertMessage a {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+#dvtraining .modal-content {
+    width: 90%;
+    max-width: 420px;
+    box-sizing: border-box;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#dvtraining .verification-container {
+    text-align: center;
+}
+
+#dvtraining .input-group {
+    margin-bottom: 16px;
+}
+
+#dvtraining #ddltraining {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0 !important;
+    height: 38px !important;
+    box-sizing: border-box;
+}
+
+#dvtraining .button-group {
+    margin-top: 12px;
+}
+
+#dvtraining .btn {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#verificationModal .modal-content #otp-section {
+    display: none;
+}
+
+@media print {
+    #btnprint,
+    .grade-improvement-note {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    main {
+        margin: 1rem auto;
+        padding: 1rem;
+    }
+
+    .certificate-content {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    #verificationModal .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    #verificationModal .modal-content h2 {
+        font-size: 1.5rem;
+    }
+
+    #verificationModal .modal-content .button-group {
+        flex-direction: column;
+    }
+
+    #dvtraining .modal-content {
+        width: calc(100vw - 24px);
+        max-width: calc(100vw - 24px);
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 16px;
+    }
+
+    #universityName {
+        padding: 0 12px;
+    }
+
+
+
+    main {
+        margin-top: 150px;
+    }
+
+    .certificate-content {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    #verificationModal .modal-content {
+        width: calc(100vw - 20px);
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    #verificationModal .modal-content .otp-inputs {
+        gap: 6px;
+        justify-content: space-between;
+    }
+
+    #verificationModal .modal-content .otp-inputs input {
+        width: calc((100% - 30px) / 6);
+        max-width: 36px;
+        min-width: 30px;
+        height: 36px;
+        font-size: 1rem;
+    }
+
+    #dvalert .modal-content {
+        max-width: calc(100vw - 20px) !important;
+    }
+
+    #dvalert .captcha-container {
+        padding: 12px;
+    }
+}
+
+@media (min-width: 481px) {
+
+
+    main {
+        margin-top: 220px;
     }
 }
