@@ -251,8 +251,8 @@ body.loading {
                        <input type="text" id="otp-5" maxlength="1" pattern="[0-9]" inputmode="numeric">
                        <input type="text" id="otp-6" maxlength="1" pattern="[0-9]" inputmode="numeric">
                    </div>
-                   <p style="font-size: 0.9em; color: #777; text-align: center;">Didn't receive OTP? 
-                     <a id="resend-link" href="#" onclick="resendOtp()" style="color: #007bff; text-decoration: none;display:none;">
+                                     <p class="otp-resend-text">Didn't receive OTP? 
+                                         <a id="resend-link" class="otp-resend-link" href="#" onclick="resendOtp()" hidden>
                         Resend OTP
                      </a>
                 <span id="timer"></span>
@@ -272,7 +272,7 @@ body.loading {
            <h2 id="trainingTitle">Select Training</h2>
            <div id="mobile-input-section1" >
                <div class="input-group">
-                 <select id='ddltraining' style="min-width: 200px;height: 34px;max-width:100%"></select>
+                 <select id="ddltraining" class="training-select"></select>
                  
                </div>
                 <div class="button-group">
@@ -1182,8 +1182,8 @@ function startResendOtpTimer() {
             // resendLink.style.pointerEvents = "auto";
             // resendLink.style.opacity = "1";
             // timerText.textContent = "";
-            resendLink.style.display='block'
-            timerText.style.display='none';
+            resendLink.hidden = false;
+            timerText.hidden = true;
         }
     }, 1000);
 }
