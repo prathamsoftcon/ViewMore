@@ -113,7 +113,71 @@
         let APIPath = '';
         let redirectBaseUrl = '';
 		let appConfig = null;
+		let contentTypeVisibility = null;
 		//const APIPath= "http://p9:5858/api"
+
+        function normalizeContentTypeVisibility(value) {
+            if (!value) {
+                return null;
+            }
+
+            if (typeof value === 'string') {
+                const result = {};
+                value.split(',').forEach(part => {
+                    const cleaned = String(part || '').trim();
+                    if (!cleaned) {
+                        return;
+                    }
+                    const pieces = cleaned.split('=');
+                    const key = String(pieces[0] || '').trim().toLowerCase();
+                    const rawValue = String(pieces[1] || '').trim().toLowerCase();
+                    if (!key) {
+                        return;
+                    }
+                    result[key] = rawValue !== '0' && rawValue !== 'false' && rawValue !== 'no';
+                });
+                return Object.keys(result).length ? result : null;
+            }
+
+            if (typeof value === 'object') {
+                const result = {};
+                Object.keys(value).forEach(key => {
+                    const normalizedKey = String(key || '').trim().toLowerCase();
+                    if (!normalizedKey) {
+                        return;
+                    }
+                    const rawValue = value[key];
+                    result[normalizedKey] = rawValue === true || rawValue === 1 || String(rawValue).toLowerCase() === 'true';
+                });
+                return Object.keys(result).length ? result : null;
+            }
+
+            return null;
+        }
+
+        function isContentTypeAllowed(type) {
+            if (!contentTypeVisibility) {
+                return true;
+            }
+
+            const normalizedType = String(type || '').trim().toLowerCase();
+            let key = normalizedType;
+            if (normalizedType === 'ppt') {
+                key = 'ppt';
+            } else if (normalizedType === 'video') {
+                key = 'video';
+            } else if (normalizedType === 'activity') {
+                key = 'activity';
+            } else if (normalizedType === 'pdf') {
+                key = 'pdf';
+            }
+
+            if (!Object.prototype.hasOwnProperty.call(contentTypeVisibility, key)) {
+                return true;
+            }
+
+            return !!contentTypeVisibility[key];
+        }
 
         async function loadConfig() {
             try {
@@ -134,6 +198,8 @@
                 if (appConfig.api.apiKey) {
                     apiKey = appConfig.api.apiKey;
                 }
+
+                contentTypeVisibility = normalizeContentTypeVisibility(appConfig.contentTypeVisibility);
 
                 applyConfigToUi();
             } catch (error) {
@@ -471,6 +537,63 @@
             return fallbackIndex + 1;
         }
 
+        function parseSortNumber(value, fallbackValue) {
+            const num = Number(value);
+            if (Number.isFinite(num)) {
+                return num;
+            }
+            return fallbackValue;
+        }
+
+        function parseSessionDate(value) {
+            if (value == null || value === '') {
+                return Number.MAX_SAFE_INTEGER;
+            }
+            const numeric = Number(value);
+            if (Number.isFinite(numeric)) {
+                return numeric;
+            }
+            const date = new Date(value);
+            if (!Number.isNaN(date.getTime())) {
+                return date.getTime();
+            }
+            return Number.MAX_SAFE_INTEGER;
+        }
+
+        function compareSessionOrder(a, b) {
+            const moduleA = parseSortNumber(a.module, Number.MAX_SAFE_INTEGER);
+            const moduleB = parseSortNumber(b.module, Number.MAX_SAFE_INTEGER);
+            if (moduleA !== moduleB) {
+                return moduleA - moduleB;
+            }
+
+            const weekA = parseSortNumber(a.session_week, Number.MAX_SAFE_INTEGER);
+            const weekB = parseSortNumber(b.session_week, Number.MAX_SAFE_INTEGER);
+            if (weekA !== weekB) {
+                return weekA - weekB;
+            }
+
+            const dayA = parseSortNumber(a.session_day, Number.MAX_SAFE_INTEGER);
+            const dayB = parseSortNumber(b.session_day, Number.MAX_SAFE_INTEGER);
+            if (dayA !== dayB) {
+                return dayA - dayB;
+            }
+
+            const dateA = parseSessionDate(a.session_dt);
+            const dateB = parseSessionDate(b.session_dt);
+            if (dateA !== dateB) {
+                return dateA - dateB;
+            }
+
+            const sessionNoA = parseSortNumber(a.session_no, Number.MAX_SAFE_INTEGER);
+            const sessionNoB = parseSortNumber(b.session_no, Number.MAX_SAFE_INTEGER);
+            if (sessionNoA !== sessionNoB) {
+                return sessionNoA - sessionNoB;
+            }
+
+            return 0;
+        }
+
         async function fetchTrainingApiRows(endpointCandidates, trainingId) {
             const encodedTrainingId = encodeURIComponent(trainingId);
             let lastError = null;
@@ -507,7 +630,12 @@
                 .map((row, index) => ({
                     sr_no: getSessionSerial(row, index),
                     title: String(getFieldValue(row, ['ttttt_content_desc', 'module', 'ttttt_content_desc', 'title', 'ttttt_title']) || '').trim(),
-                    session_id: String(getFieldValue(row, ['ttttt_session_id', 'ttttt_id', 'session_id', 'id']) || '').trim()
+                    session_id: String(getFieldValue(row, ['ttttt_session_id', 'ttttt_id', 'session_id', 'id']) || '').trim(),
+                    module: getFieldValue(row, ['module', 'ttttt_module', 'ttttt_session_module']),
+                    session_week: getFieldValue(row, ['ttttt_session_week', 'session_week', 'week']),
+                    session_day: getFieldValue(row, ['ttttt_session_day', 'session_day', 'day']),
+                    session_dt: getFieldValue(row, ['ttttt_session_dt', 'session_dt', 'date']),
+                    session_no: getFieldValue(row, ['ttttt_session_no', 'session_no'])
                 }))
                 .filter(row => row.title && row.session_id);
 
@@ -523,6 +651,7 @@
                         content_path: getContentSourcePath(row)
                     };
                 })
+                .filter(row => isContentTypeAllowed(row.type))
                 .filter(row => row.ttsam_id && row.ttsam_ttttt_session_id);
 
             console.log('Session rows after filter:', sessionRows.length);
@@ -545,10 +674,15 @@
                 .map(row => ({
                     sr_no: row.sr_no,
                     title: row.title,
-                    children: contentBySession[row.session_id] || []
+                    children: contentBySession[row.session_id] || [],
+                    module: row.module,
+                    session_week: row.session_week,
+                    session_day: row.session_day,
+                    session_dt: row.session_dt,
+                    session_no: row.session_no
                 }))
                 .filter(row => row.children.length > 0)
-                .sort((a, b) => a.sr_no - b.sr_no);
+                .sort(compareSessionOrder);
 
             try {
                 const cacheKey = getDynamicContentCacheKey(trainingId);
@@ -609,33 +743,53 @@
                 .map(row => {
                     const srNo = Number(row.sr_no || row.srNo || 0);
                     const title = String(row.title || '').trim();
+                    const module = row.module || '';
+                    const sessionWeek = row.session_week || row.sessionWeek || '';
+                    const sessionDay = row.session_day || row.sessionDay || '';
+                    const sessionDt = row.session_dt || row.sessionDt || '';
+                    const sessionNo = row.session_no || row.sessionNo || '';
 
                     if (Array.isArray(row.children)) {
-                        return {
-                            srNo: srNo,
-                            title: title,
-                            items: row.children.map(child => ({
+                        const items = row.children
+                            .map(child => ({
                                 type: String((child && child.type) || 'View').trim(),
                                 ttsam_id: child ? child.ttsam_id : '',
                                 redirection_path: child ? child.redirection_path : '',
                                 content_path: child ? child.content_path : ''
                             }))
+                            .filter(item => isContentTypeAllowed(item.type));
+                        return {
+                            srNo: srNo,
+                            title: title,
+                            module: module,
+                            session_week: sessionWeek,
+                            session_day: sessionDay,
+                            session_dt: sessionDt,
+                            session_no: sessionNo,
+                            items: items
                         };
                     }
+
+                    const items = [{
+                        type: String(row.type || 'View').trim(),
+                        ttsam_id: row.ttsam_id,
+                        redirection_path: row.redirection_path,
+                        content_path: String(row.content_path || row.globalWysiwagText || row.global_wysiwag_text || row.ttsad_file_path || row.file_path || row.filepath || '').trim()
+                    }].filter(item => isContentTypeAllowed(item.type));
 
                     return {
                         srNo: srNo,
                         title: title,
-                        items: [{
-                            type: String(row.type || 'View').trim(),
-                            ttsam_id: row.ttsam_id,
-                            redirection_path: row.redirection_path,
-                            content_path: String(row.content_path || row.globalWysiwagText || row.global_wysiwag_text || row.ttsad_file_path || row.file_path || row.filepath || '').trim()
-                        }]
+                        module: module,
+                        session_week: sessionWeek,
+                        session_day: sessionDay,
+                        session_dt: sessionDt,
+                        session_no: sessionNo,
+                        items: items
                     };
                 })
                 .filter(group => group.title && group.items.length > 0)
-                .sort((a, b) => a.srNo - b.srNo);
+                .sort(compareSessionOrder);
         }
 
         async function renderContentFromApis(trainingId) {

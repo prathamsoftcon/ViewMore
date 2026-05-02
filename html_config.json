@@ -1,11 +1,11 @@
-{
+﻿{
   "is_qr_required": false,
-  "pageTitle": "Certificate Verification",
+  "pageTitle": "MPBOU",
   "header": {
-    "primaryLogoSrc": "https://admin.snpg.littera.in/Content/GlobalSetting/dev/default_logo_2.png",
-    "secondaryLogoSrc": "https://admin.snpg.littera.in/Content/GlobalSetting/Dev/logo_login.png?1.3",
+    "primaryLogoSrc": "https://qa.littera.in/Content/GlobalSetting/dev/default_logo_2.png",
+    "secondaryLogoSrc": "https://qa.littera.in/Content/GlobalSetting/Dev/logo_login.png?1.3",
     "logoTitle": "IMAGE",
-    "universityName": "SAROJINI NAIDU GOVERNMENT GIRL'S POST GRADUATE COLLEGE, BHOPAL",
+    "universityName": "MADHYA PRADESH BHOJ OPEN UNIVERSITY (MPBOU)",
     "courseHeading": "वोकेशनल कोर्स प्रमाणपत्र सत्यापन पोर्टल",
     "courseHeading1": "वोकेशनल कोर्स"
   },
@@ -16,13 +16,13 @@
     "verifyMobileButton": "Verify Mobile",
     "training": "Select Training",
     "verifyButton": "Verify",
-    "footer": "© 2025 All Rights Reserved by Sarojini Naidu Government Girl's Post Graduate College."
+    "footer": "© 2025 All Rights Reserved by Madhya Pradesh Bhoj Open Universit."
   },
   "api": {
     "apiKey": "UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=",
-    "baseUrl": "https://appsnpg.littera.in",
-    "apiPath1": "https://admin.snpg.littera.in/LitteraCore/api",
-    "apiPath": "https://localhost:5859/api",
+    "baseUrl": "https://qaapp.littera.in",
+    "apiPath": "https://qa.littera.in/LitteraCore/api",
+    "apiPath1": "https://localhost:5859/api",
 
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
     "userInfoEndpoint": "/UserInfo_wk",
@@ -42,5 +42,6 @@
     "noResponse": "No response received from server.",
     "unexpectedError": "An unexpected error occurred.",
     "apiErrorPrefix": "API Error: "
-  }
+  },
+  "contentTypeVisibility": "Video=1,Activity=1,pdf=0,ppt=0"
 }

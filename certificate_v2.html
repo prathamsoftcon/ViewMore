@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -929,7 +929,7 @@ if (!alertMessageElement) {
 return;
 }
 
-const courseContentUrl = buildCourseContentUrl('/view_more_content1_v2.html');
+const courseContentUrl = buildCourseContentUrl('/viewmore/test/view_more_content1_v2.html');
 const courseLinkLabelHtml = 'कोर्स कंटेंट के लिए <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>';
 const courseLinkHtml = '<br/>' + courseLinkLabelHtml;
 
@@ -1033,7 +1033,7 @@ return window.location.origin + path + '?' + params.toString();
 }
 
 function updateCourseContentLinks() {
-const courseContentUrl = buildCourseContentUrl('/view_more_content1_v2.html');
+const courseContentUrl = buildCourseContentUrl('/viewmore/test/view_more_content1_v2.html');
 const gradeLink = document.getElementById('gradeCourseContentLink');
 if (gradeLink) {
 gradeLink.href = courseContentUrl;
