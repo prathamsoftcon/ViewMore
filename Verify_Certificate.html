@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app-version" content="2026.05.02.1">
     <title id="pageTitle"></title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="./viewmore.css">
@@ -10,8 +11,8 @@
 <body>
     <header>
         <div class="header-container">
-           <div><img id="primaryLogo" class="bhoj_logo" title="Nack" src=""></div>
-            <div><img id="secondaryLogo" class="lit-logo" title="College" src=""></div>
+            <div><img id="primaryLogo" class="bhoj_logo" title="" src=""></div>
+            <div><img id="secondaryLogo" class="lit-logo" title="" src=""></div>
         </div>
         <h1 id="universityName"></h1>
     </header>
@@ -20,16 +21,14 @@
         <section aria-labelledby="product-list-heading">
             <h4 id="product-list-heading"></h4>
             <div class="card">
-                <label id="mobileLabel" class="label" for="mobileNo"></label>
-                <input class="input" type="tel" id="mobileNo" maxlength="10" inputmode="numeric">
-                <br>
-                <button id="verifyMobileButton" type="button" onclick="Verify_Mobile()" class="button"></button>
+                <label id="trainingCodeLabel" class="label" for="trainingCode"></label>
+                <input class="input" type="text" id="trainingCode" inputmode="numeric" maxlength="20" placeholder="Enter Training Code">
                 <br><br>
-                <label id="trainingLabel" class="label" for="ddltraining"></label>
-                <select id="ddltraining" class="input" disabled>
-                    <option value="">Select Training</option>
-                </select>
+
+                <label id="enrollmentLabel" class="label" for="enrollmentNo"></label>
+                <input class="input" type="text" id="enrollmentNo" inputmode="numeric" maxlength="20" placeholder="Enter Enrollment No">
                 <br>
+
                 <button id="verifyButton" type="button" onclick="Verify_Certificate()" class="button"></button>
             </div>
         </section>
@@ -41,47 +40,66 @@
 
     <script>
         const CONFIG_JSON = './html_config.json';
+        const APP_VERSION = '2026.05.02.1';
         let appConfig = null;
-        let agencyid = '';
-        let verifiedMobileNo = '';
-        let verifiedUserCode = '';
 
-        function getAgencyIdFromUserInfo(userInfoResponse) {
-            if (!userInfoResponse || !userInfoResponse.result) {
+        function getTrainingIdFromTrainingDetails(trainingDetailsResponse) {
+            const keys = ['trainingid', 'training_id', 't_id', 'tId', 'trainingId'];
+
+            function pickId(obj) {
+                if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+                    return '';
+                }
+
+                for (const key of keys) {
+                    if (obj[key] !== undefined && obj[key] !== null && String(obj[key]).trim() !== '') {
+                        return String(obj[key]).trim();
+                    }
+                }
+
+                if (obj.id !== undefined && obj.id !== null && String(obj.id).trim() !== '' && (obj.trainingcode || obj.training_code || obj.t_Code)) {
+                    return String(obj.id).trim();
+                }
+
                 return '';
             }
 
-            const result = userInfoResponse.result;
-            return (
-                (result.agencydetail && result.agencydetail.agencyid) ||
-                (result.userdetails && result.userdetails.agencyid) ||
-                ''
-            );
-        }
+            function scan(node) {
+                if (!node) {
+                    return '';
+                }
 
-        function getUserCodeFromUserInfo(userInfoResponse) {
-            if (!userInfoResponse || !userInfoResponse.result) {
+                if (Array.isArray(node)) {
+                    for (const item of node) {
+                        const idFromItem = scan(item);
+                        if (idFromItem) {
+                            return idFromItem;
+                        }
+                    }
+                    return '';
+                }
+
+                if (typeof node === 'object') {
+                    const directId = pickId(node);
+                    if (directId) {
+                        return directId;
+                    }
+
+                    const prioritizedChildren = ['data', 'result', 'training', 'value'];
+                    for (const childKey of prioritizedChildren) {
+                        if (node[childKey] !== undefined) {
+                            const idFromChild = scan(node[childKey]);
+                            if (idFromChild) {
+                                return idFromChild;
+                            }
+                        }
+                    }
+                }
+
                 return '';
             }
 
-            const result = userInfoResponse.result;
-            return (
-                (result.agencydetail && result.agencydetail.userCode) ||
-                ''
-            );
-        }
-
-        function getTrainingsArray(trainingResponse) {
-            if (Array.isArray(trainingResponse)) {
-                return trainingResponse;
-            }
-            if (trainingResponse && Array.isArray(trainingResponse.result)) {
-                return trainingResponse.result;
-            }
-            if (trainingResponse && Array.isArray(trainingResponse.data)) {
-                return trainingResponse.data;
-            }
-            return [];
+            return scan(trainingDetailsResponse);
         }
 
         function applyConfigToUi() {
@@ -91,9 +109,8 @@
             const secondaryLogo = document.getElementById('secondaryLogo');
             const universityName = document.getElementById('universityName');
             const courseHeading = document.getElementById('product-list-heading');
-            const mobileLabel = document.getElementById('mobileLabel');
-            const verifyMobileButton = document.getElementById('verifyMobileButton');
-            const trainingLabel = document.getElementById('trainingLabel');
+            const trainingCodeLabel = document.getElementById('trainingCodeLabel');
+            const enrollmentLabel = document.getElementById('enrollmentLabel');
             const verifyButton = document.getElementById('verifyButton');
             const footerText = document.getElementById('footerText');
 
@@ -119,31 +136,17 @@
             if (courseHeading && appConfig.header && appConfig.header.courseHeading) {
                 courseHeading.textContent = appConfig.header.courseHeading;
             }
-            if (mobileLabel && appConfig.labels && appConfig.labels.mobile) {
-                mobileLabel.textContent = appConfig.labels.mobile;
+            if (trainingCodeLabel) {
+                trainingCodeLabel.textContent = (appConfig.labels && (appConfig.labels.trainingCode || appConfig.labels.training)) || 'Enter Training Code';
             }
-            if (verifyMobileButton && appConfig.labels && appConfig.labels.verifyMobileButton) {
-                verifyMobileButton.textContent = appConfig.labels.verifyMobileButton;
+            if (enrollmentLabel) {
+                enrollmentLabel.textContent = (appConfig.labels && (appConfig.labels.enrollmentNo || appConfig.labels.mobile)) || 'Enter Enrollment No';
             }
-            if (trainingLabel && appConfig.labels && appConfig.labels.training) {
-                trainingLabel.textContent = appConfig.labels.training;
-            }
-            const trainingDropdown = document.getElementById('ddltraining');
-            if (trainingDropdown && appConfig.messages && appConfig.messages.selectTraining) {
-                trainingDropdown.innerHTML = '<option value="">' + appConfig.messages.selectTraining + '</option>';
-            }
-            if (verifyButton && appConfig.labels && appConfig.labels.verifyButton) {
-                verifyButton.textContent = appConfig.labels.verifyButton;
+            if (verifyButton) {
+                verifyButton.textContent = (appConfig.labels && appConfig.labels.verifyButton) || 'Verify';
             }
             if (footerText && appConfig.labels && appConfig.labels.footer) {
                 footerText.textContent = appConfig.labels.footer;
-            }
-
-            if (verifyButton) {
-                verifyButton.disabled = true;
-            }
-            if (trainingDropdown) {
-                trainingDropdown.disabled = true;
             }
         }
 
@@ -162,31 +165,9 @@
                     jsonConfig.labels &&
                     jsonConfig.api &&
                     jsonConfig.messages &&
-                    jsonConfig.header.primaryLogoSrc &&
-                    jsonConfig.header.secondaryLogoSrc &&
-                    jsonConfig.header.logoTitle &&
-                    jsonConfig.header.universityName &&
-                    jsonConfig.header.courseHeading &&
-                    jsonConfig.labels.mobile &&
-                    jsonConfig.labels.verifyMobileButton &&
-                    jsonConfig.labels.training &&
-                    jsonConfig.labels.verifyButton &&
-                    jsonConfig.labels.footer &&
                     jsonConfig.api.apiKey &&
                     jsonConfig.api.apiPath &&
-                    jsonConfig.api.userInfoEndpoint &&
-                    jsonConfig.api.participantsTrainingEndpoint &&
-                    jsonConfig.api.verifyCertificateEndpoint &&
-                    jsonConfig.messages.invalidMobile &&
-                    jsonConfig.messages.mobileNotRegistered &&
-                    jsonConfig.messages.selectTraining &&
-                    jsonConfig.messages.noTrainingRegistered &&
-                    jsonConfig.messages.validCertificatePrefix &&
-                    jsonConfig.messages.invalidCertificate &&
-                    jsonConfig.messages.verifyFailed &&
-                    jsonConfig.messages.noResponse &&
-                    jsonConfig.messages.unexpectedError &&
-                    jsonConfig.messages.apiErrorPrefix;
+                    jsonConfig.api.verifyCertificateEndpoint;
 
                 if (!hasRequiredFields) {
                     throw new Error('Config JSON is missing required fields');
@@ -195,109 +176,8 @@
                 appConfig = jsonConfig;
                 applyConfigToUi();
             } catch (error) {
-                const verifyButton = document.getElementById('verifyButton');
-                if (verifyButton) {
-                    verifyButton.disabled = true;
-                }
                 alert('Configuration load failed. Please check html_config.json');
             }
-        }
-
-        function Verify_Mobile() {
-            if (!appConfig) {
-                alert('Configuration is not loaded.');
-                return;
-            }
-
-            const mobileNo = document.getElementById('mobileNo').value.trim();
-            if (mobileNo.length !== 10 || !/^\d+$/.test(mobileNo)) {
-                alert(appConfig.messages.invalidMobile);
-                return;
-            }
-
-            verifiedMobileNo = '';
-            verifiedUserCode = '';
-            document.getElementById('verifyButton').disabled = true;
-            document.getElementById('ddltraining').innerHTML = '<option value="">' + appConfig.messages.selectTraining + '</option>';
-            document.getElementById('ddltraining').disabled = true;
-
-            const apiUrl = appConfig.api.apiPath + appConfig.api.userInfoEndpoint + '?username=91-' + encodeURIComponent(mobileNo);
-            axios.get(apiUrl, {
-                headers: {
-                    'APIKey': appConfig.api.apiKey,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                const resolvedAgencyId = getAgencyIdFromUserInfo(response.data);
-                const resolvedUserCode = getUserCodeFromUserInfo(response.data);
-                if (response.status === 200 && resolvedAgencyId && resolvedUserCode) {
-                    agencyid = resolvedAgencyId;
-                    verifiedMobileNo = mobileNo;
-                    verifiedUserCode = String(resolvedUserCode).trim();
-                    Get_trainings(agencyid);
-                } else {
-                    alert(appConfig.messages.mobileNotRegistered);
-                }
-            })
-            .catch(() => {
-                alert(appConfig.messages.mobileNotRegistered);
-            });
-        }
-
-        function Get_trainings(participantAgencyId) {
-            const apiUrl = appConfig.api.apiPath + appConfig.api.participantsTrainingEndpoint + '?participantid=' + encodeURIComponent(participantAgencyId);
-            fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'APIKey': appConfig.api.apiKey
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('HTTP ' + response.status + ': Failed to fetch trainings');
-                }
-                return response.text();
-            })
-            .then(rawText => {
-                if (!rawText) {
-                    return [];
-                }
-                return JSON.parse(rawText);
-            })
-            .then(data => {
-                const trainings = getTrainingsArray(data);
-                const dropdown = document.getElementById('ddltraining');
-                dropdown.innerHTML = '<option value="">' + appConfig.messages.selectTraining + '</option>';
-
-                if (!Array.isArray(trainings) || trainings.length === 0) {
-                    document.getElementById('verifyButton').disabled = true;
-                    dropdown.disabled = true;
-                    alert(appConfig.messages.noTrainingRegistered);
-                    return;
-                }
-
-                trainings.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.trainingid;
-                    const displayControl = item.trg_Setting && Array.isArray(item.trg_Setting.displaycontrols)
-                        ? item.trg_Setting.displaycontrols.find(dc => Number(dc.id) === 2 && dc.displaytext)
-                        : null;
-                    const displayName = ((displayControl && displayControl.displaytext) || item.training_title || '').trim();
-                    option.textContent = item.trainingcode + '-' + displayName;
-                    dropdown.appendChild(option);
-                });
-
-                dropdown.disabled = false;
-                document.getElementById('verifyButton').disabled = false;
-                alert((appConfig.messages.selectTrainingToVerifyCertificate || (appConfig.messages.selectTraining + ' to verify certificate')) + '.');
-            })
-            .catch(error => {
-                document.getElementById('verifyButton').disabled = true;
-                document.getElementById('ddltraining').disabled = true;
-                alert(appConfig.messages.apiErrorPrefix + ((error && error.message) || appConfig.messages.noTrainingRegistered));
-            });
         }
 
         function Verify_Certificate() {
@@ -306,28 +186,48 @@
                 return;
             }
 
-            var trainingid = document.getElementById('ddltraining').value;
-            var usercode = verifiedUserCode;
+            const trainingCode = document.getElementById('trainingCode').value.trim();
+            const usercode = document.getElementById('enrollmentNo').value.trim();
             const apiKey = appConfig.api.apiKey;
             const APIPath = appConfig.api.apiPath;
+            const trainingDetailsEndpoint = appConfig.api.trainingDetailsByCodeEndpoint || '/Training_Details_by_Code';
+
+            if (!trainingCode) {
+                alert((appConfig.messages && appConfig.messages.invalidTrainingCode) || 'Please enter training code.');
+                return;
+            }
 
             if (!usercode) {
-                alert(appConfig.messages.invalidMobile);
+                alert((appConfig.messages && appConfig.messages.invalidEnrollmentNo) || 'Please enter enrollment number.');
                 return;
             }
 
-            if (!trainingid) {
-                alert(appConfig.messages.selectTraining);
-                return;
-            }
+            const trainingDetailsUrl = APIPath + trainingDetailsEndpoint + '?trainingcode=' + encodeURIComponent(trainingCode);
 
-            const apiUrl = APIPath + appConfig.api.verifyCertificateEndpoint + '?usercode=' + encodeURIComponent(usercode) + '&trainingid=' + encodeURIComponent(trainingid);
-
-            axios.get(apiUrl, {
+            axios.get(trainingDetailsUrl, {
                 headers: {
                     'APIKey': apiKey,
                     'Content-Type': 'application/json'
                 }
+            })
+            .then(trainingResponse => {
+                if (trainingResponse.status !== 200) {
+                    throw new Error((appConfig.messages && appConfig.messages.invalidTrainingCode) || 'Invalid training code.');
+                }
+
+                const trainingid = getTrainingIdFromTrainingDetails(trainingResponse.data);
+                if (!trainingid) {
+                    throw new Error((appConfig.messages && appConfig.messages.invalidTrainingCode) || 'Invalid training code.');
+                }
+
+                const verifyApiUrl = APIPath + appConfig.api.verifyCertificateEndpoint + '?usercode=' + encodeURIComponent(usercode) + '&trainingid=' + encodeURIComponent(trainingid);
+
+                return axios.get(verifyApiUrl, {
+                    headers: {
+                        'APIKey': apiKey,
+                        'Content-Type': 'application/json'
+                    }
+                });
             })
             .then(response => {
                 if (response.status === 200) {
@@ -341,6 +241,11 @@
                 }
             })
             .catch(error => {
+                if (error && error.message && !error.response && !error.request) {
+                    alert(error.message);
+                    return;
+                }
+
                 if (error.response) {
                     alert(appConfig.messages.apiErrorPrefix + error.response.status + ' - ' + ((error.response.data && error.response.data.message) || 'Unknown error'));
                 } else if (error.request) {

@@ -1,663 +1,63 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="2026.04.22.1">
-    <title>Vocational Courses</title>
+    <meta name="app-version" content="2026.05.02.1">
+    <title id="pageTitle"></title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"> 
 	<!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./viewmore.css">
 <script src="axios.min.js"></script>
-<style>
-/* Loader overlay background */
-.loader-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.8); /* translucent white */
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Spinner styling */
-.loader-spinner {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
-}
-
-/* Loading text */
-.loader-text {
-  margin-top: 15px;
-  font-size: 18px;
-  color: #333;
-  font-weight: 500;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Spinner animation */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>
-    <style>
-	div#loader{
-background: white !important;
-    z-index: 99999999999999;
-    width: 100vw;
-    height: 100vh;
-    position: absolute;
-}
-	@media print {
- #btnprint{
- display:none;
- }
- .grade-improvement-note{
- display:none;
- }
-}
-	.captcha-container {
-      width: 300px;
-      margin: auto;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 20px;
-      border-radius: 6px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-
-    .slider-track {
-      position: relative;
-      height: 40px;
-      background-color: #e0e0e0;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
-
-    .slider-thumb {
-      position: absolute;
-      height: 100%;
-      width: 40px;
-      background-color: #4CAF50;
-      border-radius: 5px;
-      left: 0;
-      transition: background-color 0.3s;
-      text-align: center;
-      color: white;
-      line-height: 40px;
-      font-weight: bold;
-      user-select: none;
-    }
-
-    .captcha-status {
-      text-align: center;
-      font-size: 16px;
-    }
-
-    .success {
-      color: green;
-    }
-
-    .fail {
-      color: red;
-    }
-	
-        /* General Body Styles */
-        body {
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7f6;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        header {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            padding: 1.5rem 0;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        header h1 {
-            margin: 0;
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            letter-spacing: 1px;
-        }
-
-        /* Main Content Area */
-        main {
-            flex-grow: 1;
-            padding: 2rem 1rem;
-            max-width: 1200px;
-            margin: 2rem auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .certificate-content {
-            margin-top: -20px;
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-
-        /* List Styling */
-        .product-list {
-            list-style: none; /* Remove default bullet points */
-            padding: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
-            gap: 2rem; /* Space between grid items */
-        }
-
-        .product-item {
-		    height:80px;
-			overflow:auto;
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .product-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .product-item h2 {
-            font-family: 'Playfair Display', serif;
-            color: #34495e;
-            font-size: 1.8rem;
-            margin-top: 0;
-            margin-bottom: 0.8rem;
-        }
-
-        .product-item p {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 1.5rem;
-        }
-
-        .product-item .price {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #e67e22; /* A vibrant orange */
-            margin-bottom: 1rem;
-            display: block; /* Ensures price is on its own line */
-        }
-
-        .product-item .button {
-            display: inline-block;
-            background-color: #3498db; /* A nice blue */
-            color: #fff;
-            padding: 0.4rem 0.9rem;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: background-color 0.3s ease;
-        }
-
-        .product-item .button:hover {
-            background-color: #2980b9;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            text-align: center;
-            padding: 1.5rem 0;
-            margin-top: auto;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2rem;
-            }
-
-            .product-list {
-                grid-template-columns: 1fr; /* Stack items on small screens */
-            }
-
-            .product-item {
-                padding: 1rem;
-            }
-
-            main {
-                margin: 1rem auto;
-                padding: 1rem;
-            }
-
-            .certificate-content {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            header h1 {
-                font-size: 16px;;
-            }
-			.bhoj_logo{
-			width: 70px;
-			}
-			.lit-logo{
-			width: 50px;
-			}
-				main{
-		margin-top: 150px;
-		}
-            .certificate-content {
-            padding-left: 12px;
-            padding-right: 12px;
-            }
-        }
-		
-		.main-header{
-		position: fixed;
-		width: 100%;
-	    justify-content: center;
-		}
-		.lit-logo{
-		border-radius: 28%;
-	}
-	.logos{
-	display: flex;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
-	    gap: 14px;
-	}
-	@media (min-width: 481px){
-	.lit-logo{
-	  width: 75px;
-	  }
-	  .bhoj_logo{
-		width: 100px;
-		}
-		main{
-		margin-top: 220px;
-		}
-}	
-    .open-modal-btn {
-            padding: 12px 25px;
-            background-color: #28a745; /* Green button */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .open-modal-btn:hover {
-            background-color: #218838;
-        }
-
-        /* --- Modal Specific Styles --- */
-
-        /* The Modal Overlay (background) */
-        .modal-overlay {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top (should be higher than anything else on the page) */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
-            display: flex; /* Use flexbox to center content */
-            justify-content: center;
-            align-items: center;
-            /* Animation for fade-in */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Modal Content Box */
-        .modal-content {
-            background-color: #ffffff;
-            margin: auto; /* Centered vertically and horizontally (if flexbox isn't used for centering) */
-            padding: 25px 30px; /* Reduced padding slightly for a tighter modal */
-            border-radius: 10px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Stronger shadow */
-            width: 90%; /* Responsive width */
-            max-width: 400px; /* Max width to keep it manageable */
-            position: relative; /* Needed for close button positioning */
-            transform: translateY(-20px); /* Initial state for animation */
-            transition: transform 0.3s ease;
-        }
-
-        #verificationModal .modal-content {
-            box-sizing: border-box;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-overlay.show .modal-content {
-            transform: translateY(0); /* Final state for animation */
-        }
-
-        /* Close Button */
-        .modal-close-btn {
-		    display:none;
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .modal-close-btn:hover,
-        .modal-close-btn:focus {
-            color: #333;
-            text-decoration: none;
-        }
-
-        /* --- Mobile Verification Form Styles (Copied from previous example, SCOPED) --- */
-        /*
-           To prevent affecting other styles on the page, we're being specific.
-           All these styles are now prefixed with '.modal-content' or a similar class
-           to ensure they ONLY apply inside the modal.
-        */
-
-        #verificationModal .modal-content .verification-container {
-            /* This div is now directly inside modal-content, so some styles can be simplified or removed if they overlap with modal-content */
-            text-align: center;
-            padding: 0; /* No extra padding needed here, as modal-content has it */
-            box-shadow: none; /* No extra shadow needed here */
-            background-color: transparent; /* No extra background needed here */
-        }
-
-        #verificationModal .modal-content h2 {
-            color: #2c3e50;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
-            margin-top: 10px; /* Adjust if header is too close to close button */
-        }
-
-        #verificationModal .modal-content .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        #verificationModal .modal-content .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 0.95rem;
-        }
-
-        #verificationModal .modal-content .input-group input[type="tel"],
-        #verificationModal .modal-content .input-group input[type="text"] {
-            width: 100%;
-            padding: 12px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        #verificationModal .modal-content .input-group input[type="tel"]:focus,
-        #verificationModal .modal-content .input-group input[type="text"]:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-
-        #verificationModal .modal-content .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        #verificationModal .modal-content .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            font-weight: bold;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        #verificationModal .modal-content .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-
-        #verificationModal .modal-content .btn-primary:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-        }
-
-        #verificationModal .modal-content .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        #verificationModal .modal-content .btn-secondary:hover {
-            background-color: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        #verificationModal .modal-content .otp-sent-message {
-            margin-top: 15px;
-            color: #28a745;
-            font-size: 0.9rem;
-            display: none;
-        }
-
-        #verificationModal .modal-content .otp-inputs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: nowrap;
-        }
-
-        #verificationModal .modal-content .otp-inputs input {
-            width: 45px;
-            height: 45px;
-            text-align: center;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        #verificationModal .modal-content .otp-inputs input:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-
-        #dvalert .captcha-container {
-            width: 100% !important;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        #alertMessage {
-            word-break: break-word;
-            overflow-wrap: anywhere;
-            line-height: 1.5;
-        }
-
-        #alertMessage a {
-            word-break: break-all;
-            overflow-wrap: anywhere;
-        }
-
-        #dvtraining .modal-content {
-            width: 90%;
-            max-width: 420px;
-            box-sizing: border-box;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        #dvtraining .verification-container {
-            text-align: center;
-        }
-
-        #dvtraining .input-group {
-            margin-bottom: 16px;
-        }
-
-        #dvtraining #ddltraining {
-            width: 100%;
-            max-width: 100%;
-            min-width: 0 !important;
-            height: 38px !important;
-            box-sizing: border-box;
-        }
-
-        #dvtraining .button-group {
-            margin-top: 12px;
-        }
-
-        #dvtraining .btn {
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* Initially hide the OTP section */
-        #verificationModal .modal-content #otp-section {
-            display: none;
-        }
-
-        /* Media queries for responsiveness inside modal */
-        @media (max-width: 600px) {
-            #verificationModal .modal-content {
-                width: 95%; /* Take more width on small screens */
-                padding: 20px;
-            }
-            #verificationModal .modal-content h2 {
-                font-size: 1.5rem;
-            }
-            #verificationModal .modal-content .button-group {
-                flex-direction: column;
-            }
-
-            #dvtraining .modal-content {
-                width: calc(100vw - 24px);
-                max-width: calc(100vw - 24px);
-                padding: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #verificationModal .modal-content {
-                width: calc(100vw - 20px);
-                padding: 16px;
-                border-radius: 8px;
-            }
-
-            #verificationModal .modal-content .otp-inputs {
-                gap: 6px;
-                justify-content: space-between;
-            }
-
-            #verificationModal .modal-content .otp-inputs input {
-                width: calc((100% - 30px) / 6);
-                max-width: 36px;
-                min-width: 30px;
-                height: 36px;
-                font-size: 1rem;
-            }
-
-            #dvalert .modal-content {
-                max-width: calc(100vw - 20px) !important;
-            }
-
-            #dvalert .captcha-container {
-                padding: 12px;
-            }
-        }
-    </style>
 </head>
-<body onload="CHECK_MOBILE_ON_LOAD()">
+<body class="certificate-page content-loading" onload="CHECK_MOBILE_ON_LOAD()">
+    <div id="loader" class="loader-overlay">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Please wait...</div>
+    </div>
+
     <header class="main-header">
 	<div class = "logos first-logo">
-	 <div><img class="bhoj_logo" title="MPBOU" src="https://learningplatform.mpbou.in/Content/GlobalSetting/dev/default_logo_2.png"/></div>
-	 <div><img class="lit-logo" title="MPBOU" src="https://learningplatform.mpbou.in/Content/GlobalSetting/Dev/default_logo.png?1.3"/></div>
+     <div><img id="primaryLogo" class="bhoj_logo" title="" src=""/></div>
+     <div><img id="secondaryLogo" class="lit-logo" title="" src=""/></div>
 
 	</div>
 
 
-	 <h1>Madhya Pradesh Bhoj (open) University</h1>
+     <h1 id="universityName"></h1>
 		
     </header>
 
     <main>
-		<div id="loader" class="loader-overlay" style="display: none;">
-  <div class="loader-spinner"></div>
-  <div class="loader-text">Please wait...</div>
-</div>
         <section aria-labelledby="product-list-heading" class="certificate-content">
-            <!-- <h5 id="product-list-heading" style="text-align: center; color: #2c3e50; margin-bottom: 2rem; font-family: 'Playfair Display', serif;">सेडमेप द्वारा प्रदत्त वोकेशनल कोर्स (व्यक्तित्व विकास)</h5> -->
-           <div>यह प्रमाणित किया जाता है कि <span id="lblname" style="font-weight:bold"></span> </span>  (नामांकन क्रमांक: <span id="lblenrollment"></span>)  <span style="font-weight:bold"> प्रथम वर्ष</span> के वोकेशनल कोर्स  "<span style="font-weight:bold" id="lblcourse"></span> " में पंजीकृत हैं। आपके अब तक के अध्ययन प्रदर्शन के आधार पर आपको  <span style="font-weight:bold">  ग्रेड "<span id="lblgrade"></span>" </span> प्रदान किया जाता है।</div>
-           <div class="grade-improvement-note" style="margin-top:10px; padding:8px 10px; border-left:4px solid #f39c12; background:#fff8e1; border-radius:4px;">
+            <h5></h5>
+           <div class="certificate-intro">यह प्रमाणित किया जाता है कि <span id="lblname" class="fw-bold"></span> </span>  (नामांकन क्रमांक: <span id="lblenrollment"></span>)  <span class="fw-bold">  वोकेशनल कोर्स  "<span class="fw-bold" id="lblcourse"></span>" में पंजीकृत हैं। आपके अब तक के अध्ययन प्रदर्शन के आधार पर आपको  <span class="fw-bold">  ग्रेड "<span id="lblgrade"></span>" </span> प्रदान किया जाता है।</div>
+           <div class="grade-improvement-note">
                ग्रेड सुधार के लिए कृपया कोर्स कंटेंट दोबारा पढ़ें और सभी प्रेक्टिकल गतिविधियां पूर्ण करें।
-               <a href="/viewmore/view_more_content1.html?v=2026.04.21.1" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>
+               <a id="gradeCourseContentLink" href="#" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>
            </div>
-		   <div style="padding: 10px 0px 10px 0px;">हम आपके उज्जवल भविष्य की कामना करते हैं।</div>
-		   <div><span style="font-weight:bold"> यह प्रमाणपत्र पोर्टल द्वारा स्वतः जनरेट किया गया है, अतः किसी हस्ताक्षर की आवश्यकता नहीं है।  </div><div> प्रमाणपत्र की सत्यता की पुष्टि हेतु कृपया संलग्न QR कोड स्कैन करें। </span></div>
+		   <div class="certificate-wish">हम आपके उज्जवल भविष्य की कामना करते हैं।</div>
+           <div id="qaRequiredSection">
+           <div><span class="fw-bold">यह प्रमाणपत्र पोर्टल द्वारा स्वतः जनरेट किया गया है, अतः किसी हस्ताक्षर की आवश्यकता नहीं है।</span></div>
+           <div>प्रमाणपत्र की सत्यता की पुष्टि हेतु कृपया संलग्न QR कोड स्कैन करें।</div>
+           <div class="certificate-qr-wrap"><img class="certificate-qr-image" src="/content/images/certificate_qr.png"/>
+            <p class="certificate-qr-caption">(Scan to verify)</p>
+            </div>
+           </div>
 		   <div><i>(Certificate Digitally Generated on <span id="lbldate"></span>)</i></div>
-		    <div style="float:right;"><img style="margin-left:12px" src="/content/images/certificate_qr.png"/>
-			<p style="margin:0px">(Scan to verify)</p>
-			</div>
 		
         </section>
 		
     </main>
 	
-	 <div style="text-align:center"><button id="btnprint" type="button" onclick="PrintCertificate()">Print</button></div>
+    <div class="certificate-print-wrap"><button id="btnprint" type="button" onclick="PrintCertificate()">Print</button></div>
 	
 	
 	<div id="Captchamodal" class="modal-overlay">
         <div class="modal-content">
-            <span class="modal-close-btn" style="display:block !important" onclick="closeCaptchaModal()">&times;</span>
+            <span class="modal-close-btn modal-close-visible" onclick="closeCaptchaModal()">&times;</span>
 
             <div class="verification-container">
                 <h2>Verify you are a human</h2>
@@ -690,7 +90,7 @@ background: white !important;
 
                 <div id="mobile-input-section1" >
                     <div class="input-group">
-                      <select id='ddltraining' style="min-width: 200px;height: 34px;max-width:100%"></select>
+                      <select id='ddltraining' class="training-select"></select>
                       
                     </div>
                      <div class="button-group">
@@ -704,21 +104,20 @@ background: white !important;
         </div>
     </div>
 	
-		<div id="dvalert" class="modal-overlay" style="display:block !important">
+        <div id="dvalert" class="modal-overlay alert-overlay-default">
 	
-        <div class="modal-content" style="max-width:90%;top:10%">
-           	<!-- <span class="modal-close-btn" style="display:block !important" onclick="closealert()">&times;</span> -->
+        <div class="modal-content alert-modal-content">
             <div class="verification-container">
                 <h2>Alert</h2>
 
                 <div id="mobile-input-section1" >
                     <div class="input-group">
                       
-                        <div class="captcha-container" style="width:80% !important">
+                        <div class="captcha-container alert-captcha-container">
  
         <div id="alertMessage">आपकी अध्ययन अवधि सर्टिफिकेट प्राप्त करने के लिए अभी पर्याप्त नहीं है। कृपया कोर्स कंटेंट का अध्ययन करें और कोर्स में दी सभी प्रेक्टिकल गतिविधियों को करें। ग्रेड सुधार के लिए भी इन्हें पूरा करना आवश्यक है। जब निर्धारित अध्ययन अवधि पूर्ण हो जाएगी, तब आप सर्टिफिकेट जनरेट कर सकेंगे और अपना ग्रेड देख सकेंगे। 
   <br/>
-                    कोर्स कंटेंट Link - <a href="/viewmore/view_more_content1.html?v=2026.04.21.1" target="_blank" rel="noopener noreferrer">/viewmore/view_more_content1.html?v=2026.04.21.1</a></div>
+                  कोर्स कंटेंट के लिए <a id="alertDefaultCourseLink" href="#" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a></div>
 </div>
                     </div>
                    
@@ -760,9 +159,9 @@ background: white !important;
                             <input type="text" id="otp-5" maxlength="1" pattern="[0-9]" inputmode="numeric">
                             <input type="text" id="otp-6" maxlength="1" pattern="[0-9]" inputmode="numeric">
                         </div>
-                        <p id="otp-text" style="font-size: 0.9em; color: #777; text-align: center;">
+                        <p id="otp-text" class="otp-resend-text">
                             Didn't receive OTP?
-                            <a href="#" id="resend-link" onclick="resendOtp()" style="color: #007bff; text-decoration: none;">Resend OTP</a>
+                            <a href="#" id="resend-link" class="otp-resend-link" onclick="resendOtp()">Resend OTP</a>
                         </p>
                     </div>
                     <div class="button-group">
@@ -780,15 +179,88 @@ background: white !important;
 		var agencyid=""
 		var ttpai_id=""
         var currentTrainingId = ''
-        const APP_VERSION = '2026.04.29.1';
-		const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
+        var currentTrainingCode = ''
+        var currentTrainingName = ''
+        const APP_VERSION = '2026.05.02.1';
+		let apiKey = '';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_VALID_DAYS = 15;
         const verificationModal = document.getElementById('verificationModal');
 		const sliderModal = document.getElementById('Captchamodal');
 		const alertModal = document.getElementById('dvalert');
-        const APIPath= "https://"+window.location.hostname+"/LitteraCore/api"
+        let APIPath = '';
+        let redirectBaseUrl = '';
+        const CONFIG_JSON = './html_config.json';
+        let appConfig = null;
 		//const APIPath= "http://p9:5858/api"
+
+        function applyConfigToUi() {
+            if (!appConfig) {
+                return;
+            }
+
+            document.title = appConfig.pageTitle || document.title;
+
+            const primaryLogo = document.getElementById('primaryLogo');
+            const secondaryLogo = document.getElementById('secondaryLogo');
+            const universityName = document.getElementById('universityName');
+            const courseHeading = document.getElementById('product-list-heading');
+            const footerText = document.getElementById('footerText');
+            const qaRequiredSection = document.getElementById('qaRequiredSection');
+
+            if (primaryLogo && appConfig.header && appConfig.header.primaryLogoSrc) {
+                primaryLogo.src = appConfig.header.primaryLogoSrc;
+            }
+            if (secondaryLogo && appConfig.header && appConfig.header.secondaryLogoSrc) {
+                secondaryLogo.src = appConfig.header.secondaryLogoSrc;
+            }
+            if (appConfig.header && appConfig.header.logoTitle) {
+                if (primaryLogo) {
+                    primaryLogo.title = appConfig.header.logoTitle;
+                    primaryLogo.alt = appConfig.header.logoTitle;
+                }
+                if (secondaryLogo) {
+                    secondaryLogo.title = appConfig.header.logoTitle;
+                    secondaryLogo.alt = appConfig.header.logoTitle;
+                }
+            }
+            if (universityName && appConfig.header && appConfig.header.universityName) {
+                universityName.textContent = appConfig.header.universityName;
+            }
+            if (courseHeading && appConfig.header && appConfig.header.courseHeading) {
+                courseHeading.textContent = appConfig.header.courseHeading;
+            }
+            if (footerText && appConfig.labels && appConfig.labels.footer) {
+                footerText.textContent = appConfig.labels.footer;
+            }
+            if (qaRequiredSection) {
+                const isQrRequired = appConfig.is_qr_required === true || String(appConfig.is_qr_required).toLowerCase() === 'true';
+                qaRequiredSection.style.display = isQrRequired ? 'block' : 'none';
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch(CONFIG_JSON, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error('Config JSON not found');
+                }
+                appConfig = await response.json();
+
+                if (!appConfig.api || !appConfig.api.apiKey || !appConfig.api.apiPath || !appConfig.api.baseUrl) {
+                    throw new Error('Config JSON is missing api.apiKey, api.apiPath or api.baseUrl');
+                }
+
+                apiKey = appConfig.api.apiKey;
+                APIPath = appConfig.api.apiPath;
+                redirectBaseUrl = String(appConfig.api.baseUrl).trim();
+                applyConfigToUi();
+            } catch (error) {
+                console.error('Configuration load failed:', error);
+                alert('Configuration load failed. Please check html_config.json');
+                throw error;
+            }
+        }
 
         function saveOtpCache(mobileNumber, apiResponse) {
             try {
@@ -872,6 +344,14 @@ background: white !important;
         const otpSentMessage = document.getElementById('otp-sent-message');
         const useridInput = document.getElementById('userid');
         const otpInputs = document.querySelectorAll('.otp-inputs input');
+
+        function setPageLoading(isLoading) {
+            const loader = document.getElementById('loader');
+            document.body.classList.toggle('content-loading', isLoading);
+            if (loader) {
+                loader.style.display = isLoading ? 'flex' : 'none';
+            }
+        }
 
         function requestOtp() {
             const mobileNumber = useridInput.value;
@@ -1115,8 +595,8 @@ const auditTrailData = {
     });
 }
     </script>
-    <footer style="text-align:right">
-         <p>www.learningplatform.mpbou.in</p>
+        <footer>
+            <p id="footerText">www.learningplatform.mpbou.in</p>
     </footer>
 </body>
 </html>
@@ -1153,40 +633,38 @@ window.location.replace(url.toString());
 return true;
 }
 
-function CHECK_MOBILE_ON_LOAD(){
+async function CHECK_MOBILE_ON_LOAD(){
+if (window.__certificateInitDone) {
+return;
+}
+window.__certificateInitDone = true;
 if (enforceCurrentPageVersion()) {
 return;
 }
-// const queryString = window.location.search;
-// const urlParams = new URLSearchParams(queryString);
-// agencyid = urlParams.get('userid');
-// if (agencyid == null) {
-//   if (localStorage.getItem('certificate_userid')) {
-//     agencyid = localStorage.getItem('certificate_userid');
-//   } else {
-//     openModal();
-//     //console.log('Mobile number not found in localStorage.');
-//     //Open dialog box to enter mobile no & set in local storage
-//   }
-// }
-
-DirectVerify_And_Print();
+setPageLoading(true);
+try {
+await loadConfig();
+} catch (error) {
+openModal();
+setPageLoading(false);
+return;
 }
+try {
+updateCourseContentLinks();
+await DirectVerify_And_Print();
+} finally {
+setPageLoading(false);
+}
+}
+
+window.addEventListener('load', function () {
+if (typeof CHECK_MOBILE_ON_LOAD === 'function') {
+CHECK_MOBILE_ON_LOAD();
+}
+});
 function Get_Base_Url()
 {
-var DPATH=window.location.hostname
-if(DPATH.toString().toUpperCase()=="QA.LITTERA.IN"){
-return "https://qaapp.littera.in"
-}
-else if(DPATH.toString().toUpperCase()=="LEARNINGPLATFORM.MPBOU.IN")
-{
-return "https://learn.mpbou.in"
-}
-else{
-return "https://react.littera.in"
-//return "http://p9:5858/"
-}
-
+return redirectBaseUrl
 }
 
 </script>
@@ -1220,11 +698,11 @@ function Get_Certificate_Data(ttpai_id) {
     document.getElementById('dvtraining').classList.remove('show');
 
     // Show loader
-    document.getElementById('loader').style.display = 'block';
+    setPageLoading(true);
 
     const apiUrl = APIPath + '/Certificate_Details?ttpai_id=' + ttpai_id;
 
-    axios.get(apiUrl, {
+    return axios.get(apiUrl, {
         headers: {
             'APIKey': apiKey,
             'Content-Type': 'application/json'
@@ -1241,10 +719,11 @@ function Get_Certificate_Data(ttpai_id) {
             document.getElementById('lbldate').innerHTML = response.data.printdate;
             userid = response.data.userid;
             currentTrainingId = response.data.trainingid || currentTrainingId;
-            Get_Training_Data(response.data.trainingid);
+            updateCourseContentLinks();
 
             closeModal();
             update_Audit_Trail('Certificate Generated', ttpai_id);
+            return Get_Training_Data(response.data.trainingid);
         } else {
             alert('Failed to generate Certificate: ' + (response.data ? response.data.message : 'Unknown error'));
         }
@@ -1268,7 +747,7 @@ function Get_Certificate_Data(ttpai_id) {
     })
     .finally(() => {
         // Hide loader regardless of success or failure
-        document.getElementById('loader').style.display = 'none';
+        setPageLoading(false);
     });
 }
 
@@ -1278,7 +757,7 @@ function Get_Certificate_Data(ttpai_id) {
 function Get_Training_Data(trainingid){
  
           const apiUrl = APIPath+'/Training_Details?trainingid='+trainingid+'';
-            axios.get(apiUrl, {
+            return axios.get(apiUrl, {
 				headers: {
 				'APIKey': apiKey,
 				'Content-Type': 'application/json' // Adjust if API expects something else
@@ -1301,7 +780,12 @@ function Get_Training_Data(trainingid){
                 if (displayname == "") {
                     displayname = response.data.t_Name;
                 }
-			 document.getElementById('lblcourse').innerHTML=response.data.t_Name
+             const trainingCode = String(response.data.trainingcode || response.data.t_Code || response.data.training_code || '').trim();
+             const courseName = String(displayname || response.data.t_Name || '').trim();
+             currentTrainingCode = trainingCode;
+             currentTrainingName = courseName;
+             document.getElementById('lblcourse').innerHTML = trainingCode ? (trainingCode + ' - ' + courseName) : courseName;
+             updateCourseContentLinks();
 			
 			  //closeModal()
 			
@@ -1342,7 +826,13 @@ function Get_Training_Participant_Details(){
 		  }
           
           var participantid=agencyid;
-          var trainingid=document.getElementById('ddltraining').value;
+          var trainingDropdown = document.getElementById('ddltraining');
+          var trainingid=trainingDropdown.value;
+          var selectedOption = trainingDropdown.options[trainingDropdown.selectedIndex];
+          currentTrainingId = String(trainingid || '').trim();
+          currentTrainingCode = String((selectedOption && selectedOption.getAttribute('data-training-code')) || '').trim();
+          currentTrainingName = String((selectedOption && selectedOption.getAttribute('data-training-name')) || '').trim();
+          updateCourseContentLinks();
           const apiUrl = APIPath+'/TRG_PARTICIPANT_DETAILS?trainingid='+trainingid+'&participantid='+participantid;
             axios.get(apiUrl, {
 				headers: {
@@ -1407,13 +897,14 @@ var ttpai_id=urlparams2.get('userid');
 function DirectVerify_And_Print(){
  const queryStringf = window.location.search;
 const urlparamsf = new URLSearchParams(queryStringf); 
-var ttpai_id=urlparamsf.get('ttpai_id');
-if(ttpai_id !=null){
-  Get_Certificate_Data(ttpai_id)
+var ttpai_id = String(urlparamsf.get('ttpai_id') || '').trim();
+if (ttpai_id) {
+    return Get_Certificate_Data(ttpai_id)
 
 }
 else{
 openModal();
+return Promise.resolve();
 }
 
 }
@@ -1441,23 +932,15 @@ if (!alertMessageElement) {
 return;
 }
 
-const courseContentPath = '/viewmore/view_more_content1.html';
-const selectedTrainingId = (document.getElementById('ddltraining') && document.getElementById('ddltraining').value) || '';
-const trainingIdFromUrl = new URLSearchParams(window.location.search).get('trainingid') || '';
-const trainingIdForLink = selectedTrainingId || trainingIdFromUrl || currentTrainingId || '';
-const params = new URLSearchParams();
-params.set('v', APP_VERSION);
-if (trainingIdForLink) {
-params.set('trainingid', trainingIdForLink);
-}
-const courseContentUrl = window.location.origin + courseContentPath + '?' + params.toString();
-const courseLinkLabelHtml = 'कोर्स कंटेंट Link - <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">' + courseContentUrl + '</a>';
+const courseContentUrl = buildCourseContentUrl('/viewmore/test/view_more_content1.html');
+const courseLinkLabelHtml = 'कोर्स कंटेंट के लिए <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>';
 const courseLinkHtml = '<br/>' + courseLinkLabelHtml;
 
 if (message && typeof message === 'string') {
 const normalizedMessage = message.replace(/\n/g, '<br/>');
 const cleanedMessage = normalizedMessage
-.replace(/(?:<br\s*\/?>\s*)?कोर्स\s*कंटेंट\s*Link\s*-\s*https?:\/\/[^\s<]+/gi, '')
+.replace(/कोर्स\s*कंटेंट\s*Link\s*-\s*https?:\/\/\S+/gi, '')
+.replace(/(?:<br\s*\/?>\s*)?कोर्स\s*कंटेंट[^<]*<a[^>]*>.*?<\/a>/gi, '')
 .replace(/^(?:<br\s*\/?>\s*)+|(?:<br\s*\/?>\s*)+$/gi, '')
 .trim();
 
@@ -1512,6 +995,8 @@ function Get_trainings(agencyid) {
             if (displayname == "") {
                 displayname = response.data.t_Name;
             }
+            option.setAttribute('data-training-code', String(item.trainingcode || '').trim());
+            option.setAttribute('data-training-name', String(displayname || '').trim());
             option.textContent = item.trainingcode + '-' + displayname; // trim removes unwanted spaces
             dropdown.appendChild(option);
         });
@@ -1529,6 +1014,38 @@ function Get_trainings(agencyid) {
 }
 function closealert(){
 alertModal.classList.remove('show');
+}
+
+function buildCourseContentUrl(path) {
+const urlParams = new URLSearchParams(window.location.search);
+const effectiveTrainingId = String(currentTrainingId || urlParams.get('trainingid') || '').trim();
+const effectiveTrainingCode = String(currentTrainingCode || urlParams.get('trainingcode') || '').trim();
+const effectiveTrainingName = String(currentTrainingName || urlParams.get('trainingname') || '').trim();
+const params = new URLSearchParams();
+params.set('v', APP_VERSION);
+if (effectiveTrainingId) {
+params.set('trainingid', effectiveTrainingId);
+}
+if (effectiveTrainingCode) {
+params.set('trainingcode', effectiveTrainingCode);
+}
+if (effectiveTrainingName) {
+params.set('trainingname', effectiveTrainingName);
+}
+return window.location.origin + path + '?' + params.toString();
+}
+
+function updateCourseContentLinks() {
+const courseContentUrl = buildCourseContentUrl('/viewmore/test/view_more_content1.html');
+const gradeLink = document.getElementById('gradeCourseContentLink');
+if (gradeLink) {
+gradeLink.href = courseContentUrl;
+}
+const alertDefaultLink = document.getElementById('alertDefaultCourseLink');
+if (alertDefaultLink) {
+alertDefaultLink.href = courseContentUrl;
+alertDefaultLink.textContent = 'यहां क्लिक करें';
+}
 }
 
 </script>
@@ -1562,11 +1079,11 @@ alertModal.classList.remove('show');
 
     function updateOtpText(secondsLeft) {
         const textContainer = document.getElementById('otp-text');
-        textContainer.innerHTML = `Didn't receive OTP? <span style="color: #999;">Resend OTP in ${secondsLeft}s</span>`;
+        textContainer.innerHTML = `Didn't receive OTP? <span class="otp-resend-disabled">Resend OTP in ${secondsLeft}s</span>`;
     }
 
     function resetOtpLink() {
         const textContainer = document.getElementById('otp-text');
-        textContainer.innerHTML = `Didn't receive OTP? <a href="#" id="resend-link" onclick="resendOtp_Final()" style="color: #007bff; text-decoration: none;">Resend OTP</a>`;
+        textContainer.innerHTML = `Didn't receive OTP? <a href="#" id="resend-link" class="otp-resend-link" onclick="resendOtp_Final()">Resend OTP</a>`;
     }
 </script>
