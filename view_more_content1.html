@@ -240,6 +240,10 @@
         }
 
         function isContentTypeAllowed(type) {
+            if (String(type || '').trim().toLowerCase() === 'view') {
+                return false;
+            }
+
             if (!contentTypeVisibility) {
                 return true;
             }
@@ -617,7 +621,7 @@
                 return { type: 'Activity', redirection_path: 'videolearning' };
             }
 
-            return { type: 'View', redirection_path: 'videolearning' };
+            return null;
         }
 
         function getContentSourcePath(item) {
@@ -745,6 +749,9 @@
                 .filter(row => row && isOpenStatus(getFieldValue(row, ['ttsad_status', 'status', 'is_active'])))
                 .map(row => {
                     const mapped = mapContentType(row);
+                    if (!mapped) {
+                        return null;
+                    }
                     return {
                         ttsam_id: String(getFieldValue(row, ['ttsam_id', 'id', 'ttsad_ttsam_id']) || '').trim(),
                         ttsam_ttttt_session_id: String(getFieldValue(row, ['ttsam_ttttt_session_id', 'ttttt_session_id', 'session_id', 'ttsad_ttttt_session_id']) || '').trim(),
@@ -753,6 +760,7 @@
                         content_path: getContentSourcePath(row)
                     };
                 })
+                .filter(row => row)
                 .filter(row => isContentTypeAllowed(row.type))
                 .filter(row => row.ttsam_id && row.ttsam_ttttt_session_id);
 
@@ -820,6 +828,10 @@
                 actions.className = 'content-actions';
 
                 group.items.forEach(item => {
+                    if (!isContentTypeAllowed(item.type)) {
+                        return;
+                    }
+
                     const lnk = buildContentLink(item);
                     if (!lnk) {
                         return;

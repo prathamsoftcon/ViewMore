@@ -932,7 +932,7 @@ if (!alertMessageElement) {
 return;
 }
 
-const courseContentUrl = buildCourseContentUrl('/viewmore/test/view_more_content1.html');
+const courseContentUrl = buildCourseContentUrl('/viewmore/view_more_content1.html');
 const courseLinkLabelHtml = 'कोर्स कंटेंट के लिए <a href="' + courseContentUrl + '" target="_blank" rel="noopener noreferrer">यहां क्लिक करें</a>';
 const courseLinkHtml = '<br/>' + courseLinkLabelHtml;
 
@@ -1036,7 +1036,7 @@ return window.location.origin + path + '?' + params.toString();
 }
 
 function updateCourseContentLinks() {
-const courseContentUrl = buildCourseContentUrl('/viewmore/test/view_more_content1.html');
+const courseContentUrl = buildCourseContentUrl('/viewmore/view_more_content1.html');
 const gradeLink = document.getElementById('gradeCourseContentLink');
 if (gradeLink) {
 gradeLink.href = courseContentUrl;
