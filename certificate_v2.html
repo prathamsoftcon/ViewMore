@@ -936,6 +936,7 @@ const courseLinkHtml = '<br/>' + courseLinkLabelHtml;
 if (message && typeof message === 'string') {
 const normalizedMessage = message.replace(/\n/g, '<br/>');
 const cleanedMessage = normalizedMessage
+.replace(/कोर्स\s*कंटेंट\s*Link\s*-\s*https?:\/\/\S+/gi, '')
 .replace(/(?:<br\s*\/?>\s*)?कोर्स\s*कंटेंट[^<]*<a[^>]*>.*?<\/a>/gi, '')
 .replace(/^(?:<br\s*\/?>\s*)+|(?:<br\s*\/?>\s*)+$/gi, '')
 .trim();
