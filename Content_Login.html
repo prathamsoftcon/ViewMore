@@ -1,230 +1,21 @@
 <body onload="initializePage()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="axios.min.js"></script>
-<style>
-.open-modal-btn {
-        padding: 12px 25px;
-        background-color: #28a745; /* Green button */
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    .open-modal-btn:hover {
-        background-color: #218838;
-    }
-    /* --- Modal Specific Styles --- */
-    /* The Modal Overlay (background) */
-    .modal-overlay {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1000; /* Sit on top (should be higher than anything else on the page) */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
-        display: flex; /* Use flexbox to center content */
-        justify-content: center;
-        align-items: center;
-        /* Animation for fade-in */
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-    .modal-overlay.show {
-        opacity: 1;
-        visibility: visible;
-    }
-    /* Modal Content Box */
-    .modal-content {
-        background-color: #ffffff;
-        margin: auto; /* Centered vertically and horizontally (if flexbox isn't used for centering) */
-        padding: 25px 30px; /* Reduced padding slightly for a tighter modal */
-        border-radius: 10px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Stronger shadow */
-        width: 90%; /* Responsive width */
-        max-width: 400px; /* Max width to keep it manageable */
-        position: relative; /* Needed for close button positioning */
-        transform: translateY(-20px); /* Initial state for animation */
-        transition: transform 0.3s ease;
-    }
-    .modal-overlay.show .modal-content {
-        transform: translateY(0); /* Final state for animation */
-    }
-    /* Close Button */
-    .modal-close-btn {
-	    display:none;
-        color: #aaa;
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: color 0.3s ease;
-    }
-    .modal-close-btn:hover,
-    .modal-close-btn:focus {
-        color: #333;
-        text-decoration: none;
-    }
-    /* --- Mobile Verification Form Styles (Copied from previous example, SCOPED) --- */
-    /*
-       To prevent affecting other styles on the page, we're being specific.
-       All these styles are now prefixed with '.modal-content' or a similar class
-       to ensure they ONLY apply inside the modal.
-    */
-    .modal-content .verification-container {
-        /* This div is now directly inside modal-content, so some styles can be simplified or removed if they overlap with modal-content */
-        text-align: center;
-        padding: 0; /* No extra padding needed here, as modal-content has it */
-        box-shadow: none; /* No extra shadow needed here */
-        background-color: transparent; /* No extra background needed here */
-    }
-    .modal-content h2 {
-        color: #2c3e50;
-        margin-bottom: 25px;
-        font-size: 1.8rem;
-        margin-top: 10px; /* Adjust if header is too close to close button */
-    }
-    .modal-content .input-group {
-        margin-bottom: 20px;
-        text-align: left;
-    }
-    .modal-content .input-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-        color: #555;
-        font-size: 0.95rem;
-    }
-    .modal-content .input-group input[type="tel"],
-    .modal-content .input-group input[type="text"] {
-        width: 100%;
-        padding: 12px 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 1rem;
-        box-sizing: border-box;
-    }
-    .modal-content .input-group input[type="tel"]:focus,
-    .modal-content .input-group input[type="text"]:focus {
-        border-color: #007bff;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    }
-    .modal-content .button-group {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 30px;
-    }
-    .modal-content .btn {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 5px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        font-weight: bold;
-    }
-    .modal-content .btn-primary {
-        background-color: #007bff;
-        color: white;
-    }
-    .modal-content .btn-primary:hover {
-        background-color: #0056b3;
-        transform: translateY(-2px);
-    }
-    .modal-content .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
-    .modal-content .btn-secondary:hover {
-        background-color: #5a6268;
-        transform: translateY(-2px);
-    }
-    .modal-content .otp-sent-message {
-        margin-top: 15px;
-        color: #28a745;
-        font-size: 0.9rem;
-        display: none;
-    }
-    .modal-content .otp-inputs {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    .modal-content .otp-inputs input {
-        width: 45px;
-        height: 45px;
-        text-align: center;
-        font-size: 1.4rem;
-        font-weight: bold;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
-    }
-    .modal-content .otp-inputs input:focus {
-        border-color: #007bff;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    }
-    /* Initially hide the OTP section */
-    .modal-content #otp-section {
-        display: none;
-    }
-    /* Media queries for responsiveness inside modal */
-    @media (max-width: 600px) {
-        .modal-content {
-            width: 95%; /* Take more width on small screens */
-            padding: 20px;
-        }
-        .modal-content h2 {
-            font-size: 1.5rem;
-        }
-        .modal-content .button-group {
-            flex-direction: column;
-        }
-    }
-</style>
-<style>
-#loaderWrapper {
- position: fixed;
- inset: 0;
- display: none;
- justify-content: center;
- align-items: center;
- background: rgba(255, 255, 255, 0.6);
- z-index: 999999;
- pointer-events: all;  /* blocks clicks */
- cursor: wait;
-}
-.loader {
-   margin-top: 20%;
-   margin-left: 40%;
- width: 48px;
- height: 48px;
- border: 5px solid #ccc;
- border-top-color: #3498db;
- border-radius: 50%;
- animation: spin 1s linear infinite;
-}
-@keyframes spin {
- to { transform: rotate(360deg); }
-}
-body.loading {
- overflow: hidden;  /* prevents scroll */
-}
-</style>
-<div id="loaderWrapper">
- <div  class="loader"></div>
+<link rel="stylesheet" href="./viewmore.css">
+<div id="loaderWrapper" class="loader-overlay" style="display: none;">
+ <div class="loader-spinner"></div>
 </div>
+<header class="main-header">
+	<div class = "logos first-logo">
+     <div><img id="primaryLogo" class="bhoj_logo" title="" src=""/></div>
+     <div><img id="secondaryLogo" class="lit-logo" title="" src=""/></div>
+
+	</div>
+
+
+     <h1 id="universityName"></h1>
+		
+    </header>
 <div id="verificationModal" class="modal-overlay show">
    <div class="modal-content">
        <span class="modal-close-btn" onclick="closeModal()">&times;</span>
@@ -377,6 +168,29 @@ function applyConfigToUi() {
     const mobileLabel = document.getElementById('mobileLabel');
     const btnNext = document.getElementById('btnnext');
     const trainingTitle = document.getElementById('trainingTitle');
+    const primaryLogo = document.getElementById('primaryLogo');
+    const secondaryLogo = document.getElementById('secondaryLogo');
+    const universityName = document.getElementById('universityName');
+
+    if (primaryLogo && appConfig.header && appConfig.header.primaryLogoSrc) {
+        primaryLogo.src = appConfig.header.primaryLogoSrc;
+    }
+    if (secondaryLogo && appConfig.header && appConfig.header.secondaryLogoSrc) {
+        secondaryLogo.src = appConfig.header.secondaryLogoSrc;
+    }
+    if (appConfig.header && appConfig.header.logoTitle) {
+        if (primaryLogo) {
+            primaryLogo.title = appConfig.header.logoTitle;
+            primaryLogo.alt = appConfig.header.logoTitle;
+        }
+        if (secondaryLogo) {
+            secondaryLogo.title = appConfig.header.logoTitle;
+            secondaryLogo.alt = appConfig.header.logoTitle;
+        }
+    }
+    if (universityName && appConfig.header && appConfig.header.universityName) {
+        universityName.textContent = appConfig.header.universityName;
+    }
 
     if (verifyMobileTitle) {
         verifyMobileTitle.textContent = 'Verify Your Mobile Number';
@@ -422,7 +236,7 @@ async function initializePage() {
     Check_Is_Page_Expiry();
 }
   function Next_click() {
-     document.getElementById("loaderWrapper").style.display = "block";
+     document.getElementById("loaderWrapper").style.display = "flex";
       const mobileNumber = useridInput.value;
       if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
 	 	const apiUrl = APIPath+'/UserInfo_wk?username=91-'+mobileNumber;
@@ -463,7 +277,7 @@ async function initializePage() {
   }
     
   function requestOtp() {
-      document.getElementById("loaderWrapper").style.display = "block";
+      document.getElementById("loaderWrapper").style.display = "flex";
     const mobileNumber = useridInput.value;
     if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
  	const apiUrl = APIPath+'/GenerateOTP_wk?username=91-'+mobileNumber;
@@ -888,7 +702,7 @@ function Open_page_For_Type(type){
 }
 function Get_Content_Detail(contentid){
 //Get content Detail and open single accordig to type
-document.getElementById("loaderWrapper").style.display = "block";
+document.getElementById("loaderWrapper").style.display = "flex";
   const apiUrl = APIPath+'/GET_CONTENT_DETAILS_wk?ttsam_id='+contentid+'&participantid='+agencyid;
             axios.get(apiUrl, {
 				headers: {
