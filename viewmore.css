@@ -64,7 +64,7 @@ header h1 {
 
 .product-item {
     height: auto;
-    overflow: auto;
+    overflow: visible;
     background-color: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
@@ -536,6 +536,12 @@ footer {
     font-family: 'Roboto', sans-serif;
 }
 
+.content-loading > header,
+.content-loading > main,
+.content-loading > .certificate-print-wrap {
+    visibility: hidden;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -547,7 +553,11 @@ footer {
     z-index: 99999999999999;
     width: 100vw;
     height: 100vh;
-    position: absolute;
+    position: fixed;
+}
+
+.content-loading > #loader {
+    display: flex;
 }
 
 .fw-bold {
@@ -628,7 +638,7 @@ header h1 {
 }
 
 .product-item {
-    height: 80px;
+    min-height: 80px;
 }
 
 

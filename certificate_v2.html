@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="2026.05.01.1">
+    <meta name="app-version" content="2026.05.02.1">
     <title id="pageTitle"></title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"> 
 	<!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  -->
@@ -12,7 +12,12 @@
     <link rel="stylesheet" href="./viewmore.css">
 <script src="axios.min.js"></script>
 </head>
-<body class="certificate-page" onload="CHECK_MOBILE_ON_LOAD()">
+<body class="certificate-page content-loading" onload="CHECK_MOBILE_ON_LOAD()">
+    <div id="loader" class="loader-overlay">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Please wait...</div>
+    </div>
+
     <header class="main-header">
 	<div class = "logos first-logo">
      <div><img id="primaryLogo" class="bhoj_logo" title="" src=""/></div>
@@ -26,10 +31,6 @@
     </header>
 
     <main>
-        <div id="loader" class="loader-overlay">
-  <div class="loader-spinner"></div>
-  <div class="loader-text">Please wait...</div>
-</div>
         <section aria-labelledby="product-list-heading" class="certificate-content">
             <h5></h5>
            <div class="certificate-intro">यह प्रमाणित किया जाता है कि <span id="lblname" class="fw-bold"></span> </span>  (नामांकन क्रमांक: <span id="lblenrollment"></span>)  <span class="fw-bold">  वोकेशनल कोर्स  "<span class="fw-bold" id="lblcourse"></span>" में पंजीकृत हैं। आपके अब तक के अध्ययन प्रदर्शन के आधार पर आपको  <span class="fw-bold">  ग्रेड "<span id="lblgrade"></span>" </span> प्रदान किया जाता है।</div>
@@ -180,7 +181,7 @@
         var currentTrainingId = ''
         var currentTrainingCode = ''
         var currentTrainingName = ''
-        const APP_VERSION = '2026.05.01.1';
+        const APP_VERSION = '2026.05.02.1';
 		let apiKey = '';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_VALID_DAYS = 15;
@@ -343,6 +344,14 @@
         const otpSentMessage = document.getElementById('otp-sent-message');
         const useridInput = document.getElementById('userid');
         const otpInputs = document.querySelectorAll('.otp-inputs input');
+
+        function setPageLoading(isLoading) {
+            const loader = document.getElementById('loader');
+            document.body.classList.toggle('content-loading', isLoading);
+            if (loader) {
+                loader.style.display = isLoading ? 'flex' : 'none';
+            }
+        }
 
         function requestOtp() {
             const mobileNumber = useridInput.value;
@@ -632,27 +641,20 @@ window.__certificateInitDone = true;
 if (enforceCurrentPageVersion()) {
 return;
 }
+setPageLoading(true);
 try {
 await loadConfig();
 } catch (error) {
 openModal();
+setPageLoading(false);
 return;
 }
+try {
 updateCourseContentLinks();
-// const queryString = window.location.search;
-// const urlParams = new URLSearchParams(queryString);
-// agencyid = urlParams.get('userid');
-// if (agencyid == null) {
-//   if (localStorage.getItem('certificate_userid')) {
-//     agencyid = localStorage.getItem('certificate_userid');
-//   } else {
-//     openModal();
-//     //console.log('Mobile number not found in localStorage.');
-//     //Open dialog box to enter mobile no & set in local storage
-//   }
-// }
-
-DirectVerify_And_Print();
+await DirectVerify_And_Print();
+} finally {
+setPageLoading(false);
+}
 }
 
 window.addEventListener('load', function () {
@@ -696,11 +698,11 @@ function Get_Certificate_Data(ttpai_id) {
     document.getElementById('dvtraining').classList.remove('show');
 
     // Show loader
-    document.getElementById('loader').style.display = 'block';
+    setPageLoading(true);
 
     const apiUrl = APIPath + '/Certificate_Details?ttpai_id=' + ttpai_id;
 
-    axios.get(apiUrl, {
+    return axios.get(apiUrl, {
         headers: {
             'APIKey': apiKey,
             'Content-Type': 'application/json'
@@ -718,10 +720,10 @@ function Get_Certificate_Data(ttpai_id) {
             userid = response.data.userid;
             currentTrainingId = response.data.trainingid || currentTrainingId;
             updateCourseContentLinks();
-            Get_Training_Data(response.data.trainingid);
 
             closeModal();
             update_Audit_Trail('Certificate Generated', ttpai_id);
+            return Get_Training_Data(response.data.trainingid);
         } else {
             alert('Failed to generate Certificate: ' + (response.data ? response.data.message : 'Unknown error'));
         }
@@ -745,7 +747,7 @@ function Get_Certificate_Data(ttpai_id) {
     })
     .finally(() => {
         // Hide loader regardless of success or failure
-        document.getElementById('loader').style.display = 'none';
+        setPageLoading(false);
     });
 }
 
@@ -755,7 +757,7 @@ function Get_Certificate_Data(ttpai_id) {
 function Get_Training_Data(trainingid){
  
           const apiUrl = APIPath+'/Training_Details?trainingid='+trainingid+'';
-            axios.get(apiUrl, {
+            return axios.get(apiUrl, {
 				headers: {
 				'APIKey': apiKey,
 				'Content-Type': 'application/json' // Adjust if API expects something else
@@ -897,11 +899,12 @@ function DirectVerify_And_Print(){
 const urlparamsf = new URLSearchParams(queryStringf); 
 var ttpai_id = String(urlparamsf.get('ttpai_id') || '').trim();
 if (ttpai_id) {
-    Get_Certificate_Data(ttpai_id)
+    return Get_Certificate_Data(ttpai_id)
 
 }
 else{
 openModal();
+return Promise.resolve();
 }
 
 }

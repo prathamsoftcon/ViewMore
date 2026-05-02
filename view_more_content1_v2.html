@@ -11,7 +11,12 @@
  <link rel="stylesheet" href="./viewmore.css">
   <!-- <script src="/axios.min.js"></script>  -->
 </head>
-<body onload="initPage()">
+<body class="content-loading" onload="initPage()">
+    <div id="pageLoader" class="loader-overlay">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Please wait...</div>
+    </div>
+
     <header class="main-header">
 	<div class = "logos first-logo">
 	 <div><img id="primaryLogo" class="bhoj_logo" title="" src=""/></div> 
@@ -103,7 +108,7 @@
 		var userid=""
 		var agencyid=""
         var currentTrainingId = ''
-        const APP_VERSION = "2026.05.01.1";
+        const APP_VERSION = "2026.05.02.1";
         const CONFIG_JSON = './html_config.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
@@ -425,10 +430,25 @@
         const useridInput = document.getElementById('userid');
         const otpInputs = document.querySelectorAll('.otp-inputs input');
 
+        function setPageLoading(isLoading) {
+            const pageLoader = document.getElementById('pageLoader');
+            document.body.classList.toggle('content-loading', isLoading);
+            if (pageLoader) {
+                pageLoader.style.display = isLoading ? 'flex' : 'none';
+            }
+        }
+
         async function initPage() {
-            await loadConfig();
-            CHECK_MOBILE_ON_LOAD();
-            renderContentForSelectedTraining();
+            setPageLoading(true);
+            try {
+                await loadConfig();
+                CHECK_MOBILE_ON_LOAD();
+                await renderContentForSelectedTraining();
+            } catch (error) {
+                console.error('Page initialization failed:', error);
+            } finally {
+                setPageLoading(false);
+            }
         }
 
         function getDynamicContentCacheKey(trainingId) {
@@ -486,7 +506,7 @@
             const hasRenderedFromCache = renderContentFromDynamicCache(activeTrainingId);
 
             if (currentTrainingId) {
-                renderContentFromApis(currentTrainingId)
+                return renderContentFromApis(currentTrainingId)
                     .catch(error => {
                         console.error('Failed to bind dynamic content for selected training:', error);
                         if (!hasRenderedFromCache) {
@@ -496,7 +516,6 @@
                             }
                         }
                     });
-                return;
             }
 
             if (!hasRenderedFromCache) {
@@ -505,6 +524,8 @@
                     productList.innerHTML = '';
                 }
             }
+
+            return Promise.resolve();
         }
 
         function getApiArray(payload) {
