@@ -21,8 +21,8 @@
   "api": {
     "apiKey": "UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=",
     "baseUrl": "https://qaapp.littera.in",
-    "apiPath": "https://qa.littera.in/LitteraCore/api",
-    "apiPath1": "https://localhost:5859/api",
+    "apiPath1": "https://qa.littera.in/LitteraCore/api",
+    "apiPath": "https://localhost:5859/api",
 
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
     "userInfoEndpoint": "/UserInfo_wk",
@@ -43,5 +43,31 @@
     "unexpectedError": "An unexpected error occurred.",
     "apiErrorPrefix": "API Error: "
   },
-  "contentTypeVisibility": "Video=1,Activity=1,pdf=0,ppt=0"
+  "contentTypeVisibility": "Video=1,Activity=1,pdf=0,ppt=0",
+  "sessionDisplayFields": {
+    "ttttt_content_desc": {
+      "label": "Unit Name",
+      "required": true
+    },
+    "module": {
+      "label": "Module",
+      "required": false
+    },
+    "ttttt_session_week": {
+      "label": "Week",
+      "required": false
+    },
+    "ttttt_session_day": {
+      "label": "Unit No#",
+      "required": true
+    },
+    "ttttt_session_dt": {
+      "label": "Date",
+      "required": false
+    },
+    "ttttt_session_no": {
+      "label": "Sub Unit No#",
+      "required": true
+    }
+  }
 }

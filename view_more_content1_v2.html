@@ -114,6 +114,15 @@
         let redirectBaseUrl = '';
 		let appConfig = null;
 		let contentTypeVisibility = null;
+        let sessionDisplayFields = null;
+        const SESSION_DISPLAY_ORDER = [
+            'ttttt_content_desc',
+            'module',
+            'ttttt_session_week',
+            'ttttt_session_day',
+            'ttttt_session_dt',
+            'ttttt_session_no'
+        ];
 		//const APIPath= "http://p9:5858/api"
 
         function normalizeContentTypeVisibility(value) {
@@ -153,6 +162,76 @@
             }
 
             return null;
+        }
+
+        function normalizeSessionDisplayFields(value) {
+            if (!value || typeof value !== 'object') {
+                return null;
+            }
+
+            const normalized = {};
+            Object.keys(value).forEach(key => {
+                const fieldKey = String(key || '').trim();
+                if (!fieldKey) {
+                    return;
+                }
+                const config = value[key] || {};
+                normalized[fieldKey] = {
+                    label: String(config.label || '').trim(),
+                    required: config.required === true
+                };
+            });
+
+            return Object.keys(normalized).length ? normalized : null;
+        }
+
+        function getSessionFieldValue(group, field) {
+            switch (field) {
+                case 'ttttt_content_desc':
+                    return String(group.content_desc || group.title || '').trim();
+                case 'module':
+                    return String(group.module || '').trim();
+                case 'ttttt_session_week':
+                    return String(group.session_week || '').trim();
+                case 'ttttt_session_day':
+                    return String(group.session_day || '').trim();
+                case 'ttttt_session_dt':
+                    return String(group.session_dt || '').trim();
+                case 'ttttt_session_no':
+                    return String(group.session_no || '').trim();
+                default:
+                    return '';
+            }
+        }
+
+        function buildSessionDisplayText(group) {
+            if (!sessionDisplayFields) {
+                return group.title || '';
+            }
+
+            const parts = [];
+            SESSION_DISPLAY_ORDER.forEach(field => {
+                const config = sessionDisplayFields[field];
+                if (!config || !config.required) {
+                    return;
+                }
+
+                const value = getSessionFieldValue(group, field);
+                if (!value) {
+                    if (config.label) {
+                        parts.push(config.label + ': NA');
+                    }
+                    return;
+                }
+
+                if (config.label) {
+                    parts.push(config.label + ': ' + value);
+                } else {
+                    parts.push(value);
+                }
+            });
+
+            return parts.length ? parts.join(' | ') : (group.title || '');
         }
 
         function isContentTypeAllowed(type) {
@@ -200,6 +279,7 @@
                 }
 
                 contentTypeVisibility = normalizeContentTypeVisibility(appConfig.contentTypeVisibility);
+                sessionDisplayFields = normalizeSessionDisplayFields(appConfig.sessionDisplayFields);
 
                 applyConfigToUi();
             } catch (error) {
@@ -629,6 +709,7 @@
                 .filter(row => row && isOpenStatus(getFieldValue(row, ['ttttt_status', 'status', 'is_active'])))
                 .map((row, index) => ({
                     sr_no: getSessionSerial(row, index),
+                    content_desc: String(getFieldValue(row, ['ttttt_content_desc', 'title', 'ttttt_title']) || '').trim(),
                     title: String(getFieldValue(row, ['ttttt_content_desc', 'module', 'ttttt_content_desc', 'title', 'ttttt_title']) || '').trim(),
                     session_id: String(getFieldValue(row, ['ttttt_session_id', 'ttttt_id', 'session_id', 'id']) || '').trim(),
                     module: getFieldValue(row, ['module', 'ttttt_module', 'ttttt_session_module']),
@@ -674,6 +755,7 @@
                 .map(row => ({
                     sr_no: row.sr_no,
                     title: row.title,
+                    content_desc: row.content_desc,
                     children: contentBySession[row.session_id] || [],
                     module: row.module,
                     session_week: row.session_week,
@@ -710,7 +792,7 @@
 
                 const title = document.createElement('span');
                 title.className = 'price';
-                title.textContent = group.title;
+                title.textContent = buildSessionDisplayText(group);
                 li.appendChild(title);
 
                 const actions = document.createElement('div');
@@ -748,6 +830,7 @@
                     const sessionDay = row.session_day || row.sessionDay || '';
                     const sessionDt = row.session_dt || row.sessionDt || '';
                     const sessionNo = row.session_no || row.sessionNo || '';
+                    const contentDesc = row.content_desc || row.contentDesc || '';
 
                     if (Array.isArray(row.children)) {
                         const items = row.children
@@ -761,6 +844,7 @@
                         return {
                             srNo: srNo,
                             title: title,
+                            content_desc: contentDesc,
                             module: module,
                             session_week: sessionWeek,
                             session_day: sessionDay,
@@ -780,6 +864,7 @@
                     return {
                         srNo: srNo,
                         title: title,
+                        content_desc: contentDesc,
                         module: module,
                         session_week: sessionWeek,
                         session_day: sessionDay,
