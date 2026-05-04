@@ -1,5 +1,5 @@
 ﻿{
-  "is_qr_required": false,
+  "is_qr_required": true,
   "pageTitle": "MPBOU",
   "header": {
     "primaryLogoSrc": "https://qa.littera.in/Content/GlobalSetting/dev/default_logo_2.png",
