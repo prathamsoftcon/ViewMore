@@ -776,7 +776,7 @@ footer {
 @media print {
     #btnprint,
     .grade-improvement-note {
-        display: none;
+        display: none !important;
     }
 }
 
