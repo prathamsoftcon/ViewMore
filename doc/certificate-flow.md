@@ -9,8 +9,7 @@ This document describes the end-to-end flow used in certificate.html.
 
 ## Direct Access Behavior
 
-- If URL contains ttpai_id, the page directly calls Get_Certificate_Data(ttpai_id).
-- If ttpai_id is missing, the mobile verification modal is opened.
+- The mobile verification modal is always opened, even if ttpai_id is present.
 
 ## Mobile Verification Flow
 

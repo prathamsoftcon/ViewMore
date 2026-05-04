@@ -895,17 +895,8 @@ var ttpai_id=urlparams2.get('userid');
 
 
 function DirectVerify_And_Print(){
- const queryStringf = window.location.search;
-const urlparamsf = new URLSearchParams(queryStringf); 
-var ttpai_id = String(urlparamsf.get('ttpai_id') || '').trim();
-if (ttpai_id) {
-    return Get_Certificate_Data(ttpai_id)
-
-}
-else{
 openModal();
 return Promise.resolve();
-}
 
 }
 
