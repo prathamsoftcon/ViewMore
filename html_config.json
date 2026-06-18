@@ -19,14 +19,14 @@
     "footer": "© 2025 All Rights Reserved by Madhya Pradesh Bhoj Open University."
   },
   "api": {
-    "apiKey": "UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=",
     "baseUrl": "https://qaapp.littera.in",
     "apiPath": "https://qa.littera.in/litteracoreauth/api",
+    "publicApiPath": "/public-api",
     "apiPath1": "https://localhost:5859/api",
 
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
-    "userInfoEndpoint": "/UserInfo_wk",
-    "participantsTrainingEndpoint": "/Participants_training_wk",
+    "userInfoEndpoint": "/UserInfo",
+    "participantsTrainingEndpoint": "/Participants_training",
     "verifyCertificateEndpoint": "/Verify_Certificate"
   },
   "messages": {

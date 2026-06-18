@@ -1,26 +1,38 @@
 (function (window) {
     const apiConfig = {
         apiPath: "",
-        apiKey: ""
+        publicApiPath: "/public-api"
     };
 
     function getApiPath() {
         return apiConfig.apiPath || window.APIPath || "";
     }
 
-    function getApiKey() {
-        return apiConfig.apiKey || window.apiKey || "";
+    function getPublicApiPath() {
+        return apiConfig.publicApiPath || window.PublicAPIPath || "/public-api";
     }
 
-    function getJsonHeaders() {
-        return {
-            "APIKey": getApiKey(),
+    function buildHeaders(extraHeaders, includeBearer) {
+        const headers = Object.assign({
             "Content-Type": "application/json"
-        };
+        }, extraHeaders || {});
+
+        if (includeBearer) {
+            const token = getAccessToken();
+            if (token) {
+                headers.Authorization = "Bearer " + token;
+            }
+        }
+
+        delete headers.APIKey;
+        delete headers.ApiKey;
+        delete headers.apiKey;
+
+        return headers;
     }
 
-    function buildUrl(path, params) {
-        const basePath = getApiPath();
+    function buildUrl(path, params, basePath) {
+        const resolvedBasePath = basePath || getApiPath();
         const query = new URLSearchParams();
 
         Object.keys(params || {}).forEach(function (key) {
@@ -30,7 +42,7 @@
             }
         });
 
-        return basePath + path + (query.toString() ? "?" + query.toString() : "");
+        return resolvedBasePath + path + (query.toString() ? "?" + query.toString() : "");
     }
 
     async function fetchJson(url, options) {
@@ -47,10 +59,47 @@
         return data;
     }
 
+    function getPublicAxiosConfig() {
+        return {
+            headers: buildHeaders(),
+            withCredentials: true
+        };
+    }
+
     function getAxiosConfig() {
         return {
-            headers: getJsonHeaders()
+            headers: buildHeaders(null, true),
+            withCredentials: true
         };
+    }
+
+    function getStoredUser() {
+        try {
+            return JSON.parse(localStorage.getItem("user"));
+        } catch {
+            return null;
+        }
+    }
+
+    function unwrapUserToken(data) {
+        return data && data.result ? data.result : data;
+    }
+
+    function storeAuthenticatedUser(data) {
+        const user = unwrapUserToken(data);
+
+        if (!user || !user.authToken) {
+            throw new Error("Authentication response did not contain an auth token.");
+        }
+
+        localStorage.setItem("user", JSON.stringify(user));
+        window.dispatchEvent(new CustomEvent("littera:authentication-updated"));
+        return user;
+    }
+
+    function getAccessToken() {
+        const storedUser = getStoredUser();
+        return storedUser && (storedUser.authToken || (storedUser.user && storedUser.user.authToken) || (storedUser.result && storedUser.result.authToken)) || "";
     }
 
     const ContentLoginApi = {
@@ -60,8 +109,8 @@
             if (settings.apiPath !== undefined) {
                 apiConfig.apiPath = settings.apiPath;
             }
-            if (settings.apiKey !== undefined) {
-                apiConfig.apiKey = settings.apiKey;
+            if (settings.publicApiPath !== undefined) {
+                apiConfig.publicApiPath = settings.publicApiPath;
             }
         },
 
@@ -74,35 +123,43 @@
 
         getUserInfo: function (mobileNumber) {
             return axios.get(
-                buildUrl("/UserInfo_wk", { username: "91-" + mobileNumber }),
+                buildUrl("/UserInfo", { username: "91-" + mobileNumber }),
                 getAxiosConfig()
             );
         },
 
         generateOtp: function (mobileNumber) {
             return axios.get(
-                buildUrl("/GenerateOTP_wk", { username: "91-" + mobileNumber }),
-                getAxiosConfig()
+                buildUrl("/GenerateOTP", { username: "91-" + mobileNumber }, getPublicApiPath()),
+                getPublicAxiosConfig()
             );
         },
 
         verifyOtp: function (username, otp) {
             return axios.get(
-                buildUrl("/VerifyOTP", { username: username, otp: otp }),
-                getAxiosConfig()
+                buildUrl("/VerifyOTP", { username: username, otp: otp }, getPublicApiPath()),
+                getPublicAxiosConfig()
+            );
+        },
+
+        getToken: function (loginData) {
+            return axios.post(
+                buildUrl("/GetToken", null, getPublicApiPath()),
+                loginData,
+                getPublicAxiosConfig()
             );
         },
 
         getParticipantTrainings: function (participantId) {
-            return fetchJson(buildUrl("/Participants_training_wk", { participantid: participantId }), {
+            return fetchJson(buildUrl("/Participants_training", { participantid: participantId }), {
                 method: "GET",
-                headers: getJsonHeaders()
+                headers: buildHeaders(null, true)
             });
         },
 
         getTrainingParticipantDetails: function (trainingId, participantId) {
             return axios.get(
-                buildUrl("/TRG_PARTICIPANT_DETAILS_wk", {
+                buildUrl("/TRG_PARTICIPANT_DETAILS", {
                     trainingid: trainingId,
                     participantid: participantId
                 }),
@@ -112,7 +169,7 @@
 
         getContentDetails: function (contentId, participantId) {
             return axios.get(
-                buildUrl("/GET_CONTENT_DETAILS_wk", {
+                buildUrl("/GET_CONTENT_DETAILS", {
                     ttsam_id: contentId,
                     participantid: participantId
                 }),
@@ -122,7 +179,7 @@
 
         generateActivityToken: function (trainingId, contentId, participantId, ttpaiId) {
             return axios.get(
-                buildUrl("/GenerateActivityToken_wk", {
+                buildUrl("/GenerateActivityToken", {
                     trainingid: trainingId,
                     ttsm_id: contentId,
                     apipath: getApiPath(),
@@ -135,21 +192,21 @@
 
         getReactAppConfiguration: function () {
             return axios.get(
-                buildUrl("/GET_REACT_APP_CONFIGURATION_wk"),
-                getAxiosConfig()
+                buildUrl("/GET_REACT_APP_CONFIGURATION", null, getPublicApiPath()),
+                getPublicAxiosConfig()
             );
         },
 
         checkFirstLogin: function (participantId) {
             return axios.get(
-                buildUrl("/Check_First_Login_wk", { participantid: participantId }),
+                buildUrl("/Check_First_Login", { participantid: participantId }),
                 getAxiosConfig()
             );
         },
 
         saveUserLog: function (userId) {
             return axios.post(
-                buildUrl("/SAVE_USER_LOG_wk", { userid: userId }),
+                buildUrl("/SAVE_USER_LOG", { userid: userId }),
                 {},
                 getAxiosConfig()
             );
@@ -165,7 +222,7 @@
 
         saveLearningTime: function (eventData) {
             return axios.post(
-                buildUrl("/Learning_Time_wk"),
+                buildUrl("/Learning_Time"),
                 eventData,
                 getAxiosConfig()
             );
@@ -173,7 +230,7 @@
 
         checkContentLearningExists: function (contentId, participantId) {
             return axios.get(
-                buildUrl("/check_content_learning_exist_wk", {
+                buildUrl("/check_content_learning_exist", {
                     ttsam_id: contentId,
                     participantid: participantId
                 }),
@@ -183,7 +240,7 @@
 
         updateSessionStatus: function (participantId, trainingId, sessionId, completionData) {
             return axios.post(
-                buildUrl("/Update_Session_Status_wk", {
+                buildUrl("/Update_Session_Status", {
                     Participantid: participantId,
                     trainingid: trainingId,
                     Sessionid: sessionId,
@@ -197,6 +254,16 @@
     };
 
     window.ContentLoginApi = ContentLoginApi;
+    window.ContentLoginApi.getAccessToken = getAccessToken;
+    window.ContentLoginApi.getPublicAxiosConfig = getPublicAxiosConfig;
+    window.ContentLoginApi.getAuthAxiosConfig = getAxiosConfig;
+    window.ContentLoginApi.getPublicHeaders = function () {
+        return buildHeaders();
+    };
+    window.ContentLoginApi.getAuthHeaders = function () {
+        return buildHeaders(null, true);
+    };
+    window.ContentLoginApi.storeAuthenticatedUser = storeAuthenticatedUser;
 
     const ContentLoginStorage = {
         setWithExpiry: function (key, value, days) {
@@ -341,7 +408,7 @@
 
             verifyOtp: function () {
                 const enteredOtp = getEnteredOtp();
-                const username = "91-" + getMobileNumber();
+                const mobileNumber = getMobileNumber();
 
                 if (!isValidOtp(enteredOtp)) {
                     alert(getMessage("invalidOtp", "Please enter a valid 6-digit OTP."));
@@ -351,7 +418,12 @@
                     return Promise.reject(new Error("Invalid OTP"));
                 }
 
-                return ContentLoginApi.verifyOtp(username, enteredOtp)
+                return ContentLoginApi.getToken({
+                    emailid: "91-" + mobileNumber,
+                    mobile: "91-" + mobileNumber,
+                    otp: enteredOtp,
+                    countryCode: "91"
+                })
                     .then(function (response) {
                         if (response.status === 200 && typeof settings.onOtpVerified === "function") {
                             settings.onOtpVerified(response);
@@ -414,4 +486,6 @@
 
     window.ContentLoginStorage = ContentLoginStorage;
     window.createContentLoginOtpService = createOtpService;
+    window.storeAuthenticatedUser = storeAuthenticatedUser;
+    window.getContentLoginAuthToken = getAccessToken;
 })(window);

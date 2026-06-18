@@ -1,6 +1,7 @@
 <body onload="initializePage()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="axios.min.js"></script>
+<script src="api.js"></script>
 <link rel="stylesheet" href="./viewmore.css">
 <div id="loaderWrapper" class="loader-overlay" style="display: none;">
  <div class="loader-spinner"></div>
@@ -87,12 +88,11 @@ var agencyid=""
      var branchid = null
      var sessionid = ""
 var ttpai_id="";
-//const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
-let apiKey = "";
 const APP_VERSION = "2026.05.02.1";
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
 let APIPath = "";
+let publicApiPath = "/public-api";
 const CONFIG_JSON = './html_config.json';
 let appConfig = null;
 let appMessages = {
@@ -220,10 +220,12 @@ async function loadConfig() {
             throw new Error('Config JSON is missing api.apiPath');
         }
 
-        if (appConfig.api && appConfig.api.apiKey) {
-            apiKey = appConfig.api.apiKey;
-        }
         APIPath = appConfig.api.apiPath;
+        publicApiPath = appConfig.api.publicApiPath || "/public-api";
+        ContentLoginApi.configure({
+            apiPath: APIPath,
+            publicApiPath: publicApiPath
+        });
 
         applyConfigToUi();
     } catch (error) {
@@ -235,58 +237,43 @@ async function initializePage() {
     await loadConfig();
     Check_Is_Page_Expiry();
 }
-  function Next_click() {
-     document.getElementById("loaderWrapper").style.display = "flex";
-      const mobileNumber = useridInput.value;
-      if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
-	 	const apiUrl = APIPath+'/UserInfo_wk?username=91-'+mobileNumber;
-		axios.get(apiUrl, {
-			headers: {
-			'APIKey': apiKey,
-			'Content-Type': 'application/json' // Adjust if API expects something else
-			}
-		})
-		.then(response => {
-		if (response.status==200) {
-             document.getElementById("loaderWrapper").style.display = "none";
-		  //console.log(response.data.result.agencydetail.agencyid)
-          agencyid=response.data.result.agencydetail.agencyid
-          userid=response.data.result.userdetails.userid
-         
-          Get_trainings(agencyid)
-          
-      
 
-        } else {
-           alert(getMessage('mobileNotRegistered', 'Your number is not registered. Please contact administrator.'));
-            document.getElementById("loaderWrapper").style.display = "none";
-		}
-	})
-		.catch(error => {
-              alert(getMessage('mobileNotRegistered', 'Your number is not registered. Please contact administrator.'));
-			 document.getElementById("loaderWrapper").style.display = "none";
-			});
-		
-		
-        
-      } else {
-          alert(getMessage('invalidMobile', 'Please enter valid 10-digit mobile number.'));
-          useridInput.focus();
-           document.getElementById("loaderWrapper").style.display = "none";
-      }
+async function bootstrapIdentityFromMobile(mobileNumber) {
+    const response = await ContentLoginApi.getUserInfo(mobileNumber);
+    const userPayload = response && response.data ? (response.data.result || response.data) : null;
+
+    if (userPayload) {
+        userid = String(
+            userPayload.userdetails && userPayload.userdetails.userid
+                ? userPayload.userdetails.userid
+                : userid
+        );
+        agencyid = String(
+            userPayload.agencydetail && userPayload.agencydetail.agencyid
+                ? userPayload.agencydetail.agencyid
+                : agencyid
+        );
+
+        if (userPayload.authToken) {
+            try {
+                ContentLoginApi.storeAuthenticatedUser(response.data);
+            } catch (error) {
+                console.warn("Unable to store authenticated user:", error);
+            }
+        }
+    }
+
+    return response;
+}
+  function Next_click() {
+     requestOtp();
   }
     
   function requestOtp() {
       document.getElementById("loaderWrapper").style.display = "flex";
     const mobileNumber = useridInput.value;
     if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
- 	const apiUrl = APIPath+'/GenerateOTP_wk?username=91-'+mobileNumber;
-	axios.get(apiUrl, {
-		headers: {
-		'APIKey': apiKey,
-		'Content-Type': 'application/json' // Adjust if API expects something else
-		}
-	})
+ 	ContentLoginApi.generateOtp(mobileNumber)
 	.then(response => {
 	// Axios automatically parses JSON
 	console.log('OTP Generation Response:', response.data);
@@ -357,23 +344,27 @@ function Check_Local_Storage(key) {
 
 function verifyOtp() {
     const enteredOtp = Array.from(otpInputs).map(input => input.value).join('');
-    const username = '91-'+useridInput.value;
     if (enteredOtp.length === 6 && /^\d+$/.test(enteredOtp)) {
-       const apiUrl = APIPath+'/VerifyOTP?username='+username+'&otp='+enteredOtp;
-	axios.get(apiUrl, {
-		headers: {
-		'APIKey': apiKey,
-		'Content-Type': 'application/json' // Adjust if API expects something else
-	}
-	})
+       ContentLoginApi.getToken({
+         emailid: '91-' + useridInput.value,
+         mobile: '91-' + useridInput.value,
+         otp: enteredOtp,
+         countryCode: '91'
+       })
 .then(response => {
 	// Axios automatically parses JSON
 	console.log('OTP Generation Response:', response.data);
 	if (response.status==200) {
-       
+        try {
+            ContentLoginApi.storeAuthenticatedUser(response.data);
+        } catch (error) {
+            console.warn("Unable to store authenticated user:", error);
+        }
+        bootstrapIdentityFromMobile(useridInput.value).then(function () {
         setLocalStorage("agencyid",agencyid)
 	    Get_trainings(agencyid)
          check_and_update_first_login(agencyid)
+        });
 
     } else {
 		alert('Failed to generate OTP: ' + (response.data ? response.data.message : 'Unknown error'));
@@ -398,24 +389,7 @@ function verifyOtp() {
 
 
 function Get_trainings(agencyid) {
-    const apiUrl = APIPath + '/Participants_training_wk?participantid='+agencyid+'';
-
-    fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'APIKey': apiKey
-        },
-        body: null // If your API expects a body, provide it as a JSON string; otherwise, null is okay for some APIs
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(err.message || `HTTP error! Status: ${response.status}`);
-            });
-        }
-        return response.json();
-    })
+    ContentLoginApi.getParticipantTrainings(agencyid)
     .then(data => {
         console.log("API data:", data);
         if(data.length==0){
@@ -555,13 +529,7 @@ function Get_TTPAI_Details(){
             
           var participantid=agencyid;
           
-          const apiUrl = APIPath+'/TRG_PARTICIPANT_DETAILS_wk?trainingid='+trainingid+'&participantid='+participantid;
-            axios.get(apiUrl, {
-				headers: {
-				'APIKey': apiKey,
-				'Content-Type': 'application/json' // Adjust if API expects something else
-			}
-			})
+          ContentLoginApi.getTrainingParticipantDetails(trainingid, participantid)
 		.then(response => {
 			// Axios automatically parses JSON
 			console.log('Response:', response.data);
@@ -703,13 +671,7 @@ function Open_page_For_Type(type){
 function Get_Content_Detail(contentid){
 //Get content Detail and open single accordig to type
 document.getElementById("loaderWrapper").style.display = "flex";
-  const apiUrl = APIPath+'/GET_CONTENT_DETAILS_wk?ttsam_id='+contentid+'&participantid='+agencyid;
-            axios.get(apiUrl, {
-				headers: {
-				'APIKey': apiKey,
-				'Content-Type': 'application/json' // Adjust if API expects something else
-			}
-			})
+  ContentLoginApi.getContentDetails(contentid, agencyid)
 		.then(response => {
 			if (response.status==200) {
                 document.getElementById("loaderWrapper").style.display = "none";
@@ -789,13 +751,7 @@ function Open_Activity(path){
     const params = new URLSearchParams(window.location.search);
     const contentid = params.get("ttsam_id");
     var baseurl = APIPath;
-    const apiUrl = APIPath+'/GenerateActivityToken_wk?trainingid='+trainingid+'&ttsm_id='+contentid+'&apipath='+baseurl+'&userid='+agencyid+'&ttpai_id='+ttpai_id;
-          axios.get(apiUrl, {
-				headers: {
-				'APIKey': apiKey,
-				'Content-Type': 'application/json' // Adjust if API expects something else
-			}
-			})
+    ContentLoginApi.generateActivityToken(trainingid, contentid, agencyid, ttpai_id)
 		.then(response => {
             if (response.status == 200) {
                 save_activity_completion(trainingid, sessionid, contentid,branchid)
@@ -819,14 +775,7 @@ function Open_Activity(path){
 }
 
 function Get_React_path(path){
-    var baseurl = APIPath;
-    const apiUrl = APIPath+'/GET_REACT_APP_CONFIGURATION_wk';
-          axios.get(apiUrl, {
-				headers: {
-				'APIKey': apiKey,
-				'Content-Type': 'application/json' // Adjust if API expects something else
-			}
-			})
+    ContentLoginApi.getReactAppConfiguration()
 		.then(response => {
 			if (response.status==200) {
 			   react_base_path=response.data.REACT_APP_LOGOUT_PATH
@@ -847,14 +796,7 @@ function Get_React_path(path){
 			});
 }
 function check_and_update_first_login(id){
-    var baseurl = APIPath;
-    const apiUrl = APIPath+'/Check_First_Login_wk?participantid='+id;
-      axios.get(apiUrl, {
-			headers: {
-			'APIKey': apiKey,
-			'Content-Type': 'application/json' // Adjust if API expects something else
-		}
-		})
+    ContentLoginApi.checkFirstLogin(id)
 	.then(response => {
 		if (response.status==200) {
 		  if(response.data==false){
@@ -876,14 +818,7 @@ function check_and_update_first_login(id){
 }
 
     function save_user_log_data(){
-            var baseurl = APIPath;
-        const apiUrl = APIPath+'/SAVE_USER_LOG_wk?userid='+userid;
-     axios.post(apiUrl,{}, {
-		headers: {
-		'APIKey': apiKey,
-		'Content-Type': 'application/json' // Adjust if API expects something else
-	    }
-	    })
+        ContentLoginApi.saveUserLog(userid)
         .then(response => {
 	    if (response.status==200) {
 	     save_user_track()
@@ -905,9 +840,6 @@ function check_and_update_first_login(id){
         }
 
       function save_user_track(){
-        var baseurl = APIPath;
-       const apiUrl = APIPath+'/Save_Audit_Trail_wk';
-
         const eventData = {
         tyat_userid: userid,       // User ID
         tyat_page_name: 'Change Password',  // Page name where the event occurred
@@ -915,14 +847,7 @@ function check_and_update_first_login(id){
         tyat_recordid: ''  // Record ID associated with the event
        };
 
-
-
-        axios.post(apiUrl,eventData, {
-	    headers: {
-	    'APIKey': apiKey,
-	    'Content-Type': 'application/json' // Adjust if API expects something else
-        }
-        })
+        ContentLoginApi.saveAuditTrail(eventData)
         .then(response => {
         if (response.status==200) {
 	
@@ -1082,8 +1007,6 @@ function getCurrentDateTime() {
 }
 
  function save_learning_time(contentid){
- var baseurl = APIPath
- const apiUrl = APIPath+'/Learning_Time_wk';
   const eventData = {
   tplt_Id: guid(),       // User ID
   tplt_ttsam_id: contentid,  // Page name where the event occurred
@@ -1094,12 +1017,7 @@ function getCurrentDateTime() {
 
 
  };
-  axios.post(apiUrl,eventData, {
-  headers: {
-  'APIKey': apiKey,
-  'Content-Type': 'application/json' // Adjust if API expects something else
-  }
-  })
+  ContentLoginApi.saveLearningTime(eventData)
   .then(response => {
   if (response.status==200) {
   } else {
@@ -1124,13 +1042,7 @@ function getCurrentDateTime() {
         }
           var participantid=agencyid;
           
-          const apiUrl = APIPath+'/check_content_learning_exist_wk?ttsam_id='+contentid+'&participantid='+participantid;
-            axios.get(apiUrl, {
-				headers: {
-				'APIKey': apiKey,
-				'Content-Type': 'application/json' // Adjust if API expects something else
-			}
-			})
+          ContentLoginApi.checkContentLearningExists(contentid, participantid)
 		.then(response => {
 			// Axios automatically parses JSON
 			console.log('Response:', response.data);
@@ -1172,7 +1084,6 @@ function getCurrentDateTime() {
 
 
     function save_activity_completion(trainingid,sessionid, ttsam_id,branchid) {
-        var baseurl = APIPath;
         var cd = {
             "session_Content_Status": [
                 {
@@ -1182,13 +1093,7 @@ function getCurrentDateTime() {
                 }
             ]
         }
-        const apiUrl = APIPath + '/Update_Session_Status_wk?Participantid=' + agencyid + '&trainingid=' + trainingid + '&Sessionid=' + sessionid + '&timeonsession=0&status=0';
-        axios.post(apiUrl, cd, {
-            headers: {
-                'APIKey': apiKey,
-                'Content-Type': 'application/json' // Adjust if API expects something else
-            }
-        })
+        ContentLoginApi.updateSessionStatus(agencyid, trainingid, sessionid, cd)
             .then(response => {
                 if (response.status == 200) {
                  

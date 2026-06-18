@@ -7,6 +7,7 @@ const rootDir = __dirname;
 const port = Number(process.argv[2] || process.env.PORT || 5500);
 const host = process.env.HOST || "127.0.0.1";
 const configFile = path.join(rootDir, "html_config.json");
+const publicApiKey = process.env.PUBLIC_API_PROXY_KEY || process.env.LITTERACORE_PROXY_KEY || "";
 
 const mimeTypes = {
     ".css": "text/css; charset=utf-8",
@@ -49,7 +50,8 @@ function serveLocalConfig(res) {
     const config = readConfig();
     config.api = Object.assign({}, config.api, {
         originalApiPath: config.api && config.api.apiPath,
-        apiPath: "/api"
+        apiPath: "/api",
+        publicApiPath: "/public-api"
     });
 
     send(res, 200, JSON.stringify(config, null, 2), {
@@ -84,7 +86,7 @@ function serveStatic(req, res) {
     });
 }
 
-function proxyApi(req, res) {
+function proxyApi(req, res, proxyPrefix, rewriteAuthentication) {
     let targetApiUrl;
 
     try {
@@ -95,8 +97,11 @@ function proxyApi(req, res) {
     }
 
     const incomingUrl = new URL(req.url, `http://${req.headers.host || `${host}:${port}`}`);
-    const apiPath = incomingUrl.pathname.replace(/^\/api/, "");
-    const targetPath = targetApiUrl.pathname.replace(/\/$/, "") + apiPath + incomingUrl.search;
+    const apiPath = incomingUrl.pathname.replace(new RegExp(`^${proxyPrefix}`), "");
+    const endpoint = apiPath.split("/").filter(Boolean).pop() || "";
+    const targetBasePath = targetApiUrl.pathname.replace(/\/$/, "");
+    const authenticationPrefix = rewriteAuthentication ? "/Authentication/api" : "";
+    const targetPath = targetBasePath + authenticationPrefix + apiPath + incomingUrl.search;
     const headers = Object.assign({}, req.headers, {
         "accept-encoding": "identity",
         host: targetApiUrl.host,
@@ -105,6 +110,12 @@ function proxyApi(req, res) {
     });
 
     delete headers["content-length"];
+    delete headers["apiKey"];
+    delete headers["apikey"];
+
+    if (rewriteAuthentication && publicApiKey) {
+        headers.APIKey = publicApiKey;
+    }
 
     const proxyReq = (targetApiUrl.protocol === "https:" ? require("https") : require("http")).request({
         protocol: targetApiUrl.protocol,
@@ -144,8 +155,13 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    if (req.url.startsWith("/public-api/") || req.url === "/public-api") {
+        proxyApi(req, res, "/public-api", true);
+        return;
+    }
+
     if (req.url.startsWith("/api/") || req.url === "/api") {
-        proxyApi(req, res);
+        proxyApi(req, res, "/api", false);
         return;
     }
 
@@ -154,7 +170,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, host, () => {
     console.log(`Local proxy server running at http://${host}:${port}/Content_Login.html`);
-    console.log("Forwarding /api requests to html_config.json api.apiPath");
+    console.log("Forwarding /api and /public-api requests to html_config.json api.apiPath");
 });
 
 server.on("error", (error) => {

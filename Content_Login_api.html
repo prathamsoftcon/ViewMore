@@ -88,8 +88,6 @@ var agencyid=""
      var branchid = null
      var sessionid = ""
 var ttpai_id="";
-//const apiKey = 'UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=';
-let apiKey = "";
 const APP_VERSION = "2026.05.02.1";
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
@@ -209,21 +207,28 @@ function applyConfigToUi() {
 }
 
 function initializeOtpService() {
-    otpService = createContentLoginOtpService({
-        loaderElement: document.getElementById("loaderWrapper"),
-        mobileInput: useridInput,
-        mobileSection: mobileInputSection,
-        otpSection: otpSection,
-        otpSentMessage: otpSentMessage,
-        otpInputs: otpInputs,
-        messages: appMessages,
-        onOtpSent: startResendOtpTimer,
-        onOtpVerified: function () {
-            ContentLoginStorage.setWithExpiry("agencyid", agencyid, 15);
-            Get_trainings(agencyid);
-            check_and_update_first_login(agencyid);
-        }
-    });
+        otpService = createContentLoginOtpService({
+            loaderElement: document.getElementById("loaderWrapper"),
+            mobileInput: useridInput,
+            mobileSection: mobileInputSection,
+            otpSection: otpSection,
+            otpSentMessage: otpSentMessage,
+            otpInputs: otpInputs,
+            messages: appMessages,
+            onOtpSent: startResendOtpTimer,
+            onOtpVerified: async function (response) {
+                try {
+                    ContentLoginApi.storeAuthenticatedUser(response.data);
+                } catch (error) {
+                    console.warn("Unable to store authenticated user:", error);
+                }
+                await bootstrapIdentityFromMobile(useridInput.value);
+                ContentLoginStorage.setWithExpiry("agencyid", agencyid, 15);
+                localStorage.setItem("participant_userid", agencyid);
+                Get_trainings(agencyid);
+                check_and_update_first_login(agencyid);
+            }
+        });
 }
 
 async function loadConfig() {
@@ -235,13 +240,10 @@ async function loadConfig() {
             throw new Error('Config JSON is missing api.apiPath');
         }
 
-        if (appConfig.api && appConfig.api.apiKey) {
-            apiKey = appConfig.api.apiKey;
-        }
         APIPath = appConfig.api.apiPath;
         ContentLoginApi.configure({
             apiPath: APIPath,
-            apiKey: apiKey
+            publicApiPath: appConfig.api.publicApiPath || "/public-api"
         });
 
         applyConfigToUi();
@@ -255,39 +257,36 @@ async function initializePage() {
     await loadConfig();
     Check_Is_Page_Expiry();
 }
-  function Next_click() {
-     document.getElementById("loaderWrapper").style.display = "flex";
-      const mobileNumber = useridInput.value;
-      if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
-		ContentLoginApi.getUserInfo(mobileNumber)
-		.then(response => {
-		if (response.status==200) {
-             document.getElementById("loaderWrapper").style.display = "none";
-		  //console.log(response.data.result.agencydetail.agencyid)
-          agencyid=response.data.result.agencydetail.agencyid
-          userid=response.data.result.userdetails.userid
-         
-          Get_trainings(agencyid)
-          
-      
 
-        } else {
-           alert(getMessage('mobileNotRegistered', 'Your number is not registered. Please contact administrator.'));
-            document.getElementById("loaderWrapper").style.display = "none";
-		}
-	})
-		.catch(error => {
-              alert(getMessage('mobileNotRegistered', 'Your number is not registered. Please contact administrator.'));
-			 document.getElementById("loaderWrapper").style.display = "none";
-			});
-		
-		
-        
-      } else {
-          alert(getMessage('invalidMobile', 'Please enter valid 10-digit mobile number.'));
-          useridInput.focus();
-           document.getElementById("loaderWrapper").style.display = "none";
-      }
+async function bootstrapIdentityFromMobile(mobileNumber) {
+    const response = await ContentLoginApi.getUserInfo(mobileNumber);
+    const userPayload = response && response.data ? (response.data.result || response.data) : null;
+
+    if (userPayload) {
+        userid = String(
+            userPayload.userdetails && userPayload.userdetails.userid
+                ? userPayload.userdetails.userid
+                : userid
+        );
+        agencyid = String(
+            userPayload.agencydetail && userPayload.agencydetail.agencyid
+                ? userPayload.agencydetail.agencyid
+                : agencyid
+        );
+
+        if (userPayload.authToken) {
+            try {
+                ContentLoginApi.storeAuthenticatedUser(response.data);
+            } catch (error) {
+                console.warn("Unable to store authenticated user:", error);
+            }
+        }
+    }
+
+    return response;
+}
+  function Next_click() {
+     requestOtp();
   }
     
   function requestOtp() {

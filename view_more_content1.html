@@ -7,6 +7,7 @@
     <title>Vocational Courses</title>
  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">  
 	   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+   <script src="api.js"></script>
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
  <link rel="stylesheet" href="./viewmore.css?v=1.3">
   <!-- <script src="/axios.min.js"></script>  -->
@@ -112,10 +113,10 @@
         const CONFIG_JSON = './html_config.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
-		let apiKey = '';
         const verificationModal = document.getElementById('verificationModal');
 		const sliderModal = document.getElementById('Captchamodal');
         let APIPath = '';
+        let publicApiPath = '/public-api';
         let redirectBaseUrl = '';
 		let appConfig = null;
 		let contentTypeVisibility = null;
@@ -282,10 +283,11 @@
 
                 APIPath = String(appConfig.api.apiPath).trim();
                 redirectBaseUrl = String(appConfig.api.baseUrl).trim();
-
-                if (appConfig.api.apiKey) {
-                    apiKey = appConfig.api.apiKey;
-                }
+                publicApiPath = String(appConfig.api.publicApiPath || '/public-api').trim();
+                ContentLoginApi.configure({
+                    apiPath: APIPath,
+                    publicApiPath: publicApiPath
+                });
 
                 contentTypeVisibility = normalizeContentTypeVisibility(appConfig.contentTypeVisibility);
                 sessionDisplayFields = normalizeSessionDisplayFields(appConfig.sessionDisplayFields);
@@ -402,6 +404,34 @@
                 savedAt: new Date().toISOString()
             };
             localStorage.setItem(OTP_CACHE_KEY, JSON.stringify(cache));
+        }
+
+        async function bootstrapIdentityFromMobile(mobileNumber) {
+            const response = await ContentLoginApi.getUserInfo(mobileNumber);
+            const userPayload = response && response.data ? (response.data.result || response.data) : null;
+
+            if (userPayload) {
+                userid = String(
+                    userPayload.userdetails && userPayload.userdetails.userid
+                        ? userPayload.userdetails.userid
+                        : userid
+                );
+                agencyid = String(
+                    userPayload.agencydetail && userPayload.agencydetail.agencyid
+                        ? userPayload.agencydetail.agencyid
+                        : agencyid
+                );
+
+                if (userPayload.authToken) {
+                    try {
+                        ContentLoginApi.storeAuthenticatedUser(response.data);
+                    } catch (error) {
+                        console.warn('Unable to store authenticated user:', error);
+                    }
+                }
+            }
+
+            return response;
         }
 		
         function openModal() {
@@ -709,10 +739,7 @@
 
                 try {
                     const response = await axios.get(apiUrl, {
-                        headers: {
-                            'APIKey': apiKey,
-                            'Content-Type': 'application/json'
-                        }
+                        headers: ContentLoginApi.getAuthHeaders()
                     });
                     return getApiArray(response.data);
                 } catch (error) {
@@ -963,7 +990,23 @@
                 userid = cached.userid;
                 agencyid = cached.agencyid;
                 localStorage.setItem('participant_userid', agencyid);
-                closeModal();
+                if (cached.payload) {
+                    try {
+                        ContentLoginApi.storeAuthenticatedUser(cached.payload);
+                    } catch (error) {
+                        console.warn('Unable to restore authenticated user from cache:', error);
+                    }
+                }
+                bootstrapIdentityFromMobile(mobileNumber)
+                    .then(function () {
+                        closeModal();
+                        Get_trainings(agencyid);
+                    })
+                    .catch(function (error) {
+                        console.error('Unable to refresh user info for cached session:', error);
+                        closeModal();
+                        Get_trainings(agencyid);
+                    });
                 return;
             }
 
@@ -971,15 +1014,7 @@
                 localStorage.removeItem(OTP_CACHE_KEY);
             }
 
-		 	const apiUrl = APIPath+'/GenerateOTP?username=91-'+mobileNumber;
-
-
-			axios.get(apiUrl, {
-				headers: {
-				'APIKey': apiKey,
-				'Content-Type': 'application/json' // Adjust if API expects something else
-				}
-			})
+		 	ContentLoginApi.generateOtp(mobileNumber)
 			.then(response => {
 			// Axios automatically parses JSON
 			console.log('OTP Generation Response:', response.data);
@@ -1027,23 +1062,27 @@
 
         function verifyOtp() {
             const enteredOtp = Array.from(otpInputs).map(input => input.value).join('');
-            const username = '91-'+useridInput.value;
             if (enteredOtp.length === 6 && /^\d+$/.test(enteredOtp)) {
-               const apiUrl = APIPath+'/VerifyOTP?username='+username+'&otp='+enteredOtp;
-
-			axios.get(apiUrl, {
-				headers: {
-				'APIKey': apiKey,
-				'Content-Type': 'application/json' // Adjust if API expects something else
-			}
-			})
+              ContentLoginApi.getToken({
+                 emailid: '91-' + useridInput.value,
+                 mobile: '91-' + useridInput.value,
+                 otp: enteredOtp,
+                 countryCode: '91'
+               })
 		.then(response => {
 			// Axios automatically parses JSON
 			console.log('OTP Generation Response:', response.data);
 			if (response.status==200) {
-			  localStorage.setItem('participant_userid',agencyid)
+                try {
+                    ContentLoginApi.storeAuthenticatedUser(response.data);
+                } catch (error) {
+                    console.warn('Unable to store authenticated user:', error);
+                }
+			  bootstrapIdentityFromMobile(useridInput.value).then(function () {
+              localStorage.setItem('participant_userid',agencyid)
               persistOtpCache(useridInput.value, userid, agencyid, response.data)
 			  update_first_login()
+              });
 				} else {
 				alert('Failed to generate OTP: ' + (response.data ? response.data.message : 'Unknown error'));
 			}
@@ -1120,10 +1159,7 @@ const auditTrailData = {
 
 		fetch(apiUrl, {
 			method: 'POST', // Specify the POST method
-		headers: {
-        'Content-Type': 'application/json', // Inform the server that the body is JSON
-        'APIKey': apiKey // Your API key in the header
-		},
+		headers: ContentLoginApi.getAuthHeaders(),
 		body: JSON.stringify(auditTrailData) // Convert the JavaScript object to a JSON string
 	})
   .then(response => {
@@ -1155,10 +1191,7 @@ const auditTrailData = {
 
     return fetch( APIPath+'/save_user_log?userid='+userid, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'APIKey': apiKey
-        },
+        headers: ContentLoginApi.getAuthHeaders(),
         body: null
     })
     .then(response => {
