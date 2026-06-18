@@ -21,8 +21,8 @@
   "api": {
     "apiKey": "UHJhdGhhbXNvZnRTZWNyZXRLZXkxMjM=",
     "baseUrl": "https://qaapp.littera.in",
-    "apiPath1": "https://qa.littera.in/LitteraCore/api",
-    "apiPath": "https://localhost:5859/api",
+    "apiPath": "https://qa.littera.in/litteracoreauth/api",
+    "apiPath1": "https://localhost:5859/api",
 
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
     "userInfoEndpoint": "/UserInfo_wk",
