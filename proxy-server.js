@@ -7,8 +7,6 @@ const rootDir = __dirname;
 const port = Number(process.argv[2] || process.env.PORT || 5500);
 const host = process.env.HOST || "127.0.0.1";
 const configFile = path.join(rootDir, "html_config.json");
-const publicApiKey = process.env.PUBLIC_API_PROXY_KEY || process.env.LITTERACORE_PROXY_KEY || "";
-
 const mimeTypes = {
     ".css": "text/css; charset=utf-8",
     ".html": "text/html; charset=utf-8",
@@ -26,12 +24,12 @@ function readConfig() {
     return JSON.parse(rawConfig);
 }
 
-function getTargetApiUrl() {
+function getTargetAppUrl() {
     const config = readConfig();
-    const target = config.api && config.api.apiPath;
+    const target = config.api && config.api.baseUrl;
 
     if (!target) {
-        throw new Error("html_config.json is missing api.apiPath");
+        throw new Error("html_config.json is missing api.baseUrl");
     }
 
     return new URL(target);
@@ -90,7 +88,7 @@ function proxyApi(req, res, proxyPrefix, rewriteAuthentication) {
     let targetApiUrl;
 
     try {
-        targetApiUrl = getTargetApiUrl();
+        targetApiUrl = getTargetAppUrl();
     } catch (error) {
         send(res, 500, error.message, { "Content-Type": "text/plain; charset=utf-8" });
         return;
@@ -98,10 +96,8 @@ function proxyApi(req, res, proxyPrefix, rewriteAuthentication) {
 
     const incomingUrl = new URL(req.url, `http://${req.headers.host || `${host}:${port}`}`);
     const apiPath = incomingUrl.pathname.replace(new RegExp(`^${proxyPrefix}`), "");
-    const endpoint = apiPath.split("/").filter(Boolean).pop() || "";
     const targetBasePath = targetApiUrl.pathname.replace(/\/$/, "");
-    const authenticationPrefix = rewriteAuthentication ? "/Authentication/api" : "";
-    const targetPath = targetBasePath + authenticationPrefix + apiPath + incomingUrl.search;
+    const targetPath = targetBasePath + apiPath + incomingUrl.search;
     const headers = Object.assign({}, req.headers, {
         "accept-encoding": "identity",
         host: targetApiUrl.host,
@@ -112,10 +108,6 @@ function proxyApi(req, res, proxyPrefix, rewriteAuthentication) {
     delete headers["content-length"];
     delete headers["apiKey"];
     delete headers["apikey"];
-
-    if (rewriteAuthentication && publicApiKey) {
-        headers.APIKey = publicApiKey;
-    }
 
     const proxyReq = (targetApiUrl.protocol === "https:" ? require("https") : require("http")).request({
         protocol: targetApiUrl.protocol,
@@ -170,7 +162,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, host, () => {
     console.log(`Local proxy server running at http://${host}:${port}/Content_Login.html`);
-    console.log("Forwarding /api and /public-api requests to html_config.json api.apiPath");
+    console.log("Forwarding /api and /public-api requests to html_config.json api.baseUrl");
 });
 
 server.on("error", (error) => {

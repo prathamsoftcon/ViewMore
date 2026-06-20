@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="axios.min.js"></script>
 <script src="api.js"></script>
-<link rel="stylesheet" href="./viewmore.css">
+<link rel="stylesheet" href="./viewmore.css?v=1.3">
 <div id="loaderWrapper" class="loader-overlay" style="display: none;">
  <div class="loader-spinner"></div>
 </div>
@@ -92,7 +92,6 @@ const APP_VERSION = "2026.05.02.1";
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
 let APIPath = "";
-let publicApiPath = "/public-api";
 const CONFIG_JSON = './html_config.json';
 let appConfig = null;
 let appMessages = {
@@ -111,6 +110,7 @@ var react_base_path="";
  const otpSentMessage = document.getElementById('otp-sent-message');
  const useridInput = document.getElementById('userid');
  const otpInputs = document.querySelectorAll('.otp-inputs input');
+ let otpService = null;
 
 function getMessage(key, fallback) {
     return (appMessages && appMessages[key]) || fallback;
@@ -206,14 +206,34 @@ function applyConfigToUi() {
     }
 }
 
+function initializeOtpService() {
+        otpService = createContentLoginOtpService({
+            loaderElement: document.getElementById("loaderWrapper"),
+            mobileInput: useridInput,
+            mobileSection: mobileInputSection,
+            otpSection: otpSection,
+            otpSentMessage: otpSentMessage,
+            otpInputs: otpInputs,
+            messages: appMessages,
+            onOtpSent: startResendOtpTimer,
+            onOtpVerified: async function (response) {
+                try {
+                    ContentLoginApi.storeAuthenticatedUser(response.data);
+                } catch (error) {
+                    console.warn("Unable to store authenticated user:", error);
+                }
+                await bootstrapIdentityFromMobile(useridInput.value);
+                ContentLoginStorage.setWithExpiry("agencyid", agencyid, 15);
+                localStorage.setItem("participant_userid", agencyid);
+                Get_trainings(agencyid);
+                check_and_update_first_login(agencyid);
+            }
+        });
+}
+
 async function loadConfig() {
     try {
-        const response = await fetch(CONFIG_JSON, { cache: 'no-store' });
-        if (!response.ok) {
-            throw new Error('Config JSON not found');
-        }
-
-        appConfig = await response.json();
+        appConfig = await ContentLoginApi.loadConfig(CONFIG_JSON);
         appMessages = Object.assign({}, appMessages, appConfig.messages || {});
 
         if (!appConfig.api || !appConfig.api.apiPath) {
@@ -221,13 +241,13 @@ async function loadConfig() {
         }
 
         APIPath = appConfig.api.apiPath;
-        publicApiPath = appConfig.api.publicApiPath || "/public-api";
         ContentLoginApi.configure({
             apiPath: APIPath,
-            publicApiPath: publicApiPath
+            publicApiPath: appConfig.api.publicApiPath || "/public-api"
         });
 
         applyConfigToUi();
+        initializeOtpService();
     } catch (error) {
         console.error('Configuration load failed:', error);
     }
@@ -270,119 +290,24 @@ async function bootstrapIdentityFromMobile(mobileNumber) {
   }
     
   function requestOtp() {
-      document.getElementById("loaderWrapper").style.display = "flex";
-    const mobileNumber = useridInput.value;
-    if (mobileNumber.length === 10 && /^\d+$/.test(mobileNumber)) {
- 	ContentLoginApi.generateOtp(mobileNumber)
-	.then(response => {
-	// Axios automatically parses JSON
-	console.log('OTP Generation Response:', response.data);
-	if (response.status==200) {
-        document.getElementById("loaderWrapper").style.display = "none";
-	    mobileInputSection.style.display = 'none';
-        otpSection.style.display = 'block';
-        otpSentMessage.style.display = 'block';
-        useridInput.disabled = true;
-        otpInputs.forEach(input => input.value = '');
-        otpInputs[0].focus();
-        startResendOtpTimer()
-	} else {
-        document.getElementById("loaderWrapper").style.display = "none";
-        alert(getMessage('mobileNotRegistered', 'Your number is not registered. Please contact administrator.'));
-	}
-})
-	.catch(error => {
-          document.getElementById("loaderWrapper").style.display = "none";
-		if (error.response) {
-		// The request was made and the server responded with a status code
-		// that falls out of the range of 2xx
-		console.error('API Error Response:', error.response.data);
-		console.error('API Error Status:', error.response.status);
-        alert(`${getMessage('apiErrorPrefix', 'API Error: ')}${error.response.status} - ${error.response.data.message || 'Unknown error'}`);
-		}
-
-	});
-	
-	
-      
-    } else {
-        alert(getMessage('invalidMobile', 'Please enter valid 10-digit mobile number.'));
-        useridInput.focus();
-    }
+      if (!otpService) {
+          initializeOtpService();
+      }
+      otpService.requestOtp().catch(function () {});
 }  
 
 function setLocalStorage(key, value) {
-  const now = new Date();
-
-  // 15 days in milliseconds
-  const expiry = now.getTime() + 15 * 24 * 60 * 60 * 1000;
-
-  const item = {
-    value: value,
-    expiry: expiry
-  };
-
-  localStorage.setItem(key, JSON.stringify(item));
+  ContentLoginStorage.setWithExpiry(key, value, 15);
 }
 function Check_Local_Storage(key) {
-  const itemStr = localStorage.getItem(key);
-
-  // If item doesn't exist, return null
-  if (!itemStr) return null;
-
-  const item = JSON.parse(itemStr);
-  const now = new Date();
-
-  // If expired, remove it and return null
-  if (now.getTime() > item.expiry) {
-    localStorage.removeItem(key);
-    return null;
-  }
-
-  return item.value;
+  return ContentLoginStorage.getWithExpiry(key);
 }
 
 function verifyOtp() {
-    const enteredOtp = Array.from(otpInputs).map(input => input.value).join('');
-    if (enteredOtp.length === 6 && /^\d+$/.test(enteredOtp)) {
-       ContentLoginApi.getToken({
-         emailid: '91-' + useridInput.value,
-         mobile: '91-' + useridInput.value,
-         otp: enteredOtp,
-         countryCode: '91'
-       })
-.then(response => {
-	// Axios automatically parses JSON
-	console.log('OTP Generation Response:', response.data);
-	if (response.status==200) {
-        try {
-            ContentLoginApi.storeAuthenticatedUser(response.data);
-        } catch (error) {
-            console.warn("Unable to store authenticated user:", error);
-        }
-        bootstrapIdentityFromMobile(useridInput.value).then(function () {
-        setLocalStorage("agencyid",agencyid)
-	    Get_trainings(agencyid)
-         check_and_update_first_login(agencyid)
-        });
-
-    } else {
-		alert('Failed to generate OTP: ' + (response.data ? response.data.message : 'Unknown error'));
-	}
-})
-.catch(error => {
-
-	if (error.response) {
-      alert('Invalid OTP,Please enter valid OTP');
-	} else if (error.request) {
-        alert(getMessage('noResponse', 'No response received from server.'));
-	} 
-	
-	});
-    } else {
-        alert('Please enter a valid 6-digit OTP.');
-        otpInputs[0].focus();
+    if (!otpService) {
+        initializeOtpService();
     }
+    otpService.verifyOtp().catch(function () {});
 }
 
 
@@ -775,6 +700,7 @@ function Open_Activity(path){
 }
 
 function Get_React_path(path){
+    var baseurl = APIPath;
     ContentLoginApi.getReactAppConfiguration()
 		.then(response => {
 			if (response.status==200) {
@@ -796,6 +722,7 @@ function Get_React_path(path){
 			});
 }
 function check_and_update_first_login(id){
+    var baseurl = APIPath;
     ContentLoginApi.checkFirstLogin(id)
 	.then(response => {
 		if (response.status==200) {
@@ -818,7 +745,8 @@ function check_and_update_first_login(id){
 }
 
     function save_user_log_data(){
-        ContentLoginApi.saveUserLog(userid)
+            var baseurl = APIPath;
+     ContentLoginApi.saveUserLog(userid)
         .then(response => {
 	    if (response.status==200) {
 	     save_user_track()
@@ -840,12 +768,16 @@ function check_and_update_first_login(id){
         }
 
       function save_user_track(){
+        var baseurl = APIPath;
+
         const eventData = {
         tyat_userid: userid,       // User ID
         tyat_page_name: 'Change Password',  // Page name where the event occurred
         tyat_event_name: 'Onload Change Password', // Event name (e.g., click, form submit)
         tyat_recordid: ''  // Record ID associated with the event
        };
+
+
 
         ContentLoginApi.saveAuditTrail(eventData)
         .then(response => {
@@ -867,11 +799,10 @@ function check_and_update_first_login(id){
   
         }  
      function edituserid() {
-     mobileInputSection.style.display = 'block';
-     otpSection.style.display = 'none';
-     otpSentMessage.style.display = 'none';
-     useridInput.disabled = false;
-     useridInput.focus();
+     if (!otpService) {
+         initializeOtpService();
+     }
+     otpService.editMobile();
  }
 
 </script>
@@ -930,10 +861,10 @@ function startResendOtpTimer() {
     }, 1000);
 }
  function resendOtp() {
-     const mobileNumber = useridInput.value;
-     if (mobileNumber) {
-        requestOtp()
+     if (!otpService) {
+         initializeOtpService();
      }
+     otpService.resendOtp().catch(function () {});
  }
 
 function Check_Is_Page_Expiry(){
@@ -1007,10 +938,11 @@ function getCurrentDateTime() {
 }
 
  function save_learning_time(contentid){
+ var baseurl = APIPath
   const eventData = {
   tplt_Id: guid(),       // User ID
   tplt_ttsam_id: contentid,  // Page name where the event occurred
-  tplt_ttpai_id: ttpai_id, // Event name (e.g., click, form submit)
+  tplt_ttpai_id: ttpai_id, // participant training association id
   tplt_learning_time: 0,  // Record ID associated with the event
   tplt_createdon: getCurrentDateTime(),
   tplt_createdby: agencyid,
@@ -1084,6 +1016,7 @@ function getCurrentDateTime() {
 
 
     function save_activity_completion(trainingid,sessionid, ttsam_id,branchid) {
+        var baseurl = APIPath;
         var cd = {
             "session_Content_Status": [
                 {
@@ -1116,24 +1049,8 @@ function getCurrentDateTime() {
  
 </script>
 <script>
-    otpInputs.forEach((input, index) => {
-
-        // Move to next input when a digit is typed
-        input.addEventListener("input", () => {
-            if (input.value.length === 1) {
-                if (index < otpInputs.length - 1) {
-                    otpInputs[index + 1].focus();
-                }
-            }
-        });
-
-        // Move to previous input on backspace
-        input.addEventListener("keydown", (e) => {
-            if (e.key === "Backspace" && input.value === "") {
-                if (index > 0) {
-                    otpInputs[index - 1].focus();
-                }
-            }
-        });
-    });
+    if (!otpService) {
+        initializeOtpService();
+    }
+    otpService.bindOtpInputs();
 </script>

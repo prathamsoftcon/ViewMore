@@ -735,11 +735,13 @@
 
             for (let i = 0; i < endpointCandidates.length; i++) {
                 const endpoint = endpointCandidates[i];
-                const apiUrl = APIPath + '/' + endpoint + '?trainingid=' + encodedTrainingId;
+                const usePublicPath = endpoint === 'trgsessions' || endpoint === 'trgsession';
+                const apiBase = usePublicPath ? publicApiPath : APIPath;
+                const apiUrl = apiBase + '/' + endpoint + '?trainingid=' + encodedTrainingId;
 
                 try {
                     const response = await axios.get(apiUrl, {
-                        headers: ContentLoginApi.getAuthHeaders()
+                        headers: usePublicPath ? ContentLoginApi.getPublicHeaders() : ContentLoginApi.getAuthHeaders()
                     });
                     return getApiArray(response.data);
                 } catch (error) {

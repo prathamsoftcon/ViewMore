@@ -123,7 +123,7 @@
 
         getUserInfo: function (mobileNumber) {
             return axios.get(
-                buildUrl("/UserInfo", { username: "91-" + mobileNumber }),
+                buildUrl("/Authentication/api/UserInfo_wk", { username: "91-" + mobileNumber }),
                 getAxiosConfig()
             );
         },

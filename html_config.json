@@ -25,7 +25,7 @@
     "apiPath1": "https://localhost:5859/api",
 
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
-    "userInfoEndpoint": "/UserInfo",
+    "userInfoEndpoint": "/Authentication/api/UserInfo_wk",
     "participantsTrainingEndpoint": "/Participants_training",
     "verifyCertificateEndpoint": "/Verify_Certificate"
   },
