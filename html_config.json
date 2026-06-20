@@ -4,6 +4,7 @@
   "header": {
     "primaryLogoSrc": "https://qa.littera.in/Content/GlobalSetting/dev/default_logo_2.png",
     "secondaryLogoSrc": "https://qa.littera.in/Content/GlobalSetting/Dev/logo_login.png?1.3",
+    "certificateQrSrc": "https://qa.littera.in/content/images/certificate_qr.png",
     "logoTitle": "IMAGE",
     "universityName": "MADHYA PRADESH BHOJ OPEN UNIVERSITY (MPBOU)",
     "courseHeading": "वोकेशनल कोर्स प्रमाणपत्र सत्यापन पोर्टल",
@@ -18,11 +19,12 @@
     "verifyButton": "Verify",
     "footer": "© 2025 All Rights Reserved by Madhya Pradesh Bhoj Open University."
   },
-  "api": {
-    "baseUrl": "https://qaapp.littera.in",
-    "apiPath": "https://qa.littera.in/litteracoreauth/api",
-    "publicApiPath": "/public-api",
-    "apiPath1": "https://localhost:5859/api",
+    "api": {
+        "baseUrl": "https://qaapp.littera.in",
+        "apiPath": "https://qa.littera.in/litteracoreauth/api",
+        "publicApiPath": "/public-api",
+        "publicApiKey": "",
+        "apiPath1": "https://localhost:5859/api",
 
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
     "userInfoEndpoint": "/Authentication/api/UserInfo_wk",

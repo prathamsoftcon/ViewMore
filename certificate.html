@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="2026.05.02.1">
+    <meta name="app-version" content="2026.06.02.1">
     <title id="pageTitle"></title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"> 
 	<!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  -->
@@ -43,7 +43,7 @@
            <div id="qaRequiredSection">
            <div><span class="fw-bold">यह प्रमाणपत्र पोर्टल द्वारा स्वतः जनरेट किया गया है, अतः किसी हस्ताक्षर की आवश्यकता नहीं है।</span></div>
            <div>प्रमाणपत्र की सत्यता की पुष्टि हेतु कृपया संलग्न QR कोड स्कैन करें।</div>
-           <div class="certificate-qr-wrap"><img class="certificate-qr-image" src="/content/images/certificate_qr.png"/>
+           <div class="certificate-qr-wrap"><img id="certificateQrImage" class="certificate-qr-image" src="" alt="Certificate QR code"/>
             <p class="certificate-qr-caption">(Scan to verify)</p>
             </div>
            </div>
@@ -182,7 +182,7 @@
         var currentTrainingId = ''
         var currentTrainingCode = ''
         var currentTrainingName = ''
-        const APP_VERSION = '2026.05.02.1';
+        const APP_VERSION = '2026.06.02.1';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_VALID_DAYS = 15;
         const verificationModal = document.getElementById('verificationModal');
@@ -238,6 +238,14 @@
                 const isQrRequired = appConfig.is_qr_required === true || String(appConfig.is_qr_required).toLowerCase() === 'true';
                 qaRequiredSection.style.display = isQrRequired ? 'block' : 'none';
             }
+
+            const certificateQrImage = document.getElementById('certificateQrImage');
+            if (certificateQrImage) {
+                const certificateQrSrc = (appConfig.header && appConfig.header.certificateQrSrc)
+                    || (appConfig.assets && appConfig.assets.certificateQrSrc)
+                    || 'https://qa.littera.in/content/images/certificate_qr.png';
+                certificateQrImage.src = certificateQrSrc;
+            }
         }
 
         async function loadConfig() {
@@ -257,7 +265,8 @@
                 redirectBaseUrl = String(appConfig.api.baseUrl).trim();
                 ContentLoginApi.configure({
                     apiPath: APIPath,
-                    publicApiPath: publicApiPath
+                    publicApiPath: publicApiPath,
+                    publicApiKey: appConfig.api.publicApiKey || ''
                 });
                 applyConfigToUi();
             } catch (error) {
@@ -269,10 +278,18 @@
 
         function saveOtpCache(mobileNumber, apiResponse) {
             try {
+                const userPayload = apiResponse && apiResponse.result ? apiResponse.result : apiResponse;
+                const cachedUserid = userPayload && userPayload.userid
+                    ? userPayload.userid
+                    : (userPayload && userPayload.userdetails && userPayload.userdetails.userid) || '';
+                const cachedAgencyid = userPayload && userPayload.agencyid
+                    ? userPayload.agencyid
+                    : (userPayload && userPayload.agencydetail && userPayload.agencydetail.agencyid) || '';
+
                 const payload = {
                     mobileNumber: mobileNumber,
-                    userid: apiResponse.userid || '',
-                    agencyid: apiResponse.agencyid || '',
+                    userid: String(cachedUserid || ''),
+                    agencyid: String(cachedAgencyid || ''),
                     response: apiResponse,
                     savedAt: new Date().toISOString()
                 };
@@ -363,8 +380,27 @@
         function closeModal() {
             verificationModal.classList.remove('show');
         }
-		function closeCaptchaModal() {
+        function closeCaptchaModal() {
             sliderModal.classList.remove('show');
+        }
+
+        function clearAuthenticatedSession() {
+            try {
+                localStorage.removeItem('user');
+            } catch (error) {
+                console.warn('Unable to clear authenticated user session:', error);
+            }
+        }
+
+        function requireAuthenticatedSession(contextLabel) {
+            if (ContentLoginApi.getAccessToken()) {
+                return true;
+            }
+
+            console.warn('Missing auth token before protected call:', contextLabel);
+            alert('Your session has expired. Please verify your mobile number again.');
+            openModal();
+            return false;
         }
 		
 
@@ -394,12 +430,15 @@
                 userid = cachedData.userid;
                 agencyid = cachedData.agencyid;
                 console.log('Using cached OTP response for mobile number:', mobileNumber);
-                if (cachedData.response) {
+                if (cachedData.response && ContentLoginApi.hasAuthToken(cachedData.response)) {
                     try {
                         ContentLoginApi.storeAuthenticatedUser(cachedData.response);
                     } catch (error) {
                         console.warn('Unable to restore authenticated user from cache:', error);
                     }
+                } else if (cachedData.response) {
+                    console.warn('Cached OTP response does not include an auth token. Skipping cached user restore.');
+                    localStorage.removeItem(OTP_CACHE_KEY);
                 }
                 bootstrapIdentityFromMobile(mobileNumber)
                     .then(function () {
@@ -483,11 +522,7 @@ var ttpai_id=urlparams3.get('userid');
                  console.warn('Unable to store authenticated user:', error);
              }
              bootstrapIdentityFromMobile(useridInput.value).then(function () {
-             saveOtpCache(useridInput.value, {
-                userid: userid,
-                agencyid: agencyid,
-                verifyResponse: response.data
-             });
+             saveOtpCache(useridInput.value, response.data);
 			 Get_trainings(agencyid);
              });
 			document.getElementById('btnverifyOTP').disabled=false;
@@ -557,10 +592,8 @@ var ttpai_id=urlparams3.get('userid');
         });
 		
 		
-		function update_Audit_Trail(pageevent,referenceid){
-		
-	
-const apiUrl = APIPath+'/Save_Audit_Trail';
+        function update_Audit_Trail(pageevent,referenceid){
+const apiUrl = publicApiPath + '/Save_Audit_Trail';
  // Replace with your actual API Key
 
 const auditTrailData = {
@@ -573,12 +606,11 @@ const auditTrailData = {
 	fetch(apiUrl, {
 			method: 'POST', // Specify the POST method
 		headers: {
-        'Content-Type': 'application/json', // Inform the server that the body is JSON
-        'Authorization': 'Bearer ' + (ContentLoginApi.getAccessToken() || '')
+        'Content-Type': 'application/json' // Inform the server that the body is JSON
 		},
 		body: JSON.stringify(auditTrailData) // Convert the JavaScript object to a JSON string
-	})
-  .then(response => {
+    })
+ .then(response => {
     // Check if the response was successful (status code 200-299)
     if (!response.ok) {
         // If not successful, parse the error response if possible
@@ -600,7 +632,7 @@ const auditTrailData = {
         return response.text().then(text => {
             return text ? JSON.parse(text) : {};
         });
-	})
+    })
 	.then(data => {
     // Handle the successful API response here
     console.log('Audit Trail API Response:', data);
@@ -614,10 +646,6 @@ const auditTrailData = {
 		}
 		
 		function saveUserLog() {
-    
-
-   
-
     return fetch( APIPath+'/save_user_log?userid='+userid, {
         method: 'POST',
         headers: ContentLoginApi.getAuthHeaders(),
@@ -625,6 +653,9 @@ const auditTrailData = {
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 401) {
+                clearAuthenticatedSession();
+            }
             return response.json().then(err => {
                 throw new Error(err.message || `User Log API HTTP error! Status: ${response.status}`);
             }).catch(() => {
@@ -734,6 +765,9 @@ document.getElementById('otp-1').addEventListener('paste', function(e) {
 </script>
 <script>
 function Get_Certificate_Data(ttpai_id) {
+    if (!requireAuthenticatedSession('Certificate_Details')) {
+        return Promise.resolve();
+    }
     // Hide the training section initially
     document.getElementById('dvtraining').classList.remove('show');
 
@@ -769,6 +803,9 @@ function Get_Certificate_Data(ttpai_id) {
         if (error.response) {
             console.error('API Error Response:', error.response.data);
             console.error('API Error Status:', error.response.status);
+            if (error.response.status === 401) {
+                clearAuthenticatedSession();
+            }
             setAlertMessage(typeof error.response.data === 'string' ? error.response.data : 'Certificate not available right now. Please complete required course activity first.');
             closeModal();
             open_alert();
@@ -792,10 +829,9 @@ function Get_Certificate_Data(ttpai_id) {
 
 
 function Get_Training_Data(trainingid){
- 
-          const apiUrl = APIPath+'/Training_Details?trainingid='+trainingid+'';
+          const apiUrl = publicApiPath + '/Training_Details?trainingid=' + trainingid + '';
             return axios.get(apiUrl, {
-				headers: ContentLoginApi.getAuthHeaders()
+				headers: ContentLoginApi.getPublicHeaders()
 			})
 		.then(response => {
 			// Axios automatically parses JSON
@@ -897,6 +933,9 @@ function Get_Training_Participant_Details(){
         // that falls out of the range of 2xx
 			console.error('API Error Response:', error.response.data);
 			console.error('API Error Status:', error.response.status);
+            if (error.response.status === 401) {
+                clearAuthenticatedSession();
+            }
             setAlertMessage(typeof error.response.data === 'string' ? error.response.data : 'Certificate not available right now. Please complete required course activity first.');
             closeModal();
             open_alert();

@@ -1,7 +1,8 @@
 (function (window) {
     const apiConfig = {
         apiPath: "",
-        publicApiPath: "/public-api"
+        publicApiPath: "/public-api",
+        publicApiKey: ""
     };
 
     function getApiPath() {
@@ -12,10 +13,15 @@
         return apiConfig.publicApiPath || window.PublicAPIPath || "/public-api";
     }
 
-    function buildHeaders(extraHeaders, includeBearer) {
+    function getPublicApiKey() {
+        return apiConfig.publicApiKey || window.PublicAPIKey || window.PUBLIC_API_KEY || "";
+    }
+
+    function buildHeaders(extraHeaders, includeBearer, includePublicApiKey) {
         const headers = Object.assign({
             "Content-Type": "application/json"
         }, extraHeaders || {});
+        const publicApiKey = includePublicApiKey ? getPublicApiKey() : "";
 
         if (includeBearer) {
             const token = getAccessToken();
@@ -27,6 +33,10 @@
         delete headers.APIKey;
         delete headers.ApiKey;
         delete headers.apiKey;
+
+        if (publicApiKey) {
+            headers.APIKey = publicApiKey;
+        }
 
         return headers;
     }
@@ -59,9 +69,9 @@
         return data;
     }
 
-    function getPublicAxiosConfig() {
+    function getPublicAxiosConfig(includePublicApiKey) {
         return {
-            headers: buildHeaders(),
+            headers: buildHeaders(null, false, includePublicApiKey === true),
             withCredentials: true
         };
     }
@@ -71,6 +81,28 @@
             headers: buildHeaders(null, true),
             withCredentials: true
         };
+    }
+
+    function getPublicRequestConfig() {
+        return {
+            headers: buildHeaders(),
+            withCredentials: true
+        };
+    }
+
+    function publicGet(path, params) {
+        return axios.get(
+            buildUrl(path, params, getPublicApiPath()),
+            getPublicRequestConfig()
+        );
+    }
+
+    function publicPost(path, data, params) {
+        return axios.post(
+            buildUrl(path, params, getPublicApiPath()),
+            data,
+            getPublicRequestConfig()
+        );
     }
 
     function getStoredUser() {
@@ -102,6 +134,11 @@
         return storedUser && (storedUser.authToken || (storedUser.user && storedUser.user.authToken) || (storedUser.result && storedUser.result.authToken)) || "";
     }
 
+    function hasAuthToken(data) {
+        const user = unwrapUserToken(data);
+        return !!(user && user.authToken);
+    }
+
     const ContentLoginApi = {
         configure: function (options) {
             const settings = options || {};
@@ -111,6 +148,9 @@
             }
             if (settings.publicApiPath !== undefined) {
                 apiConfig.publicApiPath = settings.publicApiPath;
+            }
+            if (settings.publicApiKey !== undefined) {
+                apiConfig.publicApiKey = settings.publicApiKey;
             }
         },
 
@@ -129,25 +169,63 @@
         },
 
         generateOtp: function (mobileNumber) {
-            return axios.get(
-                buildUrl("/GenerateOTP", { username: "91-" + mobileNumber }, getPublicApiPath()),
-                getPublicAxiosConfig()
-            );
+            return publicGet("/GenerateOTP", { username: "91-" + mobileNumber });
         },
 
         verifyOtp: function (username, otp) {
-            return axios.get(
-                buildUrl("/VerifyOTP", { username: username, otp: otp }, getPublicApiPath()),
-                getPublicAxiosConfig()
-            );
+            return publicGet("/VerifyOTP", { username: username, otp: otp });
         },
 
         getToken: function (loginData) {
-            return axios.post(
-                buildUrl("/GetToken", null, getPublicApiPath()),
-                loginData,
-                getPublicAxiosConfig()
-            );
+            return publicPost("/GetToken", loginData);
+        },
+
+        sendGeneralOtp: function (params) {
+            return publicGet("/Send_General_OTP", params || {});
+        },
+
+        loginFailEntry: function (payload) {
+            return publicPost("/Login_Fail_Entry", payload || {});
+        },
+
+        registerWithOtp: function (payload) {
+            return publicPost("/RegisterWithOtp", payload || {});
+        },
+
+        getTrainingDetailsPublic: function (trainingId) {
+            return publicGet("/Training_Details", { trainingid: trainingId });
+        },
+
+        getTrgSessions: function (params) {
+            return publicGet("/TrgSessions", params || {});
+        },
+
+        getTrgSponsor: function (params) {
+            return publicGet("/TRG_SPONSOR", params || {});
+        },
+
+        getAgency: function (params) {
+            return publicGet("/Agency", params || {});
+        },
+
+        getSalutation: function (params) {
+            return publicGet("/Salutation", params || {});
+        },
+
+        getBranches: function (params) {
+            return publicGet("/Branches", params || {});
+        },
+
+        getApplicationSetting: function (params) {
+            return publicGet("/Get_Application_Setting", params || {});
+        },
+
+        getFinancialYear: function (params) {
+            return publicGet("/Finacial_year", params || {});
+        },
+
+        getClientData: function (params) {
+            return publicGet("/GetClientData", params || {});
         },
 
         getParticipantTrainings: function (participantId) {
@@ -191,10 +269,7 @@
         },
 
         getReactAppConfiguration: function () {
-            return axios.get(
-                buildUrl("/GET_REACT_APP_CONFIGURATION", null, getPublicApiPath()),
-                getPublicAxiosConfig()
-            );
+            return publicGet("/GET_REACT_APP_CONFIGURATION");
         },
 
         checkFirstLogin: function (participantId) {
@@ -213,11 +288,15 @@
         },
 
         saveAuditTrail: function (eventData) {
-            return axios.post(
-                buildUrl("/Save_Audit_Trail"),
-                eventData,
-                getAxiosConfig()
-            );
+            return publicPost("/Save_Audit_Trail", eventData);
+        },
+
+        saveAuditTrailWk: function (eventData) {
+            return publicPost("/Save_Audit_Trail_wk", eventData);
+        },
+
+        saveErrorLog: function (eventData) {
+            return publicPost("/Save_Error_Log", eventData);
         },
 
         saveLearningTime: function (eventData) {
@@ -264,6 +343,7 @@
         return buildHeaders(null, true);
     };
     window.ContentLoginApi.storeAuthenticatedUser = storeAuthenticatedUser;
+    window.ContentLoginApi.hasAuthToken = hasAuthToken;
 
     const ContentLoginStorage = {
         setWithExpiry: function (key, value, days) {

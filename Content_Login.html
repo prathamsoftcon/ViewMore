@@ -88,7 +88,7 @@ var agencyid=""
      var branchid = null
      var sessionid = ""
 var ttpai_id="";
-const APP_VERSION = "2026.05.02.1";
+const APP_VERSION = "2026.06.02.1";
 const verificationModal = document.getElementById('verificationModal');
 const sliderModal = document.getElementById('Captchamodal');
 let APIPath = "";
@@ -243,7 +243,8 @@ async function loadConfig() {
         APIPath = appConfig.api.apiPath;
         ContentLoginApi.configure({
             apiPath: APIPath,
-            publicApiPath: appConfig.api.publicApiPath || "/public-api"
+            publicApiPath: appConfig.api.publicApiPath || "/public-api",
+            publicApiKey: appConfig.api.publicApiKey || ""
         });
 
         applyConfigToUi();

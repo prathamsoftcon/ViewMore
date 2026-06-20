@@ -109,7 +109,7 @@
 		var userid=""
 		var agencyid=""
         var currentTrainingId = ''
-        const APP_VERSION = "2026.05.02.1";
+        const APP_VERSION = "2026.06.02.1";
         const CONFIG_JSON = './html_config.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
         const OTP_CACHE_MAX_AGE_DAYS = 15;
@@ -286,7 +286,8 @@
                 publicApiPath = String(appConfig.api.publicApiPath || '/public-api').trim();
                 ContentLoginApi.configure({
                     apiPath: APIPath,
-                    publicApiPath: publicApiPath
+                    publicApiPath: publicApiPath,
+                    publicApiKey: appConfig.api.publicApiKey || ''
                 });
 
                 contentTypeVisibility = normalizeContentTypeVisibility(appConfig.contentTypeVisibility);
@@ -992,12 +993,15 @@
                 userid = cached.userid;
                 agencyid = cached.agencyid;
                 localStorage.setItem('participant_userid', agencyid);
-                if (cached.payload) {
+                if (cached.payload && ContentLoginApi.hasAuthToken(cached.payload)) {
                     try {
                         ContentLoginApi.storeAuthenticatedUser(cached.payload);
                     } catch (error) {
                         console.warn('Unable to restore authenticated user from cache:', error);
                     }
+                } else if (cached.payload) {
+                    console.warn('Cached OTP payload does not include an auth token. Skipping cached user restore.');
+                    localStorage.removeItem(OTP_CACHE_KEY);
                 }
                 bootstrapIdentityFromMobile(mobileNumber)
                     .then(function () {
@@ -1149,9 +1153,6 @@
 		function update_first_login(){
 		
 	
-const apiUrl = APIPath+'/Save_Audit_Trail';
- // Replace with your actual API Key
-
 const auditTrailData = {
     "tyat_userid": userid, // You'll likely want to replace "string" with a dynamic user ID
     "tyat_page_name": "Change Password",
@@ -1159,20 +1160,11 @@ const auditTrailData = {
     "tyat_recordid": "" // This might be an empty string or null, depending on your API's expectation
 };
 
-		fetch(apiUrl, {
-			method: 'POST', // Specify the POST method
-		headers: ContentLoginApi.getAuthHeaders(),
-		body: JSON.stringify(auditTrailData) // Convert the JavaScript object to a JSON string
-	})
+		ContentLoginApi.saveAuditTrail(auditTrailData)
   .then(response => {
-    // Check if the response was successful (status code 200-299)
-    if (!response.ok) {
-        // If not successful, parse the error response if possible
-        return response.json().then(err => { throw new Error(err.message || `HTTP error! Status: ${response.status}`); });
-    }
     saveUserLog();
 	closeModal()
-    return response.json();
+    return response.data || response;
 	})
 	.then(data => {
     // Handle the successful API response here
