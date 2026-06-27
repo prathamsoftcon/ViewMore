@@ -223,7 +223,7 @@ function initializeOtpService() {
                 } catch (error) {
                     console.warn("Unable to store authenticated user:", error);
                 }
-                await bootstrapIdentityFromMobile(useridInput.value);
+                await bootstrapIdentityFromMobile(useridInput.value, response.data);
                 ContentLoginStorage.setWithExpiry("agencyid", agencyid, 15);
                 localStorage.setItem("participant_userid", agencyid);
                 Get_trainings(agencyid);
@@ -246,7 +246,8 @@ async function loadConfig() {
             apiPath: APIPath,
             publicApiPath: appConfig.api.publicApiPath || "/public-api",
             publicApiKey: appConfig.api.publicApiKey || "",
-            publicEndpoints: appConfig.api.publicEndpoints || []
+            publicEndpoints: appConfig.api.publicEndpoints || [],
+            userInfoEndpoint: appConfig.api.userInfoEndpoint || "/UserInfo"
         });
 
         applyConfigToUi();
@@ -261,31 +262,41 @@ async function initializePage() {
     Check_Is_Page_Expiry();
 }
 
-async function bootstrapIdentityFromMobile(mobileNumber) {
-    const response = await ContentLoginApi.getUserInfo(mobileNumber);
-    const userPayload = response && response.data ? (response.data.result || response.data) : null;
-
+function applyIdentityPayload(payload) {
+    const userPayload = payload && (payload.result || payload.Result) ? (payload.result || payload.Result) : payload;
+    const userDetails = userPayload && (userPayload.userdetails || userPayload.userDetails || userPayload.UserDetails);
+    const agencyDetails = userPayload && (userPayload.agencydetail || userPayload.agencyDetail || userPayload.AgencyDetail);
     if (userPayload) {
         userid = String(
-            userPayload.userdetails && userPayload.userdetails.userid
-                ? userPayload.userdetails.userid
+            userDetails && (userDetails.userid || userDetails.userId || userDetails.UserId)
+                ? (userDetails.userid || userDetails.userId || userDetails.UserId)
                 : userid
         );
         agencyid = String(
-            userPayload.agencydetail && userPayload.agencydetail.agencyid
-                ? userPayload.agencydetail.agencyid
+            agencyDetails && (agencyDetails.agencyid || agencyDetails.agencyId || agencyDetails.AgencyId)
+                ? (agencyDetails.agencyid || agencyDetails.agencyId || agencyDetails.AgencyId)
                 : agencyid
         );
 
-        if (userPayload.authToken) {
+        if (userPayload.authToken || userPayload.AuthToken) {
             try {
-                ContentLoginApi.storeAuthenticatedUser(response.data);
+                ContentLoginApi.storeAuthenticatedUser(payload);
             } catch (error) {
                 console.warn("Unable to store authenticated user:", error);
             }
         }
     }
 
+    return !!(userid && agencyid);
+}
+
+async function bootstrapIdentityFromMobile(mobileNumber, authPayload) {
+    if (applyIdentityPayload(authPayload)) {
+        return { status: 200, data: authPayload };
+    }
+
+    const response = await ContentLoginApi.getUserInfo(mobileNumber);
+    applyIdentityPayload(response && response.data);
     return response;
 }
   function Next_click() {
@@ -676,30 +687,14 @@ function getFileType(filePath) {
 }
 
 function Open_Activity(path){
+    var baseurl = APIPath;
     const params = new URLSearchParams(window.location.search);
     const contentid = params.get("ttsam_id");
-    var baseurl = APIPath;
-    ContentLoginApi.generateActivityToken(trainingid, contentid, agencyid, ttpai_id)
-		.then(response => {
-            if (response.status == 200) {
-                save_activity_completion(trainingid, sessionid, contentid,branchid)
-                
-			   // console.log(response.data.item[0])
-                window.location.href=path+"?baseurl="+baseurl+"&token="+response.data;
-			 } else {
-				alert('Failed to generate Certificate: ' + (response.data ? response.data.message : 'Unknown error'));
-			}
-		})
-		.catch(error => {
- 
-			if (error.response) {
-        
-			} else if (error.request) {
-			
-			} else {
-   
-				}
-			});
+    const activityUrl = new URL(path, window.location.href);
+
+    activityUrl.searchParams.set("baseurl", baseurl);
+    save_activity_completion(trainingid, sessionid, contentid, branchid);
+    window.location.href = activityUrl.toString();
 }
 
 function Get_React_path(path){
@@ -719,7 +714,7 @@ function check_and_update_first_login(id){
 	.then(response => {
 		if (response.status==200) {
 		  if(response.data==false){
-           save_user_log_data()
+           save_user_track()
           }
            
 		 } else {

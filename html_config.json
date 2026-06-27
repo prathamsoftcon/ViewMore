@@ -20,7 +20,7 @@
     "footer": "© 2025 All Rights Reserved by Madhya Pradesh Bhoj Open University."
   },
   "otpService": {
-    "useTestOtp": true,
+    "useTestOtp": false,
     "defaultOtp": "565656"
   },
     "api": {
@@ -49,7 +49,7 @@
         "apiPath1": "https://localhost:5859/api",
 
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
-    "userInfoEndpoint": "/Authentication/api/UserInfo",
+    "userInfoEndpoint": "/UserInfo",
     "participantsTrainingEndpoint": "/Participants_training",
     "verifyCertificateEndpoint": "/Verify_Certificate"
   },

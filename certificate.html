@@ -267,7 +267,8 @@
                     apiPath: APIPath,
                     publicApiPath: publicApiPath,
                     publicApiKey: appConfig.api.publicApiKey || '',
-                    publicEndpoints: appConfig.api.publicEndpoints || []
+                    publicEndpoints: appConfig.api.publicEndpoints || [],
+                    userInfoEndpoint: appConfig.api.userInfoEndpoint || '/UserInfo'
                 });
                 applyConfigToUi();
             } catch (error) {
@@ -338,31 +339,41 @@
             }
         }
 
-        async function bootstrapIdentityFromMobile(mobileNumber) {
-            const response = await ContentLoginApi.getUserInfo(mobileNumber);
-            const userPayload = response && response.data ? (response.data.result || response.data) : null;
-
+        function applyIdentityPayload(payload) {
+            const userPayload = payload && (payload.result || payload.Result) ? (payload.result || payload.Result) : payload;
+            const userDetails = userPayload && (userPayload.userdetails || userPayload.userDetails || userPayload.UserDetails);
+            const agencyDetails = userPayload && (userPayload.agencydetail || userPayload.agencyDetail || userPayload.AgencyDetail);
             if (userPayload) {
                 userid = String(
-                    userPayload.userdetails && userPayload.userdetails.userid
-                        ? userPayload.userdetails.userid
+                    userDetails && (userDetails.userid || userDetails.userId || userDetails.UserId)
+                        ? (userDetails.userid || userDetails.userId || userDetails.UserId)
                         : userid
                 );
                 agencyid = String(
-                    userPayload.agencydetail && userPayload.agencydetail.agencyid
-                        ? userPayload.agencydetail.agencyid
+                    agencyDetails && (agencyDetails.agencyid || agencyDetails.agencyId || agencyDetails.AgencyId)
+                        ? (agencyDetails.agencyid || agencyDetails.agencyId || agencyDetails.AgencyId)
                         : agencyid
                 );
 
-                if (userPayload.authToken) {
+                if (userPayload.authToken || userPayload.AuthToken) {
                     try {
-                        ContentLoginApi.storeAuthenticatedUser(response.data);
+                        ContentLoginApi.storeAuthenticatedUser(payload);
                     } catch (error) {
                         console.warn('Unable to store authenticated user:', error);
                     }
                 }
             }
 
+            return !!(userid && agencyid);
+        }
+
+        async function bootstrapIdentityFromMobile(mobileNumber, authPayload) {
+            if (applyIdentityPayload(authPayload)) {
+                return { status: 200, data: authPayload };
+            }
+
+            const response = await ContentLoginApi.getUserInfo(mobileNumber);
+            applyIdentityPayload(response && response.data);
             return response;
         }
 		
@@ -507,12 +518,7 @@ var ttpai_id=urlparams3.get('userid');
 		
             const enteredOtp = Array.from(otpInputs).map(input => input.value).join('');
             if (enteredOtp.length === 6 && /^\d+$/.test(enteredOtp)) {
-               ContentLoginApi.getToken({
-                 emailid: '91-' + useridInput.value,
-                 mobile: '91-' + useridInput.value,
-                 otp: enteredOtp,
-                 countryCode: '91'
-               })
+               ContentLoginApi.verifyOtp('91-' + useridInput.value, enteredOtp)
 		.then(response => {
 			// Axios automatically parses JSON
 			console.log('OTP Generation Response:', response.data);
@@ -522,7 +528,7 @@ var ttpai_id=urlparams3.get('userid');
              } catch (error) {
                  console.warn('Unable to store authenticated user:', error);
              }
-             bootstrapIdentityFromMobile(useridInput.value).then(function () {
+             bootstrapIdentityFromMobile(useridInput.value, response.data).then(function () {
              saveOtpCache(useridInput.value, response.data);
 			 Get_trainings(agencyid);
              });

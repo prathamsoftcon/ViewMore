@@ -3,7 +3,8 @@
         apiPath: "",
         publicApiPath: "/public-api",
         publicApiKey: "",
-        publicEndpoints: []
+        publicEndpoints: [],
+        userInfoEndpoint: "/UserInfo"
     };
     const defaultPublicEndpoints = [
         "/Agency",
@@ -22,6 +23,11 @@
         "/TRG_SPONSOR",
         "/TrgSessions",
         "/VerifyOTP"
+    ];
+    const authenticatedEndpoints = [
+        "/SAVE_USER_LOG",
+        "/UserInfo",
+        "/UserInfo_wk"
     ];
 
     function getApiPath() {
@@ -60,6 +66,21 @@
         });
     }
 
+    function isAuthenticatedEndpointUrl(url) {
+        if (!url) {
+            return false;
+        }
+
+        const parsedUrl = new URL(url, window.location.origin);
+        const pathname = parsedUrl.pathname.toLowerCase();
+
+        return authenticatedEndpoints
+            .map(normalizeEndpointPath)
+            .some(function (endpoint) {
+                return pathname === endpoint || pathname.endsWith(endpoint);
+            });
+    }
+
     function stripAuthorizationHeader(headers) {
         if (!headers) {
             return;
@@ -81,7 +102,7 @@
 
     if (window.axios && window.axios.interceptors && window.axios.interceptors.request) {
         window.axios.interceptors.request.use(function (config) {
-            if (config && isPublicEndpointUrl(config.url)) {
+            if (config && !isAuthenticatedEndpointUrl(config.url) && isPublicEndpointUrl(config.url)) {
                 stripAuthorizationHeader(config.headers);
             }
 
@@ -156,6 +177,16 @@
         };
     }
 
+    function getRequiredAuthAxiosConfig(endpointName) {
+        const config = getAxiosConfig();
+
+        if (!config.headers.Authorization) {
+            throw new Error((endpointName || "This API") + " requires a bearer token.");
+        }
+
+        return config;
+    }
+
     function getPublicRequestConfig() {
         return {
             headers: buildHeaders(),
@@ -187,16 +218,22 @@
     }
 
     function unwrapUserToken(data) {
-        return data && data.result ? data.result : data;
+        return data && (data.result || data.Result) ? (data.result || data.Result) : data;
+    }
+
+    function getTokenValue(user) {
+        return user && (user.authToken || user.AuthToken);
     }
 
     function storeAuthenticatedUser(data) {
         const user = unwrapUserToken(data);
+        const authToken = getTokenValue(user);
 
-        if (!user || !user.authToken) {
+        if (!user || !authToken) {
             throw new Error("Authentication response did not contain an auth token.");
         }
 
+        user.authToken = authToken;
         localStorage.setItem("user", JSON.stringify(user));
         window.dispatchEvent(new CustomEvent("littera:authentication-updated"));
         return user;
@@ -204,12 +241,18 @@
 
     function getAccessToken() {
         const storedUser = getStoredUser();
-        return storedUser && (storedUser.authToken || (storedUser.user && storedUser.user.authToken) || (storedUser.result && storedUser.result.authToken)) || "";
+        return storedUser && (
+            storedUser.authToken ||
+            storedUser.AuthToken ||
+            (storedUser.user && (storedUser.user.authToken || storedUser.user.AuthToken)) ||
+            (storedUser.result && (storedUser.result.authToken || storedUser.result.AuthToken)) ||
+            (storedUser.Result && (storedUser.Result.authToken || storedUser.Result.AuthToken))
+        ) || "";
     }
 
     function hasAuthToken(data) {
         const user = unwrapUserToken(data);
-        return !!(user && user.authToken);
+        return !!getTokenValue(user);
     }
 
     const ContentLoginApi = {
@@ -228,6 +271,9 @@
             if (Array.isArray(settings.publicEndpoints)) {
                 apiConfig.publicEndpoints = settings.publicEndpoints;
             }
+            if (settings.userInfoEndpoint !== undefined) {
+                apiConfig.userInfoEndpoint = settings.userInfoEndpoint || "/UserInfo";
+            }
         },
 
         loadConfig: function (configPath) {
@@ -239,8 +285,8 @@
 
         getUserInfo: function (mobileNumber) {
             return axios.get(
-                buildUrl("/Authentication/api/UserInfo", { username: "91-" + mobileNumber }),
-                getAxiosConfig()
+                buildUrl(apiConfig.userInfoEndpoint || "/UserInfo", { username: "91-" + mobileNumber }),
+                getRequiredAuthAxiosConfig("UserInfo")
             );
         },
 
@@ -331,19 +377,6 @@
             );
         },
 
-        generateActivityToken: function (trainingId, contentId, participantId, ttpaiId) {
-            return axios.get(
-                buildUrl("/GenerateActivityToken_wk", {
-                    trainingid: trainingId,
-                    ttsm_id: contentId,
-                    apipath: getApiPath(),
-                    userid: participantId,
-                    ttpai_id: ttpaiId
-                }),
-                getAxiosConfig()
-            );
-        },
-
         getReactAppConfiguration: function () {
             return publicGet("/GET_REACT_APP_CONFIGURATION_wk");
         },
@@ -359,7 +392,7 @@
             return axios.post(
                 buildUrl("/SAVE_USER_LOG", { userid: userId }),
                 {},
-                getAxiosConfig()
+                getRequiredAuthAxiosConfig("SAVE_USER_LOG")
             );
         },
 
