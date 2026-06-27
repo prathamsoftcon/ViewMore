@@ -215,6 +215,7 @@ function initializeOtpService() {
             otpSentMessage: otpSentMessage,
             otpInputs: otpInputs,
             messages: appMessages,
+            otpServiceConfig: appConfig && appConfig.otpService ? appConfig.otpService : {},
             onOtpSent: startResendOtpTimer,
             onOtpVerified: async function (response) {
                 try {
@@ -244,7 +245,8 @@ async function loadConfig() {
         ContentLoginApi.configure({
             apiPath: APIPath,
             publicApiPath: appConfig.api.publicApiPath || "/public-api",
-            publicApiKey: appConfig.api.publicApiKey || ""
+            publicApiKey: appConfig.api.publicApiKey || "",
+            publicEndpoints: appConfig.api.publicEndpoints || []
         });
 
         applyConfigToUi();
@@ -701,26 +703,15 @@ function Open_Activity(path){
 }
 
 function Get_React_path(path){
-    var baseurl = APIPath;
-    ContentLoginApi.getReactAppConfiguration()
-		.then(response => {
-			if (response.status==200) {
-			   react_base_path=response.data.REACT_APP_LOGOUT_PATH
-               
-			 } else {
-				alert('Failed to generate Certificate: ' + (response.data ? response.data.message : 'Unknown error'));
-			}
-		})
-		.catch(error => {
- 
-			if (error.response) {
-        
-			} else if (error.request) {
-			
-			} else {
-   
-				}
-			});
+    // This page already has the redirect base in html_config.json.
+    // Avoid the extra public-api call because GET_REACT_APP_CONFIGURATION
+    // is not reliably available in QA and causes a 401 on page load.
+    if (appConfig && appConfig.api && appConfig.api.baseUrl) {
+        react_base_path = appConfig.api.baseUrl;
+        return;
+    }
+
+    react_base_path = window.location.origin;
 }
 function check_and_update_first_login(id){
     var baseurl = APIPath;

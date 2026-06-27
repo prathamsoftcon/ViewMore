@@ -2,8 +2,27 @@
     const apiConfig = {
         apiPath: "",
         publicApiPath: "/public-api",
-        publicApiKey: ""
+        publicApiKey: "",
+        publicEndpoints: []
     };
+    const defaultPublicEndpoints = [
+        "/Agency",
+        "/Branches",
+        "/Finacial_year",
+        "/GenerateOTP",
+        "/GET_REACT_APP_CONFIGURATION_wk",
+        "/Get_Application_Setting",
+        "/GetClientData",
+        "/Login",
+        "/Login_Fail_Entry",
+        "/RegisterWithOtp",
+        "/Salutation",
+        "/Send_General_OTP",
+        "/Training_Details",
+        "/TRG_SPONSOR",
+        "/TrgSessions",
+        "/VerifyOTP"
+    ];
 
     function getApiPath() {
         return apiConfig.apiPath || window.APIPath || "";
@@ -15,6 +34,59 @@
 
     function getPublicApiKey() {
         return apiConfig.publicApiKey || window.PublicAPIKey || window.PUBLIC_API_KEY || "";
+    }
+
+    function normalizeEndpointPath(endpoint) {
+        const value = String(endpoint || "").split("?")[0].trim();
+        return value ? (value.charAt(0) === "/" ? value : "/" + value).toLowerCase() : "";
+    }
+
+    function getPublicEndpoints() {
+        return defaultPublicEndpoints.concat(apiConfig.publicEndpoints || [])
+            .map(normalizeEndpointPath)
+            .filter(Boolean);
+    }
+
+    function isPublicEndpointUrl(url) {
+        if (!url) {
+            return false;
+        }
+
+        const parsedUrl = new URL(url, window.location.origin);
+        const pathname = parsedUrl.pathname.toLowerCase();
+
+        return getPublicEndpoints().some(function (endpoint) {
+            return pathname === endpoint || pathname.endsWith(endpoint);
+        });
+    }
+
+    function stripAuthorizationHeader(headers) {
+        if (!headers) {
+            return;
+        }
+
+        if (typeof headers.delete === "function") {
+            headers.delete("Authorization");
+            headers.delete("authorization");
+        }
+
+        delete headers.Authorization;
+        delete headers.authorization;
+
+        if (headers.common) {
+            delete headers.common.Authorization;
+            delete headers.common.authorization;
+        }
+    }
+
+    if (window.axios && window.axios.interceptors && window.axios.interceptors.request) {
+        window.axios.interceptors.request.use(function (config) {
+            if (config && isPublicEndpointUrl(config.url)) {
+                stripAuthorizationHeader(config.headers);
+            }
+
+            return config;
+        });
     }
 
     function buildHeaders(extraHeaders, includeBearer, includePublicApiKey) {
@@ -56,7 +128,8 @@
     }
 
     async function fetchJson(url, options) {
-        const response = await fetch(url, options);
+        const requestOptions = Object.assign({ credentials: "include" }, options || {});
+        const response = await fetch(url, requestOptions);
         const data = await response.json().catch(function () {
             return null;
         });
@@ -152,6 +225,9 @@
             if (settings.publicApiKey !== undefined) {
                 apiConfig.publicApiKey = settings.publicApiKey;
             }
+            if (Array.isArray(settings.publicEndpoints)) {
+                apiConfig.publicEndpoints = settings.publicEndpoints;
+            }
         },
 
         loadConfig: function (configPath) {
@@ -163,7 +239,7 @@
 
         getUserInfo: function (mobileNumber) {
             return axios.get(
-                buildUrl("/Authentication/api/UserInfo_wk", { username: "91-" + mobileNumber }),
+                buildUrl("/Authentication/api/UserInfo", { username: "91-" + mobileNumber }),
                 getAxiosConfig()
             );
         },
@@ -177,7 +253,7 @@
         },
 
         getToken: function (loginData) {
-            return publicPost("/GetToken", loginData);
+            return publicPost("/Login", loginData);
         },
 
         sendGeneralOtp: function (params) {
@@ -257,7 +333,7 @@
 
         generateActivityToken: function (trainingId, contentId, participantId, ttpaiId) {
             return axios.get(
-                buildUrl("/GenerateActivityToken", {
+                buildUrl("/GenerateActivityToken_wk", {
                     trainingid: trainingId,
                     ttsm_id: contentId,
                     apipath: getApiPath(),
@@ -269,7 +345,7 @@
         },
 
         getReactAppConfiguration: function () {
-            return publicGet("/GET_REACT_APP_CONFIGURATION");
+            return publicGet("/GET_REACT_APP_CONFIGURATION_wk");
         },
 
         checkFirstLogin: function (participantId) {
@@ -379,6 +455,9 @@
         const settings = options || {};
         const otpLength = settings.otpLength || 6;
         const messages = settings.messages || {};
+        const otpServiceConfig = settings.otpServiceConfig || {};
+        const useTestOtp = otpServiceConfig.useTestOtp === true;
+        const defaultOtp = String(otpServiceConfig.defaultOtp || "565656");
 
         function getMessage(key, fallback) {
             return messages[key] || fallback;
@@ -445,6 +524,16 @@
             return otp.length === otpLength && /^\d+$/.test(otp);
         }
 
+        function buildTestOtpResponse(mobileNumber) {
+            return {
+                status: 200,
+                data: {
+                    isTestOtp: true,
+                    username: "91-" + mobileNumber
+                }
+            };
+        }
+
         return {
             requestOtp: function () {
                 const mobileNumber = getMobileNumber();
@@ -458,6 +547,12 @@
                         settings.mobileInput.focus();
                     }
                     return Promise.reject(new Error("Invalid mobile number"));
+                }
+
+                if (useTestOtp) {
+                    hideLoader();
+                    showOtpSection();
+                    return Promise.resolve(buildTestOtpResponse(mobileNumber));
                 }
 
                 return ContentLoginApi.generateOtp(mobileNumber)
@@ -498,12 +593,22 @@
                     return Promise.reject(new Error("Invalid OTP"));
                 }
 
-                return ContentLoginApi.getToken({
-                    emailid: "91-" + mobileNumber,
-                    mobile: "91-" + mobileNumber,
-                    otp: enteredOtp,
-                    countryCode: "91"
-                })
+                if (useTestOtp) {
+                    if (enteredOtp !== defaultOtp) {
+                        alert(getMessage("invalidOtp", "Invalid OTP,Please enter valid OTP"));
+                        return Promise.reject(new Error("Invalid test OTP"));
+                    }
+
+                    const response = buildTestOtpResponse(mobileNumber);
+
+                    if (typeof settings.onOtpVerified === "function") {
+                        settings.onOtpVerified(response);
+                    }
+
+                    return Promise.resolve(response);
+                }
+
+                return ContentLoginApi.verifyOtp("91-" + mobileNumber, enteredOtp)
                     .then(function (response) {
                         if (response.status === 200 && typeof settings.onOtpVerified === "function") {
                             settings.onOtpVerified(response);

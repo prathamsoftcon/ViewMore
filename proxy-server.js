@@ -24,12 +24,12 @@ function readConfig() {
     return JSON.parse(rawConfig);
 }
 
-function getTargetAppUrl() {
+function getTargetApiUrl() {
     const config = readConfig();
-    const target = config.api && config.api.baseUrl;
+    const target = config.api && config.api.apiPath;
 
     if (!target) {
-        throw new Error("html_config.json is missing api.baseUrl");
+        throw new Error("html_config.json is missing api.apiPath");
     }
 
     return new URL(target);
@@ -88,7 +88,7 @@ function proxyApi(req, res, proxyPrefix, rewriteAuthentication) {
     let targetApiUrl;
 
     try {
-        targetApiUrl = getTargetAppUrl();
+        targetApiUrl = getTargetApiUrl();
     } catch (error) {
         send(res, 500, error.message, { "Content-Type": "text/plain; charset=utf-8" });
         return;
@@ -162,7 +162,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, host, () => {
     console.log(`Local proxy server running at http://${host}:${port}/Content_Login.html`);
-    console.log("Forwarding /api and /public-api requests to html_config.json api.baseUrl");
+    console.log("Forwarding /api and /public-api requests to html_config.json api.apiPath");
 });
 
 server.on("error", (error) => {

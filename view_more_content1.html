@@ -287,7 +287,8 @@
                 ContentLoginApi.configure({
                     apiPath: APIPath,
                     publicApiPath: publicApiPath,
-                    publicApiKey: appConfig.api.publicApiKey || ''
+                    publicApiKey: appConfig.api.publicApiKey || '',
+                    publicEndpoints: appConfig.api.publicEndpoints || []
                 });
 
                 contentTypeVisibility = normalizeContentTypeVisibility(appConfig.contentTypeVisibility);

@@ -19,15 +19,37 @@
     "verifyButton": "Verify",
     "footer": "© 2025 All Rights Reserved by Madhya Pradesh Bhoj Open University."
   },
+  "otpService": {
+    "useTestOtp": true,
+    "defaultOtp": "565656"
+  },
     "api": {
         "baseUrl": "https://qaapp.littera.in",
         "apiPath": "https://qa.littera.in/litteracoreauth/api",
         "publicApiPath": "/public-api",
         "publicApiKey": "",
+        "publicEndpoints": [
+          "/Agency",
+          "/Branches",
+          "/Finacial_year",
+          "/GenerateOTP",
+          "/GET_REACT_APP_CONFIGURATION_wk",
+          "/Get_Application_Setting",
+          "/GetClientData",
+          "/Login",
+          "/Login_Fail_Entry",
+          "/RegisterWithOtp",
+          "/Salutation",
+          "/Send_General_OTP",
+          "/Training_Details",
+          "/TRG_SPONSOR",
+          "/TrgSessions",
+          "/VerifyOTP"
+        ],
         "apiPath1": "https://localhost:5859/api",
 
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
-    "userInfoEndpoint": "/Authentication/api/UserInfo_wk",
+    "userInfoEndpoint": "/Authentication/api/UserInfo",
     "participantsTrainingEndpoint": "/Participants_training",
     "verifyCertificateEndpoint": "/Verify_Certificate"
   },
