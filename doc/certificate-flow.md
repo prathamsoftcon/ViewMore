@@ -22,7 +22,7 @@ This document describes the end-to-end flow used in certificate.html.
 - Cache is valid only when all conditions are true:
 - Mobile number in cache matches entered number.
 - Cache has userid and agencyid.
-- Cache timestamp is not older than 15 days.
+- Cache timestamp is not older than `otpService.cacheValidDays` from `html_config.json`.
 
 When valid cache is found:
 - OTP generation and OTP verification are skipped.

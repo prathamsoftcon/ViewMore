@@ -21,7 +21,8 @@
   },
   "otpService": {
     "useTestOtp": false,
-    "defaultOtp": "565656"
+    "defaultOtp": "565656",
+    "cacheValidDays": 15
   },
     "api": {
         "baseUrl": "https://qaapp.littera.in",

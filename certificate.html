@@ -184,7 +184,7 @@
         var currentTrainingName = ''
         const APP_VERSION = '2026.06.02.1';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
-        const OTP_CACHE_VALID_DAYS = 15;
+        const DEFAULT_OTP_CACHE_VALID_DAYS = 15;
         const verificationModal = document.getElementById('verificationModal');
 		const sliderModal = document.getElementById('Captchamodal');
 		const alertModal = document.getElementById('dvalert');
@@ -278,20 +278,49 @@
             }
         }
 
+        function unwrapIdentityPayload(payload) {
+            return payload && (payload.result || payload.Result) ? (payload.result || payload.Result) : payload;
+        }
+
+        function getIdentityUserDetails(payload) {
+            const userPayload = unwrapIdentityPayload(payload);
+            return userPayload && (userPayload.userdetails || userPayload.userDetails || userPayload.UserDetails);
+        }
+
+        function getIdentityAgencyDetails(payload) {
+            const userPayload = unwrapIdentityPayload(payload);
+            return userPayload && (userPayload.agencydetail || userPayload.agencyDetail || userPayload.AgencyDetail);
+        }
+
+        function extractIdentityIds(payload) {
+            const userPayload = unwrapIdentityPayload(payload);
+            const userDetails = getIdentityUserDetails(payload);
+            const agencyDetails = getIdentityAgencyDetails(payload);
+
+            return {
+                userid: String(
+                    (userPayload && (userPayload.userid || userPayload.userId || userPayload.UserId))
+                    || (userDetails && (userDetails.userid || userDetails.userId || userDetails.UserId))
+                    || ''
+                ),
+                agencyid: String(
+                    (userPayload && (userPayload.agencyid || userPayload.agencyId || userPayload.AgencyId))
+                    || (agencyDetails && (agencyDetails.agencyid || agencyDetails.agencyId || agencyDetails.AgencyId))
+                    || (userDetails && (userDetails.agencyid || userDetails.agencyId || userDetails.AgencyId))
+                    || (userDetails && (userDetails.userid || userDetails.userId || userDetails.UserId))
+                    || ''
+                )
+            };
+        }
+
         function saveOtpCache(mobileNumber, apiResponse) {
             try {
-                const userPayload = apiResponse && apiResponse.result ? apiResponse.result : apiResponse;
-                const cachedUserid = userPayload && userPayload.userid
-                    ? userPayload.userid
-                    : (userPayload && userPayload.userdetails && userPayload.userdetails.userid) || '';
-                const cachedAgencyid = userPayload && userPayload.agencyid
-                    ? userPayload.agencyid
-                    : (userPayload && userPayload.agencydetail && userPayload.agencydetail.agencyid) || '';
+                const ids = extractIdentityIds(apiResponse);
 
                 const payload = {
                     mobileNumber: mobileNumber,
-                    userid: String(cachedUserid || ''),
-                    agencyid: String(cachedAgencyid || ''),
+                    userid: ids.userid,
+                    agencyid: ids.agencyid,
                     response: apiResponse,
                     savedAt: new Date().toISOString()
                 };
@@ -299,6 +328,13 @@
             } catch (error) {
                 console.error('Unable to save OTP cache:', error);
             }
+        }
+
+        function getOtpCacheValidDays() {
+            const configuredDays = Number(appConfig && appConfig.otpService && appConfig.otpService.cacheValidDays);
+            return Number.isFinite(configuredDays) && configuredDays > 0
+                ? configuredDays
+                : DEFAULT_OTP_CACHE_VALID_DAYS;
         }
 
         function getOtpCacheForMobile(mobileNumber) {
@@ -320,15 +356,23 @@
                 }
 
                 const ageInMs = Date.now() - savedDate.getTime();
-                const maxAgeInMs = OTP_CACHE_VALID_DAYS * 24 * 60 * 60 * 1000;
+                const maxAgeInMs = getOtpCacheValidDays() * 24 * 60 * 60 * 1000;
                 if (ageInMs > maxAgeInMs) {
                     localStorage.removeItem(OTP_CACHE_KEY);
                     return null;
                 }
 
                 if (!cache.userid || !cache.agencyid) {
-                    localStorage.removeItem(OTP_CACHE_KEY);
-                    return null;
+                    const ids = extractIdentityIds(cache.response || cache.payload);
+                    cache.userid = cache.userid || ids.userid;
+                    cache.agencyid = cache.agencyid || ids.agencyid;
+
+                    if (cache.userid && cache.agencyid) {
+                        localStorage.setItem(OTP_CACHE_KEY, JSON.stringify(cache));
+                    } else {
+                        localStorage.removeItem(OTP_CACHE_KEY);
+                        return null;
+                    }
                 }
 
                 return cache;
@@ -340,20 +384,11 @@
         }
 
         function applyIdentityPayload(payload) {
-            const userPayload = payload && (payload.result || payload.Result) ? (payload.result || payload.Result) : payload;
-            const userDetails = userPayload && (userPayload.userdetails || userPayload.userDetails || userPayload.UserDetails);
-            const agencyDetails = userPayload && (userPayload.agencydetail || userPayload.agencyDetail || userPayload.AgencyDetail);
+            const userPayload = unwrapIdentityPayload(payload);
+            const ids = extractIdentityIds(payload);
             if (userPayload) {
-                userid = String(
-                    userDetails && (userDetails.userid || userDetails.userId || userDetails.UserId)
-                        ? (userDetails.userid || userDetails.userId || userDetails.UserId)
-                        : userid
-                );
-                agencyid = String(
-                    agencyDetails && (agencyDetails.agencyid || agencyDetails.agencyId || agencyDetails.AgencyId)
-                        ? (agencyDetails.agencyid || agencyDetails.agencyId || agencyDetails.AgencyId)
-                        : agencyid
-                );
+                userid = ids.userid || userid;
+                agencyid = ids.agencyid || agencyid;
 
                 if (userPayload.authToken || userPayload.AuthToken) {
                     try {
@@ -365,6 +400,65 @@
             }
 
             return !!(userid && agencyid);
+        }
+
+        function restoreAuthenticatedUserFromCache(cache) {
+            if (!cache) {
+                return false;
+            }
+
+            if (ContentLoginApi.getAccessToken()) {
+                return true;
+            }
+
+            const cachedPayload = cache.response || cache.payload;
+            if (cachedPayload && ContentLoginApi.hasAuthToken(cachedPayload)) {
+                try {
+                    ContentLoginApi.storeAuthenticatedUser(cachedPayload);
+                    return true;
+                } catch (error) {
+                    console.warn('Unable to restore authenticated user from cache:', error);
+                }
+            }
+
+            return !!ContentLoginApi.getAccessToken();
+        }
+
+        function findReusableOtpCache() {
+            try {
+                const raw = localStorage.getItem(OTP_CACHE_KEY);
+                if (!raw) {
+                    return null;
+                }
+
+                const cache = JSON.parse(raw);
+                if (!cache || !cache.mobileNumber) {
+                    return null;
+                }
+
+                return getOtpCacheForMobile(cache.mobileNumber);
+            } catch (error) {
+                console.error('Unable to read reusable OTP cache:', error);
+                localStorage.removeItem(OTP_CACHE_KEY);
+                return null;
+            }
+        }
+
+        function tryUseCachedLogin() {
+            const cachedData = findReusableOtpCache();
+            if (!cachedData) {
+                return false;
+            }
+
+            userid = cachedData.userid;
+            agencyid = cachedData.agencyid;
+            if (restoreAuthenticatedUserFromCache(cachedData)) {
+                console.log('Using cached certificate login for mobile number:', cachedData.mobileNumber);
+                Get_trainings(agencyid);
+                return true;
+            }
+
+            return false;
         }
 
         async function bootstrapIdentityFromMobile(mobileNumber, authPayload) {
@@ -442,16 +536,7 @@
                 userid = cachedData.userid;
                 agencyid = cachedData.agencyid;
                 console.log('Using cached OTP response for mobile number:', mobileNumber);
-                if (cachedData.response && ContentLoginApi.hasAuthToken(cachedData.response)) {
-                    try {
-                        ContentLoginApi.storeAuthenticatedUser(cachedData.response);
-                    } catch (error) {
-                        console.warn('Unable to restore authenticated user from cache:', error);
-                    }
-                } else if (cachedData.response) {
-                    console.warn('Cached OTP response does not include an auth token. Skipping cached user restore.');
-                    localStorage.removeItem(OTP_CACHE_KEY);
-                }
+                restoreAuthenticatedUserFromCache(cachedData);
                 bootstrapIdentityFromMobile(mobileNumber)
                     .then(function () {
                         Get_trainings(agencyid);
@@ -972,6 +1057,9 @@ var ttpai_id=urlparams2.get('userid');
 
 
 function DirectVerify_And_Print(){
+if (tryUseCachedLogin()) {
+return Promise.resolve();
+}
 openModal();
 return Promise.resolve();
 
