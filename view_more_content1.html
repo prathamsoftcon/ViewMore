@@ -368,7 +368,7 @@
 
         function getOtpCacheValidDays() {
             const configuredDays = Number(appConfig && appConfig.otpService && appConfig.otpService.cacheValidDays);
-            return Number.isFinite(configuredDays) && configuredDays > 0
+            return Number.isFinite(configuredDays) && configuredDays >= 0
                 ? configuredDays
                 : DEFAULT_OTP_CACHE_VALID_DAYS;
         }
@@ -423,6 +423,11 @@
         }
 
         function isOtpCacheValid(cache, mobileNumber) {
+            if (getOtpCacheValidDays() === 0) {
+                localStorage.removeItem(OTP_CACHE_KEY);
+                return false;
+            }
+
             if (!cache || !cache.mobileNumber || !cache.savedAt) {
                 return false;
             }
@@ -457,6 +462,11 @@
         }
 
         function persistOtpCache(mobileNumber, cacheUserid, cacheAgencyid, payload) {
+            if (getOtpCacheValidDays() === 0) {
+                localStorage.removeItem(OTP_CACHE_KEY);
+                return;
+            }
+
             const ids = extractIdentityIds(payload);
             const cache = {
                 mobileNumber: String(mobileNumber),
@@ -511,6 +521,11 @@
         }
 
         function findReusableOtpCache() {
+            if (getOtpCacheValidDays() === 0) {
+                localStorage.removeItem(OTP_CACHE_KEY);
+                return null;
+            }
+
             const cached = getOtpCache();
             if (!cached || !cached.mobileNumber) {
                 return null;

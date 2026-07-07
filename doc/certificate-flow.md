@@ -23,6 +23,7 @@ This document describes the end-to-end flow used in certificate.html.
 - Mobile number in cache matches entered number.
 - Cache has userid and agencyid.
 - Cache timestamp is not older than `otpService.cacheValidDays` from `html_config.json`.
+- If `otpService.cacheValidDays` is `0`, cache reuse is disabled and OTP is required every time.
 
 When valid cache is found:
 - OTP generation and OTP verification are skipped.
