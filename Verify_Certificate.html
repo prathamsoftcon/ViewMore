@@ -180,7 +180,55 @@
             }
         }
 
-        function Verify_Certificate() {
+        function buildUrlWithParams(basePath, endpoint, params) {
+            const query = new URLSearchParams();
+
+            Object.keys(params || {}).forEach(key => {
+                const value = params[key];
+                if (value !== undefined && value !== null && String(value).trim() !== '') {
+                    query.set(key, value);
+                }
+            });
+
+            return String(basePath || '') + String(endpoint || '') + (query.toString() ? ('?' + query.toString()) : '');
+        }
+
+        async function resolveTrainingIdByCode(trainingCode) {
+            const APIPath = appConfig.api.apiPath;
+            const publicApiPath = appConfig.api.publicApiPath || '/public-api';
+            const trainingDetailsEndpoint = appConfig.api.trainingDetailsByCodeEndpoint || '/Training_Details_by_Code';
+            const requestCandidates = [
+                buildUrlWithParams(publicApiPath, trainingDetailsEndpoint, { trainingcode: trainingCode }),
+                buildUrlWithParams(APIPath, trainingDetailsEndpoint, { trainingcode: trainingCode }),
+                buildUrlWithParams(publicApiPath, '/Training_Details', { trainingcode: trainingCode }),
+                buildUrlWithParams(publicApiPath, '/Training_Details', { trainingid: trainingCode })
+            ];
+
+            let lastError = null;
+
+            for (const url of requestCandidates) {
+                try {
+                    const trainingResponse = await axios.get(url, {
+                        headers: ContentLoginApi.getPublicHeaders()
+                    });
+
+                    if (trainingResponse.status !== 200) {
+                        continue;
+                    }
+
+                    const trainingid = getTrainingIdFromTrainingDetails(trainingResponse.data);
+                    if (trainingid) {
+                        return trainingid;
+                    }
+                } catch (error) {
+                    lastError = error;
+                }
+            }
+
+            throw lastError || new Error((appConfig.messages && appConfig.messages.invalidTrainingCode) || 'Invalid training code.');
+        }
+
+        async function Verify_Certificate() {
             if (!appConfig) {
                 alert('Configuration is not loaded.');
                 return;
@@ -188,9 +236,7 @@
 
             const trainingCode = document.getElementById('trainingCode').value.trim();
             const usercode = document.getElementById('enrollmentNo').value.trim();
-            const APIPath = appConfig.api.apiPath;
             const publicApiPath = appConfig.api.publicApiPath || '/public-api';
-            const trainingDetailsEndpoint = appConfig.api.trainingDetailsByCodeEndpoint || '/Training_Details_by_Code';
 
             if (!trainingCode) {
                 alert((appConfig.messages && appConfig.messages.invalidTrainingCode) || 'Please enter training code.');
@@ -202,28 +248,13 @@
                 return;
             }
 
-            const trainingDetailsUrl = publicApiPath + trainingDetailsEndpoint + '?trainingcode=' + encodeURIComponent(trainingCode);
-
-            axios.get(trainingDetailsUrl, {
-                headers: ContentLoginApi.getPublicHeaders()
-            })
-            .then(trainingResponse => {
-                if (trainingResponse.status !== 200) {
-                    throw new Error((appConfig.messages && appConfig.messages.invalidTrainingCode) || 'Invalid training code.');
-                }
-
-                const trainingid = getTrainingIdFromTrainingDetails(trainingResponse.data);
-                if (!trainingid) {
-                    throw new Error((appConfig.messages && appConfig.messages.invalidTrainingCode) || 'Invalid training code.');
-                }
-
+            try {
+                const trainingid = await resolveTrainingIdByCode(trainingCode);
                 const verifyApiUrl = publicApiPath + appConfig.api.verifyCertificateEndpoint + '?usercode=' + encodeURIComponent(usercode) + '&trainingid=' + encodeURIComponent(trainingid);
-
-                return axios.get(verifyApiUrl, {
+                const response = await axios.get(verifyApiUrl, {
                     headers: ContentLoginApi.getPublicHeaders()
                 });
-            })
-            .then(response => {
+
                 if (response.status === 200) {
                     if (response.data !== '') {
                         alert(appConfig.messages.validCertificatePrefix + response.data);
@@ -233,8 +264,7 @@
                 } else {
                     alert(appConfig.messages.verifyFailed);
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 if (error && error.message && !error.response && !error.request) {
                     alert(error.message);
                     return;
@@ -247,7 +277,7 @@
                 } else {
                     alert(appConfig.messages.unexpectedError);
                 }
-            });
+            }
         }
 
         loadConfig();

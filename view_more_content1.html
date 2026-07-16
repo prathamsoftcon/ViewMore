@@ -109,6 +109,7 @@
 		var userid=""
 		var agencyid=""
         var currentTrainingId = ''
+        var currentTtpaiId = ''
         const APP_VERSION = "2026.06.02.1";
         const CONFIG_JSON = './html_config.json';
         const OTP_CACHE_KEY = 'certificate_otp_cache';
@@ -999,7 +1000,7 @@
                     button.textContent = item.type || 'View';
                     button.addEventListener('click', function (event) {
                         event.preventDefault();
-                        Open_Video_Link(lnk);
+                        Open_Video_Link(lnk, getContentAuditEventName(item), getContentAuditRecordId(item), getContentTrackingId(item));
                     });
                     actions.appendChild(button);
                 });
@@ -1076,6 +1077,113 @@
         }
 
         var DIRECT_LINK_PREFIX = '__direct__::';
+
+        function getContentAuditEventName(item) {
+            const itemType = String((item && item.type) || '').trim().toLowerCase();
+
+            if (itemType === 'pdf') {
+                return 'Open PDF Content';
+            }
+            if (itemType === 'ppt') {
+                return 'Open PPT Content';
+            }
+            if (itemType === 'video') {
+                return 'Open Video Content';
+            }
+            if (itemType === 'activity') {
+                return 'Open Activity Content';
+            }
+
+            return 'Open Content';
+        }
+
+        function getContentAuditRecordId(item) {
+            return String((item && item.ttsam_id) || (item && item.content_path) || currentTrainingId || '');
+        }
+
+        function getContentTrackingId(item) {
+            return String((item && item.ttsam_id) || '').trim();
+        }
+
+        function createTrackingGuid() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+            }
+
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        }
+
+        function getTrackingCurrentDateTime() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const MM = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+
+            return yyyy + '-' + MM + '-' + dd + ' ' + hh + ':' + mm + ':' + ss;
+        }
+
+        function saveViewMoreRedirectAudit(eventName, recordId) {
+            const auditTrailData = {
+                tyat_userid: userid || agencyid || '',
+                tyat_page_name: 'View More Content',
+                tyat_event_name: eventName,
+                tyat_recordid: String(recordId || '')
+            };
+
+            return ContentLoginApi.saveAuditTrail(auditTrailData)
+                .catch(error => {
+                    console.error('There was a problem saving the audit trail:', error);
+                });
+        }
+
+        function saveViewMoreLearningTime(contentId) {
+            const normalizedContentId = String(contentId || '').trim();
+            const normalizedTtpaiId = String(currentTtpaiId || '').trim();
+            const normalizedAgencyId = String(agencyid || '').trim();
+
+            if (!normalizedContentId || !normalizedTtpaiId || !normalizedAgencyId) {
+                return Promise.resolve();
+            }
+
+            const learningData = {
+                tplt_Id: createTrackingGuid(),
+                tplt_ttsam_id: normalizedContentId,
+                tplt_ttpai_id: normalizedTtpaiId,
+                tplt_learning_time: 0,
+                tplt_createdon: getTrackingCurrentDateTime(),
+                tplt_createdby: normalizedAgencyId
+            };
+
+            return ContentLoginApi.saveLearningTime(learningData)
+                .catch(error => {
+                    console.error('There was a problem saving learning time:', error);
+                });
+        }
+
+        function openWindowWithAudit(targetUrl, eventName, recordId, contentId) {
+            const redirectDelayMs = 1200;
+            const openedWindow = window.open('about:blank', '_blank');
+            const auditPromise = Promise.allSettled([
+                saveViewMoreRedirectAudit(eventName, recordId),
+                saveViewMoreLearningTime(contentId)
+            ]);
+            const timeoutPromise = new Promise(resolve => setTimeout(resolve, redirectDelayMs));
+
+            Promise.race([auditPromise, timeoutPromise])
+                .finally(function () {
+                    if (openedWindow && !openedWindow.closed) {
+                        openedWindow.location.replace(targetUrl);
+                        return;
+                    }
+
+                    window.open(targetUrl, '_blank');
+                });
+        }
 
         function buildContentLink(item) {
             const sourcePath = String(item.content_path || item.globalWysiwagText || item.global_wysiwag_text || item.ttsad_file_path || item.file_path || item.filepath || '').trim();
@@ -1267,8 +1375,8 @@
 	
 const auditTrailData = {
     "tyat_userid": userid, // You'll likely want to replace "string" with a dynamic user ID
-    "tyat_page_name": "Change Password",
-    "tyat_event_name": "Onload Change Password",
+    "tyat_page_name": "View More Content",
+    "tyat_event_name": "Mobile Verified",
     "tyat_recordid": "" // This might be an empty string or null, depending on your API's expectation
 };
 
@@ -1319,10 +1427,16 @@ const auditTrailData = {
 </html>
 <script>
 var HF_Redirect_Link='';
-function Open_Video_Link(lnk){
+var HF_Redirect_Event_Name='';
+var HF_Redirect_Record_Id='';
+var HF_Redirect_Content_Id='';
+function Open_Video_Link(lnk, eventName, recordId, contentId){
 sliderModal.classList.add('show');
 
 HF_Redirect_Link=lnk
+HF_Redirect_Event_Name=eventName || 'Open Content'
+HF_Redirect_Record_Id=recordId || ''
+HF_Redirect_Content_Id=contentId || ''
 
 }
 
@@ -1333,7 +1447,7 @@ lnk=HF_Redirect_Link || '';
 if (lnk.indexOf(DIRECT_LINK_PREFIX) === 0) {
 const directLink = lnk.substring(DIRECT_LINK_PREFIX.length).trim();
 if (directLink) {
-window.open(directLink, '_blank');
+openWindowWithAudit(directLink, HF_Redirect_Event_Name || 'Open Direct Content', HF_Redirect_Record_Id || directLink, HF_Redirect_Content_Id);
 resetSlider();
 return;
 }
@@ -1347,7 +1461,7 @@ if (currentTrainingId) {
 queryParams.set('trainingid', currentTrainingId);
 }
 var lnkf=base+"/"+lnk+'/'+agencyid+"?"+queryParams.toString()
-window.open(lnkf)
+openWindowWithAudit(lnkf, HF_Redirect_Event_Name || 'Open Content', HF_Redirect_Record_Id || currentTrainingId, HF_Redirect_Content_Id)
 resetSlider()
 }
 
@@ -1355,6 +1469,7 @@ function CHECK_MOBILE_ON_LOAD(){
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 currentTrainingId = urlParams.get('trainingid') || '';
+currentTtpaiId = urlParams.get('ttpai_id') || urlParams.get('ttpai') || '';
 agencyid=urlParams.get('userid');
 if(agencyid){
 if (!ContentLoginApi.getAccessToken()) {

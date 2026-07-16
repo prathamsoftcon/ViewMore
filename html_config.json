@@ -52,7 +52,7 @@
     "trainingDetailsByCodeEndpoint": "/Training_Details_by_Code",
     "userInfoEndpoint": "/UserInfo",
     "participantsTrainingEndpoint": "/Participants_training",
-    "verifyCertificateEndpoint": "/Verify_Certificate"
+    "verifyCertificateEndpoint": "/Verify_Certificate_wk"
   },
   "messages": {
     "invalidMobile": "Please enter valid 10-digit mobile number.",

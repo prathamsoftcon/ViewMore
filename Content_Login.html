@@ -236,7 +236,7 @@ function initializeOtpService() {
                 saveOtpCache(useridInput.value, response.data);
                 ContentLoginStorage.setWithExpiry("agencyid", agencyid, getOtpCacheValidDays());
                 localStorage.setItem("participant_userid", agencyid);
-                Get_trainings(agencyid);
+                Get_trainings(agencyid, true);
                 check_and_update_first_login(agencyid);
             }
         });
@@ -270,7 +270,7 @@ async function loadConfig() {
 async function initializePage() {
     await loadConfig();
     Check_Is_Page_Expiry();
-    tryUseCachedLogin();
+    populateCachedMobileNumber();
 }
 
 function unwrapIdentityPayload(payload) {
@@ -445,7 +445,18 @@ function tryUseCachedLogin() {
     localStorage.setItem("participant_userid", agencyid);
     ContentLoginStorage.setWithExpiry("agencyid", agencyid, getOtpCacheValidDays());
     console.log("Using cached content login for mobile number:", cachedData.mobileNumber);
-    Get_trainings(agencyid);
+    Get_trainings(agencyid, false);
+    return true;
+}
+
+function populateCachedMobileNumber() {
+    const cachedData = findReusableOtpCache();
+    if (!cachedData || !useridInput) {
+        return false;
+    }
+
+    useridInput.value = cachedData.mobileNumber;
+    console.log("Prefilled cached mobile number:", cachedData.mobileNumber);
     return true;
 }
 
@@ -493,7 +504,7 @@ async function bootstrapIdentityFromMobile(mobileNumber, authPayload) {
           localStorage.setItem("participant_userid", agencyid);
           ContentLoginStorage.setWithExpiry("agencyid", agencyid, getOtpCacheValidDays());
           console.log("Using cached OTP response for mobile number:", mobileNumber);
-          Get_trainings(agencyid);
+          Get_trainings(agencyid, true);
           return;
       }
       otpService.requestOtp().catch(function () {});
@@ -516,7 +527,50 @@ function verifyOtp() {
 
 
 
-function Get_trainings(agencyid) {
+function showTrainingSelectionModal() {
+    document.getElementById('dvtraining').classList.add('show');
+    document.getElementById('verificationModal').classList.remove('show');
+}
+
+function closeInvalidTrainingPage() {
+    try {
+        window.close();
+    } catch (error) {
+        console.warn("Unable to close window directly:", error);
+    }
+
+    setTimeout(function () {
+        if (window.history.length > 1) {
+            window.history.back();
+            return;
+        }
+
+        window.location.replace("about:blank");
+    }, 0);
+}
+
+function handleInvalidTrainingSelection() {
+    alert('You are not register in this training please contact to admin.');
+    document.getElementById("loaderWrapper").style.display = "none";
+    closeInvalidTrainingPage();
+    return false;
+}
+
+function isTrainingAvailableInDropdown(trainingValue) {
+    if (!trainingValue) {
+        return false;
+    }
+
+    const ddl = document.getElementById("ddltraining");
+    if (!ddl) {
+        return false;
+    }
+
+    const normalizedTrainingValue = String(trainingValue).toUpperCase();
+    return [...ddl.options].some(option => String(option.value).toUpperCase() === normalizedTrainingValue);
+}
+
+function Get_trainings(agencyid, showInvalidTrainingAlert) {
     ContentLoginApi.getParticipantTrainings(agencyid)
     .then(data => {
         console.log("API data:", data);
@@ -555,7 +609,7 @@ function Get_trainings(agencyid) {
         });
 
      if (is_otp_required === false) {
-         Open_Training_Div();
+         Open_Training_Div(showInvalidTrainingAlert === true);
          return;
      }
 
@@ -564,13 +618,10 @@ function Get_trainings(agencyid) {
       const trgid = params.get("trainingid");
       if(trgid !=null)
         {
-             let valueToFind = trgid; 
-             let ddl = document.getElementById("ddltraining");
-             let exists = [...ddl.options].some(option => option.value.toUpperCase() === valueToFind.toUpperCase()); 
-             if (!exists) { 
-                alert('You are not register in this training please contact to admin.')
-                document.getElementById("loaderWrapper").style.display = "none";
-                event.preventDefault();
+             let exists = isTrainingAvailableInDropdown(trgid);
+             if (!exists && showInvalidTrainingAlert === true) { 
+                handleInvalidTrainingSelection();
+                return;
              }
         }
 
@@ -578,7 +629,7 @@ function Get_trainings(agencyid) {
      var local_key=Check_Local_Storage("agencyid")
         if(local_key !=null){
         if(local_key==agencyid){
-           Open_Training_Div()
+           Open_Training_Div(showInvalidTrainingAlert === true)
      
             }
         else{
@@ -602,20 +653,22 @@ function Get_trainings(agencyid) {
 	
 }
 
-function Open_Training_Div(){
+function Open_Training_Div(showInvalidTrainingAlert){
   document.getElementById('verificationModal').classList.remove('show');   
 const params = new URLSearchParams(window.location.search);
 const trgid = params.get("trainingid");
 if(trgid !=null){
    //Check first user exist in given training
-   let valueToFind = trgid; 
-   let ddl = document.getElementById("ddltraining");
-   let exists = [...ddl.options].some(option => option.value.toUpperCase() === valueToFind.toUpperCase()); 
+   let exists = isTrainingAvailableInDropdown(trgid);
    if (exists) { 
     updateSelectedTrainingMeta(trgid);
     Get_TTPAI_Details()
    } else { 
-    alert('You are not register in this training please contact to admin.')
+    if (showInvalidTrainingAlert === true) {
+        handleInvalidTrainingSelection();
+        return;
+    }
+    showTrainingSelectionModal();
     }
 
 
@@ -624,8 +677,7 @@ if(trgid !=null){
     
 }
 else{
-      document.getElementById('dvtraining').classList.add('show');
-	  document.getElementById('verificationModal').classList.remove('show');
+      showTrainingSelectionModal();
 }
 
 }
@@ -637,7 +689,7 @@ function After_Trg_Selection(){
     trainingid=trgid;
     Get_TTPAI_Details()
    } else { 
-    alert('You are not register in this training please contact to admin.')
+    handleInvalidTrainingSelection();
     }
 
 }
@@ -692,7 +744,7 @@ function Get_TTPAI_Details(){
 			});
 
 }
-     function Open_Page() {
+function Open_Page() {
 
      if (react_base_path.charAt(react_base_path.length - 1) == "/") {
              react_base_path = react_base_path.substr(0, react_base_path.length - 1)
@@ -745,20 +797,36 @@ function Get_TTPAI_Details(){
          else if (login_for == "5") { //Test
              var testid = params.get("testid");
              if (testid != null) {
-                 window.location.href = react_base_path + "/starttest?trainingid=" + trainingid +"&agencyId=" + agencyid + "&userId=" + userid + "&testType=1&testid=" + testid
+                 navigateWithAudit(
+                     react_base_path + "/starttest?trainingid=" + trainingid +"&agencyId=" + agencyid + "&userId=" + userid + "&testType=1&testid=" + testid,
+                     "Open Test",
+                     testid
+                 );
              }
              else {
-                 window.location.href = react_base_path + "/starttest?trainingid=" + trainingid +"&agencyId=" + agencyid + "&userId=" + userid + "&testType=1"
+                 navigateWithAudit(
+                     react_base_path + "/starttest?trainingid=" + trainingid +"&agencyId=" + agencyid + "&userId=" + userid + "&testType=1",
+                     "Open Test",
+                     trainingid
+                 );
              }
 
          }
          else if (login_for == "6") { //Self Test
              var testsessionid = params.get("sessionid");
-             window.location.href = react_base_path + "/starttest?trainingid=" + trainingid + "&agencyId=" + agencyid + "&userId=" + userid + "&testType=3&sessionid=" + testsessionid +""
+             navigateWithAudit(
+                 react_base_path + "/starttest?trainingid=" + trainingid + "&agencyId=" + agencyid + "&userId=" + userid + "&testType=3&sessionid=" + testsessionid +"",
+                 "Open Self Test",
+                 testsessionid
+             );
          }
          else if (login_for == "7") { //Assignment
              var assignmentid = params.get("assignmentid");
-             window.location.href = react_base_path + "/assignmentdetails/" + assignmentid + "/" + agencyid + ""
+             navigateWithAudit(
+                 react_base_path + "/assignmentdetails/" + assignmentid + "/" + agencyid + "",
+                 "Open Assignment",
+                 assignmentid
+             );
          }
          else {
              Open_page_For_Type(login_for)
@@ -766,6 +834,32 @@ function Get_TTPAI_Details(){
 
 
 }
+
+function saveContentRedirectAudit(eventName, recordId) {
+    const eventData = {
+        tyat_userid: userid || agencyid || '',
+        tyat_page_name: 'Content Login',
+        tyat_event_name: eventName,
+        tyat_recordid: String(recordId || trainingid || '')
+    };
+
+    return ContentLoginApi.saveAuditTrail(eventData)
+        .catch(error => {
+            console.error('Audit trail save failed:', error);
+        });
+}
+
+function navigateWithAudit(targetUrl, eventName, recordId) {
+    const redirectDelayMs = 1200;
+    const auditPromise = saveContentRedirectAudit(eventName, recordId);
+    const timeoutPromise = new Promise(resolve => setTimeout(resolve, redirectDelayMs));
+
+    Promise.race([auditPromise, timeoutPromise])
+        .finally(function () {
+            window.location.href = targetUrl;
+        });
+}
+
 function Open_page_For_Type(type){
     const viewMoreParams = new URLSearchParams();
     viewMoreParams.set('userid', agencyid);
@@ -783,16 +877,16 @@ function Open_page_For_Type(type){
     const viewMoreUrl = "view_more_content1.html?" + viewMoreParams.toString();
     const versionQuery = "v=" + encodeURIComponent(APP_VERSION);
     if(type=="1"){
-    window.location.href=viewMoreUrl
+    navigateWithAudit(viewMoreUrl, "Open View More", trainingid)
     }
     else if(type=="2"){
-    window.location.href="certificate.html?ttpai_id="+ttpai_id+"&"+versionQuery
+    navigateWithAudit("certificate.html?ttpai_id="+ttpai_id+"&"+versionQuery, "Open Certificate", ttpai_id)
     }
     else if(type=="3"){
-    window.location.href=viewMoreUrl
+    navigateWithAudit(viewMoreUrl, "Open View More", trainingid)
     }
     else {
-    window.location.href=viewMoreUrl
+    navigateWithAudit(viewMoreUrl, "Open View More", trainingid)
     }
 
 }
@@ -827,7 +921,7 @@ function Open_Particular_Content(cd){
     react_base_path=react_base_path.substr(0,react_base_path.length - 1)
  }   
 if(cd.sessionAttachmentType=="4"){  //Open Video
-    window.location.href=react_base_path+"/videolearning/"+cd.ttsam_id+"/"+agencyid
+    navigateWithAudit(react_base_path+"/videolearning/"+cd.ttsam_id+"/"+agencyid, "Open Video Content", cd.ttsam_id)
 }
 else if(cd.sessionAttachmentType=="9"){
   var extension=getFileType(cd.globalWysiwagText);
@@ -837,14 +931,14 @@ else if(cd.sessionAttachmentType=="9"){
   }
   else if(extension=="pdf"){
     //Open pdf
-      window.location.href=react_base_path+"/litteraroompdf/"+cd.ttsam_id+"/"+agencyid
+      navigateWithAudit(react_base_path+"/litteraroompdf/"+cd.ttsam_id+"/"+agencyid, "Open PDF Content", cd.ttsam_id)
   }
   else if(extension=="video"){
   //Open pdf
-    window.location.href=react_base_path+"/videolearning/"+cd.ttsam_id+"/"+agencyid
+    navigateWithAudit(react_base_path+"/videolearning/"+cd.ttsam_id+"/"+agencyid, "Open Video Content", cd.ttsam_id)
   }
   else if(extension=="ppt"){
-   window.location.href=react_base_path+"/litteraroomppt/"+cd.ttsam_id+"/"+agencyid
+   navigateWithAudit(react_base_path+"/litteraroomppt/"+cd.ttsam_id+"/"+agencyid, "Open PPT Content", cd.ttsam_id)
   }
   
 
@@ -883,7 +977,7 @@ function Open_Activity(path){
 
     activityUrl.searchParams.set("baseurl", baseurl);
     save_activity_completion(trainingid, sessionid, contentid, branchid);
-    window.location.href = activityUrl.toString();
+    navigateWithAudit(activityUrl.toString(), "Open Activity Content", contentid || trainingid);
 }
 
 function Get_React_path(path){
